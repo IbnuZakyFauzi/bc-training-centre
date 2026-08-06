@@ -1,0 +1,9 @@
+<?php
+
+use Illuminate\Support\Facades\Facade;
+
+return [
+
+    'App\Http\Controllers\Auth\AuthenticatedSessionController' => App\Http\Controllers\Auth\AuthenticatedSessionController::class,
+
+];
