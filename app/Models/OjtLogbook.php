@@ -19,6 +19,7 @@ class OjtLogbook extends Model
         'department_id',
         'equipment_category_id',
         'equipment_id',
+        'equipment_number',
         'date',
         'shift',
         'location',
@@ -40,6 +41,9 @@ class OjtLogbook extends Model
         'training_centre_id',
         'training_centre_notes',
         'training_centre_decided_at',
+        'trainer_signature_path',
+        'pjo_signature_path',
+        'training_centre_signature_path',
     ];
 
     protected $casts = [
@@ -92,7 +96,17 @@ class OjtLogbook extends Model
 
     public function equipment(): BelongsTo
     {
-        return $this->belongsTo(Equipment::class);
+        return $this->belongsTo(Equipment::class)->withDefault([
+            'unit_code' => '-',
+        ]);
+    }
+
+    public function getUnitCodeAttribute()
+    {
+        return $this->equipment_number
+            ?? data_get($this->sop_payload, 'meta.equipment_number')
+            ?? $this->equipment->unit_code
+            ?? '-';
     }
 
     public function evidences(): HasMany

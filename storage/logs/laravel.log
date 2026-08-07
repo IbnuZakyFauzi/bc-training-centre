@@ -1671,3 +1671,54 @@
 #22 D:/KULIAH/BERAU COAL INTERN/logbook/artisan(16): Illuminate/Foundation/Application->handleCommand(Object(Symfony/Component/Console/Input/ArgvInput))
 #23 {main}
 "} 
+[2026-08-06 13:05:50] local.ERROR: Writing to C:/Users/Ibnu Zaky F/AppData/Roaming/PsySH/psysh_history is not allowed. {"exception":"[object] (ErrorException(code: 0): Writing to C:/Users/Ibnu Zaky F/AppData/Roaming/PsySH/psysh_history is not allowed. at D:/KULIAH/BERAU COAL INTERN/logbook/vendor/psy/psysh/src/ConfigPaths.php:480)
+[stacktrace]
+#0 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(262): Illuminate/Foundation/Bootstrap/HandleExceptions->handleError(1024, 'Writing to C:/U...', 'D://KULIAH//BERAU...', 480)
+#1 [internal function]: Illuminate/Foundation/Bootstrap/HandleExceptions->Illuminate/Foundation/Bootstrap/{closure}(1024, 'Writing to C:/U...', 'D://KULIAH//BERAU...', 480)
+#2 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/psy/psysh/src/ConfigPaths.php(480): trigger_error('Writing to C:/U...', 1024)
+#3 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/psy/psysh/src/Configuration.php(1068): Psy/ConfigPaths::touchFileWithMkdir('C:/Users/Ibnu Z...')
+#4 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/psy/psysh/src/Configuration.php(1106): Psy/Configuration->setHistoryFile('C:/Users/Ibnu Z...')
+#5 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/psy/psysh/src/Configuration.php(1285): Psy/Configuration->getHistoryFile()
+#6 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/psy/psysh/src/Shell.php(192): Psy/Configuration->getReadline()
+#7 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/psy/psysh/src/Shell.php(2213): Psy/Shell->boot()
+#8 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/laravel/tinker/src/Console/TinkerCommand.php(77): Psy/Shell->execute('App//Models//OjtL...')
+#9 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Laravel/Tinker/Console/TinkerCommand->handle()
+#10 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#11 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure(Object(Closure))
+#12 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod(Object(Illuminate/Foundation/Application), Array, Object(Closure))
+#13 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call(Object(Illuminate/Foundation/Application), Array, Array, NULL)
+#14 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate/Container/Container->call(Array)
+#15 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/symfony/console/Command/Command.php(341): Illuminate/Console/Command->execute(Object(Symfony/Component/Console/Input/ArgvInput), Object(Illuminate/Console/OutputStyle))
+#16 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Illuminate/Console/OutputStyle))
+#17 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#18 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand(Object(Laravel/Tinker/Console/TinkerCommand), Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#19 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#20 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#21 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#22 D:/KULIAH/BERAU COAL INTERN/logbook/artisan(16): Illuminate/Foundation/Application->handleCommand(Object(Symfony/Component/Console/Input/ArgvInput))
+#23 {main}
+"} 
+[2026-08-06 13:36:58] local.ERROR: The "-e" option does not exist. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\RuntimeException(code: 0): The \"-e\" option does not exist. at D:/KULIAH/BERAU COAL INTERN/logbook/vendor/symfony/console/Input/ArgvInput.php:128)
+[stacktrace]
+#0 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/symfony/console/Input/ArgvInput.php(110): Symfony/Component/Console/Input/ArgvInput->parseShortOptionSet('encodedCommand')
+#1 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/symfony/console/Input/ArgvInput.php(90): Symfony/Component/Console/Input/ArgvInput->parseShortOption('-encodedCommand')
+#2 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/symfony/console/Input/ArgvInput.php(77): Symfony/Component/Console/Input/ArgvInput->parseToken('-encodedCommand', true)
+#3 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/symfony/console/Input/Input.php(53): Symfony/Component/Console/Input/ArgvInput->parse()
+#4 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/symfony/console/Command/Command.php(295): Symfony/Component/Console/Input/Input->bind(Object(Symfony/Component/Console/Input/InputDefinition))
+#5 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Illuminate/Console/OutputStyle))
+#6 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#7 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand(Object(Illuminate/Foundation/Console/RouteListCommand), Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#8 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#9 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#10 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#11 D:/KULIAH/BERAU COAL INTERN/logbook/artisan(16): Illuminate/Foundation/Application->handleCommand(Object(Symfony/Component/Console/Input/ArgvInput))
+#12 {main}
+"} 
+[2026-08-06 17:27:48] local.ERROR: Maximum execution time of 30 seconds exceeded {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Maximum execution time of 30 seconds exceeded at D:/KULIAH/BERAU COAL INTERN/logbook/vendor/composer/ClassLoader.php:429)
+[stacktrace]
+#0 {main}
+"} 
+[2026-08-06 17:35:41] local.ERROR: Maximum execution time of 30 seconds exceeded {"userId":2,"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Maximum execution time of 30 seconds exceeded at D:/KULIAH/BERAU COAL INTERN/logbook/vendor/composer/ClassLoader.php:429)
+[stacktrace]
+#0 {main}
+"} 

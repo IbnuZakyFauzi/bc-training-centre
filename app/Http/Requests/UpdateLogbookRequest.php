@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateLogbookRequest extends FormRequest
 {
@@ -14,17 +13,13 @@ class UpdateLogbookRequest extends FormRequest
 
     public function rules(): array
     {
-        $equipmentCategoryId = $this->input('equipment_category_id');
-
         return [
             'date' => ['required', 'date'],
             'shift' => ['required', 'in:day,night'],
             'department_id' => ['required', 'exists:departments,id'],
             'equipment_category_id' => ['required', 'exists:equipment_categories,id'],
-            'equipment_id' => [
-                'required',
-                Rule::exists('equipments', 'id')->where(fn ($query) => $query->where('equipment_category_id', $equipmentCategoryId)),
-            ],
+            'equipment_id' => ['nullable', 'exists:equipments,id'],
+            'equipment_number' => ['required', 'string', 'max:100'],
             'trainer_id' => ['required', 'exists:users,id'],
             'supervisor_id' => ['nullable', 'exists:users,id'],
             'location' => ['required', 'string', 'max:255'],

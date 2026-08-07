@@ -137,12 +137,7 @@
                 <!-- Equipment Unit -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Unit Alat Berat <span class="text-rose-500">*</span></label>
-                    <select name="equipment_id" x-model="equipmentId" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
-                        <option value="">Pilih unit spesifik</option>
-                        <template x-for="equipment in filteredEquipments" :key="equipment.id">
-                            <option :value="equipment.id" x-text="equipment.label"></option>
-                        </template>
-                    </select>
+                    <input type="text" name="equipment_number" value="{{ old('equipment_number', $logbook->equipment_number ?? $logbook->equipment?->unit_code) }}" placeholder="Ketik nomor alat, contoh: DZ-123" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
                 </div>
 
                 <!-- Trainer Evaluator -->

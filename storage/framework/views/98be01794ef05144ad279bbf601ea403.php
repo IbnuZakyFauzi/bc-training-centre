@@ -47,6 +47,9 @@
         </div>
 
         <div class="flex items-center space-x-3">
+            <?php if($trainerReview && $logbook->status === 'submitted'): ?>
+                <a href="<?php echo e(route('trainer.reviews.edit', $logbook->id)); ?>" class="inline-flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold text-xs rounded-xl shadow-xs transition">Edit Logbook</a>
+            <?php endif; ?>
             <?php if(!$trainerReview && !$departmentOperationApproval && !$trainingCentreApproval && in_array($logbook->status, ['draft', 'revision'])): ?>
                 <a href="<?php echo e(route('ojt.logbooks.edit', $logbook->id)); ?>" class="inline-flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold text-xs rounded-xl shadow-xs transition">
                     <svg class="w-4 h-4 mr-2 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -120,7 +123,7 @@
                     <div class="col-span-2">
                         <span class="text-slate-400 font-medium block">Unit Alat Berat</span>
                         <span class="font-extrabold text-[#003829] text-sm mt-1 block">
-                            <?php echo e($logbook->equipment->unit_code ?? '-'); ?> - <?php echo e($logbook->equipment->model_name ?? '-'); ?>
+                            <?php echo e($logbook->equipment_number ?? $logbook->equipment?->unit_code ?? '-'); ?><?php echo e($logbook->equipment?->model_name ? ' - '.$logbook->equipment->model_name : ''); ?>
 
                         </span>
                     </div>
@@ -252,6 +255,9 @@
                     <div>
                         <span class="text-xs text-slate-500 font-bold uppercase block">Trainer Evaluator</span>
                         <span class="text-sm font-bold text-slate-800 mt-1 block"><?php echo e($logbook->trainer->name ?? 'Bambang Hermawan'); ?></span>
+                        <?php if($logbook->evaluation?->trainer_signature_path): ?>
+                            <img src="<?php echo e(asset('storage/'.$logbook->evaluation->trainer_signature_path)); ?>" alt="Trainer signature" class="mt-2 max-h-12 w-auto object-contain bg-white rounded-lg border border-emerald-200 p-1">
+                        <?php endif; ?>
                     </div>
                     <?php if(in_array($logbook->status, ['verified', 'approved', 'supervisor_approved', 'final_approved'])): ?>
                         <span class="px-3 py-1 bg-[#00A859] text-white text-xs font-bold rounded">Verified</span>
@@ -262,10 +268,13 @@
 
                 <?php if($departmentOperationApproval || $trainingCentreApproval): ?>
                     <div class="flex-1 p-5 <?php echo e(in_array($logbook->status, ['approved', 'supervisor_approved', 'final_approved']) ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'); ?> rounded-xl border flex items-center justify-between">
-                        <div>
-                            <span class="text-xs text-slate-500 font-bold uppercase block">Pengawas</span>
-                            <span class="text-sm font-bold text-slate-800 mt-1 block"><?php echo e($logbook->departmentOperation->name ?? 'Menunggu Approval Pengawas'); ?></span>
-                        </div>
+                    <div>
+                        <span class="text-xs text-slate-500 font-bold uppercase block">Pengawas</span>
+                        <span class="text-sm font-bold text-slate-800 mt-1 block"><?php echo e($logbook->departmentOperation->name ?? 'Menunggu Approval Pengawas'); ?></span>
+                        <?php if($logbook->pjo_signature_path): ?>
+                            <img src="<?php echo e(asset('storage/'.$logbook->pjo_signature_path)); ?>" alt="Supervisor signature" class="mt-2 max-h-12 w-auto object-contain bg-white rounded-lg border border-emerald-200 p-1">
+                        <?php endif; ?>
+                    </div>
                         <span class="px-3 py-1 <?php echo e(in_array($logbook->status, ['approved', 'supervisor_approved', 'final_approved']) ? 'bg-[#00A859] text-white' : 'bg-slate-200 text-slate-600'); ?> text-xs font-bold rounded"><?php echo e(in_array($logbook->status, ['approved', 'supervisor_approved', 'final_approved']) ? 'Approved' : 'Pending'); ?></span>
                     </div>
                 <?php endif; ?>
@@ -273,6 +282,9 @@
                 <?php if($trainingCentreApproval): ?>
                     <div class="flex-1 p-5 <?php echo e($logbook->training_centre_decided_at ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'); ?> rounded-xl border flex items-center justify-between">
                         <div><span class="text-xs text-slate-500 font-bold uppercase block">Kabag Training Centre</span><span class="text-sm font-bold text-slate-800 mt-1 block"><?php echo e($logbook->trainingCentre->name ?? 'Menunggu Final Approval'); ?></span></div>
+                        <?php if($logbook->training_centre_signature_path): ?>
+                            <img src="<?php echo e(asset('storage/'.$logbook->training_centre_signature_path)); ?>" alt="Training centre signature" class="mt-2 max-h-12 w-auto object-contain bg-white rounded-lg border border-emerald-200 p-1">
+                        <?php endif; ?>
                         <span class="px-3 py-1 <?php echo e($logbook->training_centre_decided_at ? 'bg-[#00A859] text-white' : 'bg-slate-200 text-slate-600'); ?> text-xs font-bold rounded"><?php echo e($logbook->training_centre_decided_at ? 'Approved' : 'Pending'); ?></span>
                     </div>
                 <?php endif; ?>
@@ -287,12 +299,18 @@
         <?php echo $__env->make('trainer.reviews.partials.decision-form', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
     <?php endif; ?>
 
-    <?php if($departmentOperationApproval): ?>
+    <?php if($departmentOperationApproval && ($isPending ?? false)): ?>
         <?php echo $__env->make('department-operation.approvals.partials.decision-form', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
     <?php endif; ?>
 
-    <?php if($trainingCentreApproval): ?>
+    <?php if($trainingCentreApproval && ($isPending ?? false)): ?>
         <?php echo $__env->make('training-centre.approvals.partials.decision-form', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php endif; ?>
+
+    <?php if($trainingCentreApproval && !($isPending ?? false)): ?>
+        <section class="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-5 text-xs text-slate-600">
+            Logbook ini hanya dapat dilihat oleh role Anda. Persetujuan dilakukan oleh Trainer.
+        </section>
     <?php endif; ?>
 
  <?php echo $__env->renderComponent(); ?>

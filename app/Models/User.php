@@ -21,6 +21,7 @@ class User extends Authenticatable
         'department_id',
         'phone',
         'avatar',
+        'signature_path',
     ];
 
     protected $hidden = [
@@ -69,5 +70,10 @@ class User extends Authenticatable
     public function isTrainingCentre(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function usesStoredSignature(): bool
+    {
+        return in_array($this->role, ['trainer', 'department_ops', 'admin'], true);
     }
 }

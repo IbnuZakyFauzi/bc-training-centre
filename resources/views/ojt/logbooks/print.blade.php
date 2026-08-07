@@ -115,13 +115,30 @@
             </td>
             <td>
                 <p><b>Diverifikasi Oleh:</b><br>Trainer Evaluator</p>
-                <div class="signature-space"></div>
+                @if($logbook->evaluation?->trainer_signature_path)
+                    <img src="{{ asset('storage/'.$logbook->evaluation->trainer_signature_path) }}" alt="Trainer signature" style="max-height: 55px; max-width: 160px; object-fit: contain;">
+                @else
+                    <div class="signature-space"></div>
+                @endif
                 <p><b><u>{{ $logbook->trainer->name ?? 'Bambang Hermawan' }}</u></b><br>Senior Instructor</p>
             </td>
             <td>
                 <p><b>Disetujui Oleh:</b><br>Supervisor Lapangan</p>
-                <div class="signature-space"></div>
+                @if($logbook->pjo_signature_path)
+                    <img src="{{ asset('storage/'.$logbook->pjo_signature_path) }}" alt="Supervisor signature" style="max-height: 55px; max-width: 160px; object-fit: contain;">
+                @else
+                    <div class="signature-space"></div>
+                @endif
                 <p><b><u>{{ $logbook->supervisor->name ?? 'Rahmat Hidayat' }}</u></b><br>Pit Superintendent</p>
+            </td>
+            <td>
+                <p><b>Final Approval Oleh:</b><br>Kabag Training Centre</p>
+                @if($logbook->training_centre_signature_path)
+                    <img src="{{ asset('storage/'.$logbook->training_centre_signature_path) }}" alt="Training centre signature" style="max-height: 55px; max-width: 160px; object-fit: contain;">
+                @else
+                    <div class="signature-space"></div>
+                @endif
+                <p><b><u>{{ $logbook->trainingCentre->name ?? 'Kabag Training Centre' }}</u></b><br>Training Centre Division</p>
             </td>
         </tr>
     </table>

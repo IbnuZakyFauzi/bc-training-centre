@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OjtLogbookController;
 use App\Http\Controllers\SubmissionHistoryController;
 use App\Http\Controllers\TrainerReviewController;
@@ -23,6 +24,8 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     Route::get('/dashboard', function () {
         $user = Auth::user();
@@ -48,6 +51,9 @@ Route::middleware(['auth', 'role:trainer'])->prefix('trainer')->name('trainer.')
     Route::get('/dashboard', [TrainerReviewController::class, 'index'])->name('dashboard');
     Route::get('/reviews', [TrainerReviewController::class, 'index'])->name('reviews.index');
     Route::get('/reviews/{id}', [TrainerReviewController::class, 'show'])->name('reviews.show');
+    Route::get('/reviews/{id}/edit', [TrainerReviewController::class, 'edit'])->name('reviews.edit');
+    Route::put('/reviews/{id}', [TrainerReviewController::class, 'updateLogbook'])->name('reviews.update');
+    Route::put('/reviews/{id}/checklist', [TrainerReviewController::class, 'updateChecklist'])->name('reviews.checklist.update');
     Route::post('/reviews/{id}/evaluate', [TrainerReviewController::class, 'evaluate'])->name('reviews.evaluate');
 });
 

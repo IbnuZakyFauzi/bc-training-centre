@@ -7,6 +7,7 @@ use App\Models\OjtLogbook;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class TrainingCentreApprovalController extends Controller
 {
@@ -60,8 +61,13 @@ class TrainingCentreApprovalController extends Controller
         $logbook = $this->pendingQuery()->findOrFail($id);
         $previousStatus = $logbook->status;
         $approved = $data['action'] === 'approve';
+        if ($approved && !$reviewer->signature_path) {
+            throw ValidationException::withMessages([
+                'signature' => 'Simpan tanda tangan di My Profile dulu sebelum final approval.',
+            ]);
+        }
         DB::transaction(function () use ($logbook, $reviewer, $data, $approved, $previousStatus) {
-            $logbook->update(['status' => $approved ? 'final_approved' : 'revision', 'training_centre_id' => $reviewer->id, 'training_centre_notes' => $data['approval_notes'] ?? null, 'training_centre_decided_at' => now(), 'approved_at' => $approved ? now() : null, 'revision_notes' => $approved ? null : $data['approval_notes']]);
+            $logbook->update(['status' => $approved ? 'final_approved' : 'revision', 'training_centre_id' => $reviewer->id, 'training_centre_notes' => $data['approval_notes'] ?? null, 'training_centre_decided_at' => now(), 'approved_at' => $approved ? now() : null, 'revision_notes' => $approved ? null : $data['approval_notes'], 'training_centre_signature_path' => $approved ? $reviewer->signature_path : null]);
             LogbookHistory::create(['ojt_logbook_id' => $logbook->id, 'user_id' => $reviewer->id, 'action' => $approved ? 'Approved by Head of Training Centre' : 'Revision Requested by Head of Training Centre', 'from_status' => $previousStatus, 'to_status' => $approved ? 'final_approved' : 'revision', 'comment' => $data['approval_notes'] ?? null]);
         });
         return redirect()->route('training-centre.approvals.index')->with('success', $approved ? 'Logbook telah disahkan oleh Kabag Training Centre.' : 'Logbook dikembalikan untuk revisi.');

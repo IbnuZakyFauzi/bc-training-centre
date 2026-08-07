@@ -63,6 +63,10 @@
                     <p class="text-xs font-semibold text-[#003829]">Akses Cepat</p>
                     <p class="text-[11px] text-slate-500 mt-0.5"><?php echo e($quickAction['label']); ?></p>
                 </a>
+                <a href="<?php echo e(route('profile.edit')); ?>" class="px-4 py-3 block hover:bg-emerald-50/60 transition">
+                    <p class="text-xs font-semibold text-[#003829]">My Profile</p>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Kelola data akun dan tanda tangan</p>
+                </a>
                 <form method="POST" action="<?php echo e(route('logout')); ?>" class="border-t border-slate-100 mt-1 pt-1">
                     <?php echo csrf_field(); ?>
                     <button type="submit" class="w-full px-4 py-3 text-left hover:bg-rose-50 transition">

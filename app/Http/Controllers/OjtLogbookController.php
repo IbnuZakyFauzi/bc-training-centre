@@ -105,6 +105,7 @@ class OjtLogbookController extends Controller
             'department_id' => $request->department_id,
             'equipment_category_id' => $request->equipment_category_id,
             'equipment_id' => $request->equipment_id,
+            'equipment_number' => $request->equipment_number,
             'date' => $request->date,
             'shift' => $request->shift,
             'location' => $request->location,
@@ -197,6 +198,7 @@ class OjtLogbookController extends Controller
             'department_id' => $request->department_id,
             'equipment_category_id' => $request->equipment_category_id,
             'equipment_id' => $request->equipment_id,
+            'equipment_number' => $request->equipment_number,
             'date' => $request->date,
             'shift' => $request->shift,
             'location' => $request->location,
@@ -215,9 +217,11 @@ class OjtLogbookController extends Controller
             'pjo_id' => $newStatus === 'submitted' ? null : $logbook->pjo_id,
             'pjo_notes' => $newStatus === 'submitted' ? null : $logbook->pjo_notes,
             'pjo_decided_at' => $newStatus === 'submitted' ? null : $logbook->pjo_decided_at,
+            'pjo_signature_path' => $newStatus === 'submitted' ? null : $logbook->pjo_signature_path,
             'training_centre_id' => $newStatus === 'submitted' ? null : $logbook->training_centre_id,
             'training_centre_notes' => $newStatus === 'submitted' ? null : $logbook->training_centre_notes,
             'training_centre_decided_at' => $newStatus === 'submitted' ? null : $logbook->training_centre_decided_at,
+            'training_centre_signature_path' => $newStatus === 'submitted' ? null : $logbook->training_centre_signature_path,
         ]);
 
         // Upload Evidences if any
@@ -295,7 +299,7 @@ class OjtLogbookController extends Controller
 
     public function print($id)
     {
-        $logbook = OjtLogbook::with(['trainee', 'trainer', 'supervisor', 'department', 'equipmentCategory', 'equipment', 'evidences', 'histories.user'])->findOrFail($id);
+        $logbook = OjtLogbook::with(['trainee', 'trainer', 'supervisor', 'department', 'equipmentCategory', 'equipment', 'evidences', 'histories.user', 'trainingCentre'])->findOrFail($id);
 
         return view('ojt.logbooks.print', compact('logbook'));
     }

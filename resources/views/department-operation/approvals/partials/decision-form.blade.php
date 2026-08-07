@@ -1,3 +1,4 @@
+@php($operator = auth()->user())
 <section class="mt-8 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" x-data="{ action: '{{ old('action', 'approve') }}' }">
     <div class="bg-[#003829] px-6 py-4 text-white">
         <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-300">Keputusan Pengawas</p>
@@ -10,7 +11,14 @@
             <div class="grid gap-5 lg:grid-cols-2">
                 <label class="block rounded-xl border border-emerald-200 bg-emerald-50 p-5 cursor-pointer">
                     <span class="flex items-center gap-2 text-xs font-bold text-[#00593E]"><input type="radio" name="action" value="approve" x-model="action"> Setujui Logbook</span>
-                    <span class="mt-2 block text-[11px] leading-relaxed text-emerald-800">Finalisasi pengesahan logbook oleh Pengawas Department Operation.</span>
+                    <span class="mt-2 block text-[11px] leading-relaxed text-emerald-800">Tanda tangan profil akan dipakai otomatis saat approve.</span>
+                    @if($operator?->signature_path)
+                        <img src="{{ asset('storage/'.$operator->signature_path) }}" alt="Signature profile" class="mt-4 max-h-20 w-auto object-contain bg-white rounded-lg border border-emerald-200 p-2">
+                    @else
+                        <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px] text-amber-900">
+                            Simpan tanda tangan dulu di <a href="{{ route('profile.edit') }}" class="font-bold underline">My Profile</a> sebelum approve.
+                        </div>
+                    @endif
                 </label>
                 <label class="block rounded-xl border border-amber-200 bg-amber-50 p-5 cursor-pointer">
                     <span class="flex items-center gap-2 text-xs font-bold text-amber-900"><input type="radio" name="action" value="revision" x-model="action"> Minta Revisi dari Trainee</span>

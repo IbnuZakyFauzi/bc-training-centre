@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class DepartmentOperationController extends Controller
 {
@@ -83,6 +84,11 @@ class DepartmentOperationController extends Controller
         ]);
         $logbook = $this->pendingQuery()->findOrFail($id);
         $isApproved = $data['action'] === 'approve';
+        if ($isApproved && !$operator->signature_path) {
+            throw ValidationException::withMessages([
+                'signature' => 'Simpan tanda tangan di My Profile dulu sebelum approve.',
+            ]);
+        }
 
         DB::transaction(function () use ($logbook, $operator, $data, $isApproved) {
             $notes = $data['approval_notes'] ?? null;
@@ -93,6 +99,7 @@ class DepartmentOperationController extends Controller
                 'pjo_id' => $operator->id,
                 'pjo_notes' => $notes,
                 'pjo_decided_at' => now(),
+                'pjo_signature_path' => $isApproved ? $operator->signature_path : null,
             ]);
             LogbookHistory::create([
                 'ojt_logbook_id' => $logbook->id,

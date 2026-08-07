@@ -120,8 +120,6 @@
             ],
         ],
     ];
-
-    $excavatorBehaviorItems = $disciplineItems;
 @endphp
 
 <div class="mb-6 flex items-center justify-between">
@@ -234,7 +232,7 @@
 
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">TIPE ALAT</div>
                     <div class="px-3 py-1.5 border-b border-slate-900">
-                        <select name="equipment_category_id" x-model="categoryId" @change="if (!filteredEquipments.some(item => String(item.id) === String(equipmentId))) equipmentId = ''" required class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
+                        <select name="equipment_category_id" x-model="categoryId" required class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                             <option value="">Pilih kategori alat</option>
                             <optgroup label="Track Equipment">
                                 @foreach($categories->filter(fn($c) => in_array($c->code, ['DZ', 'EXC'])) as $cat)
@@ -251,12 +249,7 @@
 
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">NO ALAT</div>
                     <div class="px-3 py-1.5 border-b border-slate-900">
-                        <select name="equipment_id" x-model="equipmentId" required class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
-                            <option value="">Pilih unit spesifik</option>
-                            <template x-for="equipment in filteredEquipments" :key="equipment.id">
-                                <option :value="equipment.id" x-text="equipment.label"></option>
-                            </template>
-                        </select>
+                        <input type="text" name="equipment_number" value="{{ old('equipment_number') }}" placeholder="Ketik nomor alat, contoh: DZ-123" required class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                     </div>
 
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">HM / KM AWAL</div>
@@ -269,7 +262,7 @@
                         <input type="number" step="0.1" name="hm_end" x-model="hmEnd" placeholder="Contoh: 4529.0" required class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                     </div>
 
-                    <div class="px-3 py-2 font-semibold border-t border-slate-900">EXPIRED DATE STIKER</div>
+                    <div class="px-3 py-2 font-semibold border-t border-slate-900">EXPIRED DATE STIKER (SKO)</div>
                     <div class="px-3 py-1.5 border-t border-slate-900">
                         <input type="date" name="sop_payload[meta][sticker_expired_at]" x-model="stickerExpiredAt" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                     </div>
@@ -421,7 +414,15 @@
                             <div class="text-[11px] text-emerald-100 mt-1">Evaluasi perilaku kerja, komunikasi, dan kepatuhan SOP lapangan</div>
                         </div>
                         <div class="overflow-x-auto">
-                            <table class="min-w-full text-xs">
+                            <table class="w-full min-w-[760px] table-fixed text-xs">
+                                <colgroup>
+                                    <col class="w-14">
+                                    <col class="w-20">
+                                    <col>
+                                    <col class="w-14">
+                                    <col class="w-14">
+                                    <col class="w-64">
+                                </colgroup>
                                 <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider">
                                     <tr>
                                         <th class="px-3 py-2 text-left w-12">No</th>
@@ -470,7 +471,15 @@
                                 <div class="text-[11px] text-emerald-100 mt-1">{{ $group['subtitle'] }}</div>
                             </div>
                             <div class="overflow-x-auto">
-                                <table class="min-w-full text-xs">
+                                <table class="w-full min-w-[760px] table-fixed text-xs">
+                                    <colgroup>
+                                        <col class="w-14">
+                                        <col class="w-20">
+                                        <col>
+                                        <col class="w-14">
+                                        <col class="w-14">
+                                        <col class="w-64">
+                                    </colgroup>
                                     <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider">
                                         <tr>
                                             <th class="px-3 py-2 text-left w-12">No</th>
@@ -504,7 +513,15 @@
                             <div class="text-[11px] text-emerald-100 mt-1">Evaluasi perilaku kerja, komunikasi, dan kepatuhan SOP lapangan</div>
                         </div>
                         <div class="overflow-x-auto">
-                            <table class="min-w-full text-xs">
+                            <table class="w-full min-w-[760px] table-fixed text-xs">
+                                <colgroup>
+                                    <col class="w-14">
+                                    <col class="w-20">
+                                    <col>
+                                    <col class="w-14">
+                                    <col class="w-14">
+                                    <col class="w-64">
+                                </colgroup>
                                 <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider">
                                     <tr>
                                         <th class="px-3 py-2 text-left w-12">No</th>
