@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Formulir OJT - {{ $logbook->logbook_number }}</title>
+    <title>Formulir OJT - <?php echo e($logbook->logbook_number); ?></title>
     <style>
         @page {
             size: A4 portrait;
@@ -120,7 +120,7 @@
         </button>
     </div>
 
-    @php
+    <?php
         $payload = $logbook->sop_payload ?? [];
         $categoryCode = $logbook->equipmentCategory->code ?? 'DZ';
         $categoryName = $logbook->equipmentCategory->name ?? 'Bulldozer & Motor Grader';
@@ -272,7 +272,7 @@
                 $disciplineItems[$i]['note'] = '';
             }
         }
-    @endphp
+    ?>
 
     <div class="form-container">
 
@@ -281,13 +281,13 @@
             <tr>
                 <td class="logo-cell">
                     <div style="text-align: center; padding: 1px 2px;">
-                        <img src="{{ asset('images/berau_coal_logo.svg') }}" alt="Berau Coal Logo" class="logo-img">
+                        <img src="<?php echo e(asset('images/berau_coal_logo.svg')); ?>" alt="Berau Coal Logo" class="logo-img">
                     </div>
                 </td>
                 <td>
                     <div class="title-main">BERAU COAL GREEN MINING SYSTEM</div>
                     <div class="title-sub">FORMULIR</div>
-                    <div class="title-desc">Pelaksanaan On Job Training (OJT) Unit {{ $categoryName }} ({{ $categoryCode }})</div>
+                    <div class="title-desc">Pelaksanaan On Job Training (OJT) Unit <?php echo e($categoryName); ?> (<?php echo e($categoryCode); ?>)</div>
                 </td>
             </tr>
         </table>
@@ -297,25 +297,25 @@
             <tr>
                 <td style="width: 50%;">
                     <table style="width: 100%; border-collapse: collapse;">
-                        <tr><td class="meta-label">NAMA</td><td>: {{ $logbook->trainee->name ?? 'Ahmad Rian Syahputra' }}</td></tr>
-                        <tr><td class="meta-label">HARI/ TANGGAL</td><td>: {{ \Carbon\Carbon::parse($logbook->date)->translatedFormat('l, d F Y') }}</td></tr>
-                        <tr><td class="meta-label">SHIFT</td><td>: Shift {{ ucfirst($logbook->shift) }} ({{ $logbook->shift === 'day' ? 'Siang: 07.00 - 17.00' : 'Malam: 19.00 - 05.00' }})</td></tr>
-                        <tr><td class="meta-label">LOKASI (OJT)</td><td>: {{ $logbook->location }}</td></tr>
+                        <tr><td class="meta-label">NAMA</td><td>: <?php echo e($logbook->trainee->name ?? 'Ahmad Rian Syahputra'); ?></td></tr>
+                        <tr><td class="meta-label">HARI/ TANGGAL</td><td>: <?php echo e(\Carbon\Carbon::parse($logbook->date)->translatedFormat('l, d F Y')); ?></td></tr>
+                        <tr><td class="meta-label">SHIFT</td><td>: Shift <?php echo e(ucfirst($logbook->shift)); ?> (<?php echo e($logbook->shift === 'day' ? 'Siang: 07.00 - 17.00' : 'Malam: 19.00 - 05.00'); ?>)</td></tr>
+                        <tr><td class="meta-label">LOKASI (OJT)</td><td>: <?php echo e($logbook->location); ?></td></tr>
                         <tr><td class="meta-label">SERTIFIKASI</td><td>: 
-                            <span style="{{ $certification === 'Green' ? 'font-weight:bold; text-decoration: underline;' : 'color: #888;' }}">Green</span> / 
-                            <span style="{{ $certification === 'Skill-up' ? 'font-weight:bold; text-decoration: underline;' : 'color: #888;' }}">Skill-up</span> / 
-                            <span style="{{ $certification === 'Experience' ? 'font-weight:bold; text-decoration: underline;' : 'color: #888;' }}">Experience</span> 
+                            <span style="<?php echo e($certification === 'Green' ? 'font-weight:bold; text-decoration: underline;' : 'color: #888;'); ?>">Green</span> / 
+                            <span style="<?php echo e($certification === 'Skill-up' ? 'font-weight:bold; text-decoration: underline;' : 'color: #888;'); ?>">Skill-up</span> / 
+                            <span style="<?php echo e($certification === 'Experience' ? 'font-weight:bold; text-decoration: underline;' : 'color: #888;'); ?>">Experience</span> 
                             <span style="font-size: 7.5px; font-style: italic;">(Coret yang tidak sesuai)</span>
                         </td></tr>
                     </table>
                 </td>
                 <td style="width: 50%;">
                     <table style="width: 100%; border-collapse: collapse;">
-                        <tr><td class="meta-label">PERUSAHAAN</td><td>: {{ $company }}</td></tr>
-                        <tr><td class="meta-label">TIPE ALAT</td><td>: {{ $categoryName }} ({{ $categoryCode }})</td></tr>
-                        <tr><td class="meta-label">NO ALAT</td><td>: {{ $logbook->unit_code }}</td></tr>
-                        <tr><td class="meta-label">HM/ KM AWAL</td><td>: {{ number_format($logbook->hm_start, 1) }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>HM/ KM AKHIR:</b> {{ number_format($logbook->hm_end, 1) }}</td></tr>
-                        <tr><td class="meta-label">EXPIRED DATE STIKER (SKO)</td><td>: {{ $stickerExp ? \Carbon\Carbon::parse($stickerExp)->format('d/m/Y') : '......................20....' }}</td></tr>
+                        <tr><td class="meta-label">PERUSAHAAN</td><td>: <?php echo e($company); ?></td></tr>
+                        <tr><td class="meta-label">TIPE ALAT</td><td>: <?php echo e($categoryName); ?> (<?php echo e($categoryCode); ?>)</td></tr>
+                        <tr><td class="meta-label">NO ALAT</td><td>: <?php echo e($logbook->unit_code); ?></td></tr>
+                        <tr><td class="meta-label">HM/ KM AWAL</td><td>: <?php echo e(number_format($logbook->hm_start, 1)); ?> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>HM/ KM AKHIR:</b> <?php echo e(number_format($logbook->hm_end, 1)); ?></td></tr>
+                        <tr><td class="meta-label">EXPIRED DATE STIKER (SKO)</td><td>: <?php echo e($stickerExp ? \Carbon\Carbon::parse($stickerExp)->format('d/m/Y') : '......................20....'); ?></td></tr>
                     </table>
                 </td>
             </tr>
@@ -333,14 +333,14 @@
                         <tr>
                             <td style="width: 50%; vertical-align: top;">
                                 <b>Tahap Penilaian OJT</b><br>
-                                <div class="checkbox-item"><span class="checkbox-rect">{!! $assessmentMode === 'pendampingan' ? '✓' : '&nbsp;' !!}</span> Pendampingan</div>
-                                <div class="checkbox-item"><span class="checkbox-rect">{!! $assessmentMode === 'tanpa_pendampingan' ? '✓' : '&nbsp;' !!}</span> Tanpa Pendampingan</div>
+                                <div class="checkbox-item"><span class="checkbox-rect"><?php echo $assessmentMode === 'pendampingan' ? '✓' : '&nbsp;'; ?></span> Pendampingan</div>
+                                <div class="checkbox-item"><span class="checkbox-rect"><?php echo $assessmentMode === 'tanpa_pendampingan' ? '✓' : '&nbsp;'; ?></span> Tanpa Pendampingan</div>
                             </td>
                             <td style="width: 50%; vertical-align: top;">
                                 <b>Tahap Tanpa Pendampingan Lanjutan</b><br>
-                                <div class="checkbox-item"><span class="checkbox-rect">{!! $assessmentStage === 'bulanan' ? '✓' : '&nbsp;' !!}</span> Bulanan</div>
-                                <div class="checkbox-item"><span class="checkbox-rect">{!! $assessmentStage === '3_bulan_pertama' ? '✓' : '&nbsp;' !!}</span> 3 Bulan Pertama</div>
-                                <div class="checkbox-item"><span class="checkbox-rect">{!! $assessmentStage === '3_bulan_kedua' ? '✓' : '&nbsp;' !!}</span> 3 Bulan Kedua</div>
+                                <div class="checkbox-item"><span class="checkbox-rect"><?php echo $assessmentStage === 'bulanan' ? '✓' : '&nbsp;'; ?></span> Bulanan</div>
+                                <div class="checkbox-item"><span class="checkbox-rect"><?php echo $assessmentStage === '3_bulan_pertama' ? '✓' : '&nbsp;'; ?></span> 3 Bulan Pertama</div>
+                                <div class="checkbox-item"><span class="checkbox-rect"><?php echo $assessmentStage === '3_bulan_kedua' ? '✓' : '&nbsp;'; ?></span> 3 Bulan Kedua</div>
                             </td>
                         </tr>
                     </table>
@@ -350,7 +350,8 @@
 
         <!-- Banner Code -->
         <div class="unit-banner">
-            UNIT*: {{ $categoryCode }}
+            UNIT*: <?php echo e($categoryCode); ?>
+
         </div>
 
         <!-- Main Evaluation Table -->
@@ -371,65 +372,65 @@
                     <td class="col-no">A</td>
                     <td colspan="5" class="section-header">Teknik Pengoperasian</td>
                 </tr>
-                @foreach($groups as $groupIndex => $group)
-                    @if(!empty($group['title']))
+                <?php $__currentLoopData = $groups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $groupIndex => $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php if(!empty($group['title'])): ?>
                         <tr>
-                            <td class="col-no">{{ $groupIndex + 1 }}</td>
-                            <td colspan="5" class="sub-header">{{ $group['title'] }}</td>
+                            <td class="col-no"><?php echo e($groupIndex + 1); ?></td>
+                            <td colspan="5" class="sub-header"><?php echo e($group['title']); ?></td>
                         </tr>
-                    @endif
-                    @foreach($group['items'] ?? [] as $itemIndex => $item)
-                        @php
+                    <?php endif; ?>
+                    <?php $__currentLoopData = $group['items'] ?? []; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $itemIndex => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php
                             $status = $item['status'] ?? 'K';
-                        @endphp
+                        ?>
                         <tr>
-                            <td class="col-no">{{ $item['code'] ?? ($groupIndex + 1).'.'.($itemIndex + 1) }}</td>
-                            <td class="col-aspek">{{ $item['kind'] ?? 'Skl' }}</td>
-                            <td class="col-item">{{ $item['label'] ?? '' }}</td>
-                            <td class="col-kbk">{!! $status === 'K' ? '✓' : '' !!}</td>
-                            <td class="col-kbk">{!! $status === 'BK' ? '✓' : '' !!}</td>
-                            <td class="col-catatan">{{ $item['note'] ?? '' }}</td>
+                            <td class="col-no"><?php echo e($item['code'] ?? ($groupIndex + 1).'.'.($itemIndex + 1)); ?></td>
+                            <td class="col-aspek"><?php echo e($item['kind'] ?? 'Skl'); ?></td>
+                            <td class="col-item"><?php echo e($item['label'] ?? ''); ?></td>
+                            <td class="col-kbk"><?php echo $status === 'K' ? '✓' : ''; ?></td>
+                            <td class="col-kbk"><?php echo $status === 'BK' ? '✓' : ''; ?></td>
+                            <td class="col-catatan"><?php echo e($item['note'] ?? ''); ?></td>
                         </tr>
-                    @endforeach
-                @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                 <!-- SECTION B -->
                 <tr>
                     <td class="col-no">B</td>
                     <td colspan="5" class="section-header">Kepatuhan Terhadap Peraturan Kerja</td>
                 </tr>
-                @foreach($complianceItems as $itemIndex => $item)
-                    @php
+                <?php $__currentLoopData = $complianceItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $itemIndex => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php
                         $status = $item['status'] ?? 'K';
-                    @endphp
+                    ?>
                     <tr>
-                        <td class="col-no">{{ $item['code'] }}</td>
-                        <td class="col-aspek">{{ $item['kind'] }}</td>
-                        <td class="col-item">{{ $item['label'] }}</td>
-                        <td class="col-kbk">{!! $status === 'K' ? '✓' : '' !!}</td>
-                        <td class="col-kbk">{!! $status === 'BK' ? '✓' : '' !!}</td>
-                        <td class="col-catatan">{{ $item['note'] ?? '' }}</td>
+                        <td class="col-no"><?php echo e($item['code']); ?></td>
+                        <td class="col-aspek"><?php echo e($item['kind']); ?></td>
+                        <td class="col-item"><?php echo e($item['label']); ?></td>
+                        <td class="col-kbk"><?php echo $status === 'K' ? '✓' : ''; ?></td>
+                        <td class="col-kbk"><?php echo $status === 'BK' ? '✓' : ''; ?></td>
+                        <td class="col-catatan"><?php echo e($item['note'] ?? ''); ?></td>
                     </tr>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                 <!-- SECTION C -->
                 <tr>
                     <td class="col-no">C</td>
                     <td colspan="5" class="section-header">Kedisiplinan dan Komunikasi</td>
                 </tr>
-                @foreach($disciplineItems as $itemIndex => $item)
-                    @php
+                <?php $__currentLoopData = $disciplineItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $itemIndex => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php
                         $status = $item['status'] ?? 'K';
-                    @endphp
+                    ?>
                     <tr>
-                        <td class="col-no">{{ $item['code'] }}</td>
-                        <td class="col-aspek">{{ $item['kind'] }}</td>
-                        <td class="col-item">{{ $item['label'] }}</td>
-                        <td class="col-kbk">{!! $status === 'K' ? '✓' : '' !!}</td>
-                        <td class="col-kbk">{!! $status === 'BK' ? '✓' : '' !!}</td>
-                        <td class="col-catatan">{{ $item['note'] ?? '' }}</td>
+                        <td class="col-no"><?php echo e($item['code']); ?></td>
+                        <td class="col-aspek"><?php echo e($item['kind']); ?></td>
+                        <td class="col-item"><?php echo e($item['label']); ?></td>
+                        <td class="col-kbk"><?php echo $status === 'K' ? '✓' : ''; ?></td>
+                        <td class="col-kbk"><?php echo $status === 'BK' ? '✓' : ''; ?></td>
+                        <td class="col-catatan"><?php echo e($item['note'] ?? ''); ?></td>
                     </tr>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </tbody>
         </table>
 
@@ -444,19 +445,20 @@
                 <td style="width: 65%;">
                     <div style="font-weight: bold; text-transform: uppercase; margin-bottom: 4px;">Catatan Instruktur:</div>
                     <div style="font-size: 9.5px; line-height: 1.5; min-height: 60px; white-space: pre-line;">
-{{ $logbook->evaluation?->trainer_comment ?? $logbook->daily_activity }}
+<?php echo e($logbook->evaluation?->trainer_comment ?? $logbook->daily_activity); ?>
+
                     </div>
                 </td>
                 <td style="width: 35%;">
                     <div class="conclusion-title">KESIMPULAN</div>
-                    @php
+                    <?php
                         $isKompeten = ($logbook->evaluation?->competency_status === 'K' || $logbook->status === 'final_approved');
-                    @endphp
+                    ?>
                     <div style="margin-bottom: 4px; font-weight: bold; font-size: 10px;">
-                        <span class="checkbox-rect">{!! $isKompeten ? '✓' : '&nbsp;' !!}</span> &nbsp;KOMPETEN (K)
+                        <span class="checkbox-rect"><?php echo $isKompeten ? '✓' : '&nbsp;'; ?></span> &nbsp;KOMPETEN (K)
                     </div>
                     <div style="margin-bottom: 6px; font-weight: bold; font-size: 10px;">
-                        <span class="checkbox-rect">{!! !$isKompeten ? '✓' : '&nbsp;' !!}</span> &nbsp;BELUM KOMPETEN (BK)
+                        <span class="checkbox-rect"><?php echo !$isKompeten ? '✓' : '&nbsp;'; ?></span> &nbsp;BELUM KOMPETEN (BK)
                     </div>
                     <div style="font-size: 7.5px; font-weight: bold; border-top: 1px solid #000; padding-top: 3px; line-height: 1.2;">
                         NOTE:<br>
@@ -480,34 +482,34 @@
             <tr>
                 <td>
                     <div class="sig-space">
-                        @if($logbook->trainee?->signature_path)
-                            <img src="{{ asset('storage/'.$logbook->trainee->signature_path) }}" alt="Trainee signature" class="sig-img">
-                        @endif
+                        <?php if($logbook->trainee?->signature_path): ?>
+                            <img src="<?php echo e(asset('storage/'.$logbook->trainee->signature_path)); ?>" alt="Trainee signature" class="sig-img">
+                        <?php endif; ?>
                     </div>
-                    <div class="sig-name">{{ $logbook->trainee->name ?? 'Ahmad Rian Syahputra' }}</div>
-                    <div class="sig-sid">No. SID : {{ $logbook->trainee->nrp ?? '-' }}</div>
+                    <div class="sig-name"><?php echo e($logbook->trainee->name ?? 'Ahmad Rian Syahputra'); ?></div>
+                    <div class="sig-sid">No. SID : <?php echo e($logbook->trainee->nrp ?? '-'); ?></div>
                 </td>
                 <td>
-                    @php
+                    <?php
                         $trainerSig = $logbook->evaluation?->trainer_signature_path ?? $logbook->trainer_signature_path ?? $logbook->pjo_signature_path;
                         $trainerUser = $logbook->trainer ?? $logbook->supervisor;
-                    @endphp
+                    ?>
                     <div class="sig-space">
-                        @if($trainerSig)
-                            <img src="{{ asset('storage/'.$trainerSig) }}" alt="Trainer signature" class="sig-img">
-                        @endif
+                        <?php if($trainerSig): ?>
+                            <img src="<?php echo e(asset('storage/'.$trainerSig)); ?>" alt="Trainer signature" class="sig-img">
+                        <?php endif; ?>
                     </div>
-                    <div class="sig-name">{{ $trainerUser->name ?? 'Bambang Hermawan' }}</div>
-                    <div class="sig-sid">No. SID : {{ $trainerUser->nrp ?? '-' }}</div>
+                    <div class="sig-name"><?php echo e($trainerUser->name ?? 'Bambang Hermawan'); ?></div>
+                    <div class="sig-sid">No. SID : <?php echo e($trainerUser->nrp ?? '-'); ?></div>
                 </td>
                 <td>
                     <div class="sig-space">
-                        @if($logbook->training_centre_signature_path)
-                            <img src="{{ asset('storage/'.$logbook->training_centre_signature_path) }}" alt="Kabag signature" class="sig-img">
-                        @endif
+                        <?php if($logbook->training_centre_signature_path): ?>
+                            <img src="<?php echo e(asset('storage/'.$logbook->training_centre_signature_path)); ?>" alt="Kabag signature" class="sig-img">
+                        <?php endif; ?>
                     </div>
-                    <div class="sig-name">{{ $logbook->trainingCentre->name ?? 'Kabag Training Centre' }}</div>
-                    <div class="sig-sid">No. SID : {{ $logbook->trainingCentre->nrp ?? '-' }}</div>
+                    <div class="sig-name"><?php echo e($logbook->trainingCentre->name ?? 'Kabag Training Centre'); ?></div>
+                    <div class="sig-sid">No. SID : <?php echo e($logbook->trainingCentre->nrp ?? '-'); ?></div>
                 </td>
             </tr>
         </table>
@@ -516,3 +518,4 @@
 
 </body>
 </html>
+<?php /**PATH D:\KULIAH\BERAU COAL INTERN\logbook\resources\views/ojt/logbooks/print.blade.php ENDPATH**/ ?>

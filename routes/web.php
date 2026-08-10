@@ -47,6 +47,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('training-centre')->name('trai
     Route::post('/approvals/{id}/decision', [TrainingCentreApprovalController::class, 'decide'])->name('approvals.decide');
 });
 
+// Final Logbook Print Route (Restricted to Admin Training Centre only)
+Route::middleware(['auth', 'role:admin'])->get('/ojt/logbooks/{id}/print', [OjtLogbookController::class, 'print'])->name('ojt.logbooks.print');
+
 Route::middleware(['auth', 'role:trainer'])->prefix('trainer')->name('trainer.')->group(function () {
     Route::get('/dashboard', [TrainerReviewController::class, 'index'])->name('dashboard');
     Route::get('/reviews', [TrainerReviewController::class, 'index'])->name('reviews.index');
@@ -78,8 +81,8 @@ Route::middleware(['auth', 'role:trainee'])->prefix('ojt')->name('ojt.')->group(
     Route::get('/logbooks/{id}', [OjtLogbookController::class, 'show'])->name('logbooks.show');
     Route::get('/logbooks/{id}/edit', [OjtLogbookController::class, 'edit'])->name('logbooks.edit');
     Route::put('/logbooks/{id}', [OjtLogbookController::class, 'update'])->name('logbooks.update');
+    Route::put('/logbooks/{id}/checklist', [OjtLogbookController::class, 'updateChecklist'])->name('logbooks.checklist.update');
     Route::post('/logbooks/{id}/duplicate', [OjtLogbookController::class, 'duplicate'])->name('logbooks.duplicate');
-    Route::get('/logbooks/{id}/print', [OjtLogbookController::class, 'print'])->name('logbooks.print');
 
     // Page 6: Submission History
     Route::get('/history', [SubmissionHistoryController::class, 'index'])->name('history');

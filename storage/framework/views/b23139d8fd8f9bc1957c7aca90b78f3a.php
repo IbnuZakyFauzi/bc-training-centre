@@ -1,4 +1,7 @@
 <?php
+    $isEditing = isset($logbook);
+    $isTrainerEditing = $isTrainerEditing ?? false;
+    $formPayload = old('sop_payload', $isEditing ? ($logbook->sop_payload ?? []) : []);
     $categoryMap = $categories->pluck('code', 'id')->all();
     $equipmentMap = $equipments->groupBy('equipment_category_id')
         ->map(fn ($group) => $group->map(fn ($eq) => [
@@ -6,7 +9,7 @@
             'label' => $eq->unit_code . ' - ' . $eq->model_name,
         ])->values())
         ->toArray();
-    $selectedCategoryId = old('equipment_category_id', $categories->firstWhere('code', 'DZ')?->id ?? $categories->first()?->id);
+    $selectedCategoryId = old('equipment_category_id', $isEditing ? $logbook->equipment_category_id : ($categories->firstWhere('code', 'DZ')?->id ?? $categories->first()?->id));
     $selectedCategoryCode = $selectedCategoryId ? ($categoryMap[$selectedCategoryId] ?? '') : '';
 
     $trackGroups = [
@@ -127,7 +130,7 @@
         <div class="flex items-center space-x-2 text-xs font-semibold text-[#00A859] mb-1">
             <a href="<?php echo e(route('ojt.logbooks.index')); ?>" class="hover:underline">My Logbook</a>
             <span>/</span>
-            <span class="text-slate-500">Create Digital Logbook</span>
+            <span class="text-slate-500"><?php echo e($isTrainerEditing ? 'Edit Logbook Trainer' : ($isEditing ? 'Edit Draft Logbook' : 'Create Digital Logbook')); ?></span>
         </div>
         <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">Formulir Logbook Harian Trainee OJT</h1>
         <p class="text-xs text-slate-500 mt-1">Form ini menampilkan checklist harian per unit: track unit di panel kiri dan excavator di panel kanan.</p>
@@ -135,19 +138,20 @@
     <a href="<?php echo e(route('ojt.logbooks.index')); ?>" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition">Kembali</a>
 </div>
 
-<form action="<?php echo e(route('ojt.logbooks.store')); ?>" method="POST" enctype="multipart/form-data"
+<form action="<?php echo e($isTrainerEditing ? route('trainer.reviews.update', $logbook->id) : ($isEditing ? route('ojt.logbooks.update', $logbook->id) : route('ojt.logbooks.store'))); ?>" method="POST" enctype="multipart/form-data"
       x-data="{
           categoryId: '<?php echo e(old('equipment_category_id', $selectedCategoryId)); ?>',
-          equipmentId: '<?php echo e(old('equipment_id', '')); ?>',
+          equipmentId: '<?php echo e(old('equipment_id', $isEditing ? $logbook->equipment_id : '')); ?>',
           categoryMap: <?php echo \Illuminate\Support\Js::from($categoryMap)->toHtml() ?>,
           equipmentMap: <?php echo \Illuminate\Support\Js::from($equipmentMap)->toHtml() ?>,
-          company: '<?php echo e(old('sop_payload.meta.company', 'PT BERAU COAL / PT MTL')); ?>',
-          certification: '<?php echo e(old('sop_payload.meta.certification', 'Green')); ?>',
-          stickerExpiredAt: '<?php echo e(old('sop_payload.meta.sticker_expired_at', '')); ?>',
-          assessmentMode: '<?php echo e(old('sop_payload.meta.assessment_mode', 'pendampingan')); ?>',
-          assessmentStage: '<?php echo e(old('sop_payload.meta.assessment_stage', 'bulanan')); ?>',
-          hmStart: '<?php echo e(old('hm_start', '')); ?>',
-          hmEnd: '<?php echo e(old('hm_end', '')); ?>',
+          company: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.company', data_get($formPayload, 'meta.company', 'PT BERAU COAL / PT MTL')))->toHtml() ?>,
+          certification: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.certification', data_get($formPayload, 'meta.certification', 'Green')))->toHtml() ?>,
+          stickerExpiredAt: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.sticker_expired_at', data_get($formPayload, 'meta.sticker_expired_at', '')))->toHtml() ?>,
+          assessmentMode: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.assessment_mode', data_get($formPayload, 'meta.assessment_mode', 'pendampingan')))->toHtml() ?>,
+          assessmentStage: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.assessment_stage', data_get($formPayload, 'meta.assessment_stage', 'bulanan')))->toHtml() ?>,
+          hmStart: <?php echo \Illuminate\Support\Js::from(old('hm_start', $isEditing ? $logbook->hm_start : ''))->toHtml() ?>,
+          hmEnd: <?php echo \Illuminate\Support\Js::from(old('hm_end', $isEditing ? $logbook->hm_end : ''))->toHtml() ?>,
+          existingSopPayload: <?php echo \Illuminate\Support\Js::from($formPayload)->toHtml() ?>,
           files: [],
           get selectedCategoryCode() {
               return this.categoryMap[this.categoryId] || '';
@@ -166,10 +170,24 @@
           },
           handleFileSelect(event) {
               this.files = Array.from(event.target.files);
+          },
+          fillExistingChecklist() {
+              this.$root.querySelectorAll('[name]').forEach((field) => {
+                  if (!field.name.startsWith('sop_payload[')) return;
+                  const path = Array.from(field.name.matchAll(/\[([^\]]+)\]/g)).map((match) => match[1]);
+                  const value = path.reduce((data, key) => data?.[key], this.existingSopPayload);
+                  if (value === undefined || value === null || field.type === 'hidden') return;
+                  if (field.type === 'radio') field.checked = String(value) === field.value;
+                  else if (!field.value) field.value = value;
+              });
           }
       }"
+      x-init="$nextTick(() => fillExistingChecklist())"
       class="space-y-8 pb-28">
     <?php echo csrf_field(); ?>
+    <?php if($isEditing): ?>
+        <?php echo method_field('PUT'); ?>
+    <?php endif; ?>
 
     <?php if($errors->any()): ?>
         <div class="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-xs text-rose-900">
@@ -191,25 +209,25 @@
                 <div class="grid grid-cols-[120px_minmax(0,1fr)] gap-x-3 gap-y-0 text-[11px] text-slate-900">
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">NAMA</div>
                     <div class="px-3 py-1.5 border-b border-slate-900">
-                        <input type="text" name="sop_payload[meta][trainee_name]" value="<?php echo e(old('sop_payload.meta.trainee_name', $user->name)); ?>" readonly class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
+                        <input type="text" name="sop_payload[meta][trainee_name]" value="<?php echo e(old('sop_payload.meta.trainee_name', data_get($formPayload, 'meta.trainee_name', $user->name))); ?>" readonly class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                     </div>
 
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">HARI/ TANGGAL</div>
                     <div class="px-3 py-1.5 border-b border-slate-900">
-                        <input type="date" name="date" value="<?php echo e(old('date', date('Y-m-d'))); ?>" required class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
+                        <input type="date" name="date" value="<?php echo e(old('date', $isEditing ? optional($logbook->date)->format('Y-m-d') : date('Y-m-d'))); ?>" required class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                     </div>
 
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">SHIFT</div>
                     <div class="px-3 py-1.5 border-b border-slate-900">
                         <select name="shift" required class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
-                            <option value="day" <?php echo e(old('shift') == 'day' ? 'selected' : ''); ?>>Shift 1 (Siang: 07.00 - 17.00)</option>
-                            <option value="night" <?php echo e(old('shift') == 'night' ? 'selected' : ''); ?>>Shift 2 (Malam: 19.00 - 05.00)</option>
+                            <option value="day" <?php echo e(old('shift', $isEditing ? $logbook->shift : '') == 'day' ? 'selected' : ''); ?>>Shift 1 (Siang: 07.00 - 17.00)</option>
+                            <option value="night" <?php echo e(old('shift', $isEditing ? $logbook->shift : '') == 'night' ? 'selected' : ''); ?>>Shift 2 (Malam: 19.00 - 05.00)</option>
                         </select>
                     </div>
 
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">LOKASI (OJT)</div>
                     <div class="px-3 py-1.5 border-b border-slate-900">
-                        <input type="text" name="location" value="<?php echo e(old('location')); ?>" placeholder="Contoh: Pit H1 East - Bench 45" required class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
+                        <input type="text" name="location" value="<?php echo e(old('location', $isEditing ? $logbook->location : '')); ?>" placeholder="Contoh: Pit H1 East - Bench 45" required class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                     </div>
 
                     <div class="px-3 py-2 font-semibold">SERTIFIKASI</div>
@@ -249,7 +267,7 @@
 
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">NO ALAT</div>
                     <div class="px-3 py-1.5 border-b border-slate-900">
-                        <input type="text" name="equipment_number" value="<?php echo e(old('equipment_number')); ?>" placeholder="Ketik nomor alat, contoh: DZ-123" required class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
+                        <input type="text" name="equipment_number" value="<?php echo e(old('equipment_number', $isEditing ? $logbook->equipment_number : '')); ?>" placeholder="Ketik nomor alat, contoh: DZ-123" required class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                     </div>
 
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">HM / KM AWAL</div>
@@ -327,7 +345,7 @@
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Departemen Operasional <span class="text-rose-500">*</span></label>
                 <select name="department_id" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
                     <?php $__currentLoopData = $departments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $dept): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <option value="<?php echo e($dept->id); ?>" <?php echo e(old('department_id', $user->department_id) == $dept->id ? 'selected' : ''); ?>><?php echo e($dept->code); ?> - <?php echo e($dept->name); ?></option>
+                        <option value="<?php echo e($dept->id); ?>" <?php echo e(old('department_id', $isEditing ? $logbook->department_id : $user->department_id) == $dept->id ? 'selected' : ''); ?>><?php echo e($dept->code); ?> - <?php echo e($dept->name); ?></option>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </select>
             </div>
@@ -336,7 +354,7 @@
                 <select name="trainer_id" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
                     <option value="">Pilih trainer</option>
                     <?php $__currentLoopData = $trainers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tr): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <option value="<?php echo e($tr->id); ?>" <?php echo e(old('trainer_id') == $tr->id ? 'selected' : ''); ?>><?php echo e($tr->name); ?> (<?php echo e($tr->nrp); ?>)</option>
+                        <option value="<?php echo e($tr->id); ?>" <?php echo e(old('trainer_id', $isEditing ? $logbook->trainer_id : '') == $tr->id ? 'selected' : ''); ?>><?php echo e($tr->name); ?> (<?php echo e($tr->nrp); ?>)</option>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </select>
             </div>
@@ -345,7 +363,7 @@
                 <select name="supervisor_id" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
                     <option value="">Pilih supervisor</option>
                     <?php $__currentLoopData = $supervisors; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $spv): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <option value="<?php echo e($spv->id); ?>" <?php echo e(old('supervisor_id') == $spv->id ? 'selected' : ''); ?>><?php echo e($spv->name); ?> (<?php echo e($spv->nrp); ?>)</option>
+                        <option value="<?php echo e($spv->id); ?>" <?php echo e(old('supervisor_id', $isEditing ? $logbook->supervisor_id : '') == $spv->id ? 'selected' : ''); ?>><?php echo e($spv->name); ?> (<?php echo e($spv->nrp); ?>)</option>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </select>
             </div>
@@ -567,7 +585,7 @@
 
         <div class="p-6">
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Catatan kegiatan / pekerjaan harian <span class="text-rose-500">*</span></label>
-            <textarea name="daily_activity" rows="6" required placeholder="Tuliskan ringkasan aktivitas harian, kondisi unit, dan poin penting pekerjaan shift ini..." class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition"><?php echo e(old('daily_activity')); ?></textarea>
+            <textarea name="daily_activity" rows="6" required placeholder="Tuliskan ringkasan aktivitas harian, kondisi unit, dan poin penting pekerjaan shift ini..." class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition"><?php echo e(old('daily_activity', $isEditing ? $logbook->daily_activity : '')); ?></textarea>
         </div>
     </div>
 
@@ -583,11 +601,11 @@
         <div class="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6 items-end">
             <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Start Time <span class="text-rose-500">*</span></label>
-                <input type="time" name="start_time" value="<?php echo e(old('start_time', '07:00')); ?>" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+                <input type="time" name="start_time" value="<?php echo e(old('start_time', $isEditing ? $logbook->start_time : '07:00')); ?>" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Finish Time <span class="text-rose-500">*</span></label>
-                <input type="time" name="finish_time" value="<?php echo e(old('finish_time', '17:00')); ?>" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+                <input type="time" name="finish_time" value="<?php echo e(old('finish_time', $isEditing ? $logbook->finish_time : '17:00')); ?>" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">HM Start <span class="text-rose-500">*</span></label>
@@ -650,11 +668,15 @@
         </div>
 
         <div class="flex items-center space-x-3 w-full lg:w-auto justify-end">
-            <button type="submit" name="action_type" value="draft" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl shadow-xs transition">Save Draft</button>
+            <?php if (! ($isTrainerEditing)): ?>
+                <button type="submit" name="action_type" value="draft" formnovalidate class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl shadow-xs transition"><?php echo e($isEditing ? 'Simpan Perubahan Draft' : 'Save Draft'); ?></button>
+            <?php endif; ?>
             <button type="submit" name="action_type" value="submit" class="px-7 py-2.5 bg-[#00A859] hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-md transition transform hover:-translate-y-0.5 flex items-center">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-                Submit Logbook
+                <?php echo e($isTrainerEditing ? 'Simpan Perubahan' : ($isEditing ? 'Kirim Ulang ke Trainer' : 'Submit Logbook')); ?>
+
             </button>
         </div>
     </div>
-</form><?php /**PATH D:\KULIAH\BERAU COAL INTERN\logbook\resources\views/ojt/logbooks/partials/create-form.blade.php ENDPATH**/ ?>
+</form>
+<?php /**PATH D:\KULIAH\BERAU COAL INTERN\logbook\resources\views/ojt/logbooks/partials/create-form.blade.php ENDPATH**/ ?>

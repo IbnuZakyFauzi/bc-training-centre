@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\CompetencyEvaluation;
+use App\Models\Department;
+use App\Models\Equipment;
+use App\Models\EquipmentCategory;
 use App\Models\LogbookHistory;
+use App\Models\LogbookEvidence;
 use App\Models\OjtLogbook;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -47,10 +51,17 @@ class TrainerReviewController extends Controller
     {
         $trainer = auth()->user();
         abort_unless($trainer && $trainer->isTrainer(), 403);
-        $logbook = OjtLogbook::with(['equipmentCategory'])->findOrFail($id);
+        $logbook = OjtLogbook::with(['equipmentCategory', 'evidences'])->findOrFail($id);
         abort_unless($logbook->trainer_id === $trainer->id && $logbook->status === 'submitted', 403);
 
-        return view('trainer.reviews.edit', compact('logbook'));
+        $user = $trainer;
+        $departments = Department::all();
+        $categories = EquipmentCategory::all();
+        $trainers = User::where('role', 'trainer')->get();
+        $supervisors = User::where('role', 'supervisor')->get();
+        $equipments = Equipment::where('status', 'active')->get();
+
+        return view('trainer.reviews.edit', compact('logbook', 'user', 'departments', 'categories', 'trainers', 'supervisors', 'equipments'));
     }
 
     public function updateLogbook(Request $request, $id)
@@ -66,9 +77,27 @@ class TrainerReviewController extends Controller
             'start_time' => ['required'], 'finish_time' => ['required'],
             'hm_start' => ['required', 'numeric', 'min:0'], 'hm_end' => ['required', 'numeric', 'gte:hm_start'],
             'daily_activity' => ['required', 'string', 'min:10'],
+            'department_id' => ['required', 'exists:departments,id'],
+            'equipment_category_id' => ['required', 'exists:equipment_categories,id'],
+            'trainer_id' => ['required', 'exists:users,id'],
+            'supervisor_id' => ['nullable', 'exists:users,id'],
+            'sop_payload' => ['nullable', 'array'],
+            'evidences' => ['nullable', 'array'],
+            'evidences.*' => ['file', 'max:20480'],
         ]);
         $data['total_hm'] = max(0, (float) $data['hm_end'] - (float) $data['hm_start']);
+        unset($data['evidences']);
         $logbook->update($data);
+        foreach ($request->file('evidences', []) as $file) {
+            $mime = $file->getClientMimeType();
+            LogbookEvidence::create([
+                'ojt_logbook_id' => $logbook->id,
+                'file_path' => $file->store('evidences', 'public'),
+                'file_name' => $file->getClientOriginalName(),
+                'file_type' => str_contains($mime, 'video') ? 'video' : (str_contains($mime, 'pdf') ? 'document' : 'image'),
+                'file_size' => round($file->getSize() / 1024, 1) . ' KB',
+            ]);
+        }
         LogbookHistory::create(['ojt_logbook_id' => $logbook->id, 'user_id' => $trainer->id, 'action' => 'Logbook Edited by Trainer', 'from_status' => 'submitted', 'to_status' => 'submitted', 'comment' => 'Data logbook diperbarui oleh trainer sebelum approval.']);
 
         return redirect()->route('trainer.reviews.show', $logbook->id)->with('success', 'Perubahan logbook oleh trainer berhasil disimpan.');
@@ -104,23 +133,48 @@ class TrainerReviewController extends Controller
     public function evaluate(Request $request, $id)
     {
         $data = $request->validate([
-            'action' => ['required', 'in:verify'],
-            'safety' => ['required', 'integer', 'min:1', 'max:4'],
-            'operation' => ['required', 'integer', 'min:1', 'max:4'],
-            'procedure' => ['required', 'integer', 'min:1', 'max:4'],
-            'communication' => ['required', 'integer', 'min:1', 'max:4'],
+            'action' => ['required', 'in:verify,revision'],
+            'safety' => ['required_if:action,verify', 'integer', 'min:1', 'max:4'],
+            'operation' => ['required_if:action,verify', 'integer', 'min:1', 'max:4'],
+            'procedure' => ['required_if:action,verify', 'integer', 'min:1', 'max:4'],
+            'communication' => ['required_if:action,verify', 'integer', 'min:1', 'max:4'],
             'training_phase' => ['nullable', 'string', 'max:100'],
             'trainer_comment' => ['nullable', 'string', 'max:2000'],
-            'competency_status' => ['required', 'in:competent,not_yet_competent'],
+            'competency_status' => ['required_if:action,verify', 'in:competent,not_yet_competent'],
             'send_to_pjo' => ['nullable', 'boolean'],
+            'revision_instruction' => ['required_if:action,revision', 'nullable', 'string', 'max:2000'],
         ]);
         $trainer = auth()->user();
         abort_unless($trainer && $trainer->isTrainer(), 403);
         $logbook = OjtLogbook::findOrFail($id);
         abort_unless($logbook->trainer_id === $trainer->id, 403);
         abort_unless($logbook->status === 'submitted', 422, 'Logbook ini sudah selesai diproses.');
+
+        if ($data['action'] === 'revision') {
+            $logbook->update([
+                'status' => 'revision',
+                'revision_notes' => $data['revision_instruction'],
+                'verified_at' => null,
+                'pjo_id' => null,
+                'pjo_notes' => null,
+                'pjo_decided_at' => null,
+                'training_centre_id' => null,
+                'training_centre_notes' => null,
+                'training_centre_decided_at' => null,
+            ]);
+            LogbookHistory::create([
+                'ojt_logbook_id' => $logbook->id,
+                'user_id' => $trainer->id,
+                'action' => 'Revision Requested by Trainer',
+                'from_status' => 'submitted',
+                'to_status' => 'revision',
+                'comment' => $data['revision_instruction'],
+            ]);
+            return redirect()->route('trainer.reviews.index')->with('success', 'Logbook telah dikembalikan untuk revisi.');
+        }
+
         $previousStatus = $logbook->status;
-        if ($data['action'] === 'verify' && !$trainer->signature_path) {
+        if (!$trainer->signature_path) {
             throw ValidationException::withMessages([
                 'signature' => 'Simpan tanda tangan di My Profile dulu sebelum verifikasi.',
             ]);

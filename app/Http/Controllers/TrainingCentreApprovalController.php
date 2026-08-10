@@ -30,19 +30,33 @@ class TrainingCentreApprovalController extends Controller
     public function index(Request $request)
     {
         $reviewer = $this->reviewer();
-        $query = $this->pendingQuery();
+        $activeStatus = $request->get('status', 'pending');
+
+        $query = OjtLogbook::with(['trainee.department', 'trainer', 'departmentOperation', 'equipment', 'evaluation']);
+
+        if ($activeStatus === 'finalized') {
+            $query->where('status', 'final_approved')->whereNotNull('training_centre_decided_at');
+        } elseif ($activeStatus === 'revision') {
+            $query->where('status', 'revision')->whereNotNull('training_centre_decided_at');
+        } else {
+            $activeStatus = 'pending';
+            $query->whereIn('status', ['approved', 'supervisor_approved'])
+                ->whereNotNull('pjo_decided_at')
+                ->whereNull('training_centre_decided_at');
+        }
+
         if ($request->filled('search')) {
             $term = $request->search;
             $query->where(fn ($q) => $q->where('logbook_number', 'like', "%{$term}%")
                 ->orWhereHas('trainee', fn ($u) => $u->where('name', 'like', "%{$term}%")->orWhere('nrp', 'like', "%{$term}%")));
         }
-        $logbooks = $query->latest('pjo_decided_at')->paginate(10)->withQueryString();
+        $logbooks = $query->latest('updated_at')->paginate(10)->withQueryString();
         $counts = [
             'pending' => $this->pendingQuery()->count(),
             'finalized' => OjtLogbook::where('status', 'final_approved')->whereNotNull('training_centre_decided_at')->count(),
             'revision' => OjtLogbook::where('status', 'revision')->whereNotNull('training_centre_decided_at')->count(),
         ];
-        return view('training-centre.approvals.index', compact('reviewer', 'logbooks', 'counts'));
+        return view('training-centre.approvals.index', compact('reviewer', 'logbooks', 'counts', 'activeStatus'));
     }
 
     public function show($id)

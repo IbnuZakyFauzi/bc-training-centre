@@ -297,9 +297,53 @@ class OjtLogbookController extends Controller
         return redirect()->route('ojt.logbooks.edit', $newLogbook->id)->with('success', 'Logbook berhasil diduplikasi ke Draft baru.');
     }
 
+    public function updateChecklist(Request $request, $id)
+    {
+        $user = Auth::user() ?? User::where('role', 'trainee')->first();
+        $traineeId = $user ? $user->id : 1;
+
+        $logbook = OjtLogbook::where('trainee_id', $traineeId)->findOrFail($id);
+        abort_unless(in_array($logbook->status, ['draft', 'revision']), 403, 'Checklist hanya dapat diubah untuk logbook draft atau revisi.');
+
+        $data = $request->validate(['checklist' => ['required', 'array']]);
+
+        $payload = $logbook->sop_payload ?? [];
+        $family = data_get($payload, 'meta.unit_family');
+        abort_unless(in_array($family, ['track', 'excavator'], true), 422, 'Tipe alat tidak valid untuk checklist SOP.');
+
+        foreach (['groups', 'behavior'] as $section) {
+            foreach ($data['checklist'][$section] ?? [] as $groupIndex => $group) {
+                $items = $section === 'groups' ? ($group['items'] ?? []) : [$groupIndex => $group];
+                foreach ($items as $itemIndex => $item) {
+                    $path = $section === 'groups' ? "{$family}.groups.{$groupIndex}.items.{$itemIndex}" : "{$family}.behavior.{$itemIndex}";
+                    data_set($payload, "{$path}.status", $item['status'] ?? null);
+                    data_set($payload, "{$path}.note", $item['note'] ?? null);
+                }
+            }
+        }
+
+        $logbook->update(['sop_payload' => $payload]);
+
+        LogbookHistory::create([
+            'ojt_logbook_id' => $logbook->id,
+            'user_id' => $traineeId,
+            'action' => 'Checklist K/BK Updated by Trainee',
+            'from_status' => $logbook->status,
+            'to_status' => $logbook->status,
+            'comment' => 'Checklist SOP diperbarui oleh trainee saat mengedit draft.',
+        ]);
+
+        return redirect()->route('ojt.logbooks.edit', $logbook->id)->with('success', 'Checklist K/BK berhasil diperbarui.');
+    }
+
     public function print($id)
     {
-        $logbook = OjtLogbook::with(['trainee', 'trainer', 'supervisor', 'department', 'equipmentCategory', 'equipment', 'evidences', 'histories.user', 'trainingCentre'])->findOrFail($id);
+        $user = Auth::user();
+        abort_unless($user && $user->isTrainingCentre(), 403, 'Hanya Admin Training Centre yang dapat mencetak atau mengunduh logbook.');
+
+        $logbook = OjtLogbook::with(['trainee', 'trainer', 'supervisor', 'department', 'equipmentCategory', 'equipment', 'evidences', 'histories.user', 'trainingCentre', 'departmentOperation'])->findOrFail($id);
+
+        abort_unless($logbook->status === 'final_approved', 403, 'Hanya logbook yang telah disahkan (Final Approved) oleh Training Centre yang dapat dicetak.');
 
         return view('ojt.logbooks.print', compact('logbook'));
     }

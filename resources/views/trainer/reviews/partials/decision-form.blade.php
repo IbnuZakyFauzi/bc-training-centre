@@ -38,6 +38,15 @@
                     @endif
                 </label>
 
+                <label class="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 p-5 cursor-pointer">
+                    <input type="radio" name="action" value="revision" x-model="action" class="accent-amber-600">
+                    <span class="text-xs font-bold text-amber-900">Minta Revisi ke Trainee</span>
+                </label>
+            </div>
+
+            <div x-show="action === 'revision'" x-cloak class="rounded-xl border border-amber-200 bg-amber-50 p-4">
+                <label for="revision_instruction" class="text-xs font-bold text-amber-900">Instruksi Revisi <span class="font-normal text-amber-700">(wajib diisi saat meminta revisi)</span></label>
+                <textarea id="revision_instruction" name="revision_instruction" rows="4" class="mt-2 w-full rounded-xl border-amber-300 bg-white text-xs" placeholder="Jelaskan poin-poin yang harus diperbaiki trainee sebelum logbook disetujui...">{{ old('revision_instruction') }}</textarea>
             </div>
 
             <div>

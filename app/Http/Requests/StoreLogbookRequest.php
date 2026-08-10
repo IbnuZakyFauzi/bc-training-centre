@@ -13,22 +13,24 @@ class StoreLogbookRequest extends FormRequest
 
     public function rules(): array
     {
+        $isDraft = $this->action_type === 'draft';
+
         return [
-            'date' => ['required', 'date'],
-            'shift' => ['required', 'in:day,night'],
-            'department_id' => ['required', 'exists:departments,id'],
-            'equipment_category_id' => ['required', 'exists:equipment_categories,id'],
+            'date' => [$isDraft ? 'nullable' : 'required', 'date'],
+            'shift' => [$isDraft ? 'nullable' : 'required', 'in:day,night'],
+            'department_id' => [$isDraft ? 'nullable' : 'required', 'exists:departments,id'],
+            'equipment_category_id' => [$isDraft ? 'nullable' : 'required', 'exists:equipment_categories,id'],
             'equipment_id' => ['nullable', 'exists:equipments,id'],
-            'equipment_number' => ['required', 'string', 'max:100'],
-            'trainer_id' => ['required', 'exists:users,id'],
+            'equipment_number' => [$isDraft ? 'nullable' : 'required', 'string', 'max:100'],
+            'trainer_id' => [$isDraft ? 'nullable' : 'required', 'exists:users,id'],
             'supervisor_id' => ['nullable', 'exists:users,id'],
-            'location' => ['required', 'string', 'max:255'],
-            'start_time' => ['required'],
-            'finish_time' => ['required'],
-            'hm_start' => ['required', 'numeric', 'min:0'],
-            'hm_end' => ['required', 'numeric', 'gte:hm_start'],
-            'daily_activity' => ['required', 'string', 'min:10'],
-            'sop_payload' => ['required', 'array'],
+            'location' => [$isDraft ? 'nullable' : 'required', 'string', 'max:255'],
+            'start_time' => [$isDraft ? 'nullable' : 'required'],
+            'finish_time' => [$isDraft ? 'nullable' : 'required'],
+            'hm_start' => [$isDraft ? 'nullable' : 'required', 'numeric', 'min:0'],
+            'hm_end' => [$isDraft ? 'nullable' : 'required', 'numeric', 'gte:hm_start'],
+            'daily_activity' => [$isDraft ? 'nullable' : 'required', 'string', 'min:10'],
+            'sop_payload' => [$isDraft ? 'nullable' : 'required', 'array'],
             'action_type' => ['required', 'in:draft,submit'],
             'evidences' => ['nullable', 'array'],
             'evidences.*' => ['file', 'mimes:jpg,jpeg,png,mp4,pdf,doc,docx', 'max:20480'],
@@ -37,6 +39,10 @@ class StoreLogbookRequest extends FormRequest
 
     public function withValidator($validator): void
     {
+        if ($this->action_type !== 'submit') {
+            return;
+        }
+
         $validator->after(function ($validator) {
             $family = data_get($this->input('sop_payload'), 'meta.unit_family');
             $checklist = data_get($this->input('sop_payload'), $family);
