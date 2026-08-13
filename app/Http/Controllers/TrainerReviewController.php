@@ -77,7 +77,6 @@ class TrainerReviewController extends Controller
         $data = $request->validate([
             'date' => ['required', 'date'], 'shift' => ['required', 'in:day,night'],
             'location' => ['required', 'string', 'max:255'], 'equipment_number' => ['required', 'string', 'max:100'],
-            'start_time' => ['required'], 'finish_time' => ['required'],
             'hm_start' => ['required', 'numeric', 'min:0'], 'hm_end' => ['required', 'numeric', 'gte:hm_start'],
             'daily_activity' => ['required', 'string', 'min:10'],
             'sop_payload' => ['nullable', 'array'],

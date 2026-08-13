@@ -476,12 +476,12 @@
 
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">HM / KM AWAL</div>
                     <div class="px-3 py-1 border-b border-slate-900">
-                        <input type="number" step="0.1" name="hm_start" x-model="hmStart" placeholder="Contoh: 4520.5" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
+                        <input type="number" step="0.1" name="hm_start" id="hm_start_section_a" value="{{ old('hm_start', $isEditing ? $logbook->hm_start : '') }}" placeholder="Contoh: 4520.5" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                     </div>
 
                     <div class="px-3 py-2 font-semibold">HM / KM AKHIR</div>
                     <div class="px-3 py-1">
-                        <input type="number" step="0.1" name="hm_end" x-model="hmEnd" placeholder="Contoh: 4529.0" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
+                        <input type="number" step="0.1" name="hm_end" id="hm_end_section_a" value="{{ old('hm_end', $isEditing ? $logbook->hm_end : '') }}" placeholder="Contoh: 4529.0" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                     </div>
 
                     <div class="px-3 py-2 font-semibold border-t border-slate-900">EXPIRED DATE STIKER (SKO)</div>
@@ -1322,35 +1322,27 @@
         <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <span class="w-7 h-7 rounded-lg bg-[#003829] text-white font-bold text-xs flex items-center justify-center">C</span>
-                <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Jam Kerja & Hour Meter</h2>
+                <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Ringkasan HM</h2>
             </div>
             <span class="text-xs font-bold text-[#00A859] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">Auto Calculate</span>
         </div>
 
-        <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-end">
-            <div>
-                <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-1">Start Time <span class="text-rose-500">*</span></label>
-                <input type="time" name="start_time" value="{{ old('start_time', $isEditing ? $logbook->start_time : '07:00') }}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+        <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">HM Start</span>
+                <span class="text-lg font-black text-slate-800" id="section-c-hm-start">-</span>
             </div>
-            <div>
-                <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-1">Finish Time <span class="text-rose-500">*</span></label>
-                <input type="time" name="finish_time" value="{{ old('finish_time', $isEditing ? $logbook->finish_time : '17:00') }}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">HM End</span>
+                <span class="text-lg font-black text-slate-800" id="section-c-hm-end">-</span>
             </div>
-            <div>
-                <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-1">HM Start <span class="text-rose-500">*</span></label>
-                <input type="number" step="0.1" name="hm_start" x-model="hmStart" placeholder="Contoh: 4520.5" readonly class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-[#00A859] focus:bg-white transition cursor-not-allowed opacity-80">
-            </div>
-            <div>
-                <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-1">HM End <span class="text-rose-500">*</span></label>
-                <input type="number" step="0.1" name="hm_end" x-model="hmEnd" placeholder="Contoh: 4529.0" readonly class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-[#00A859] focus:bg-white transition cursor-not-allowed opacity-80">
-            </div>
-            <div class="bg-[#003829] text-white p-3 rounded-xl border border-emerald-900 shadow-sm flex flex-col justify-center sm:col-span-2 lg:col-span-1 xl:col-span-1">
+            <div class="bg-[#003829] text-white p-3 rounded-xl border border-emerald-900 shadow-sm flex flex-col justify-center">
                 <span class="text-[10px] text-emerald-300 font-bold uppercase tracking-wider">Total HM</span>
-                <div x-show="!hmError" x-cloak class="flex items-baseline space-x-1 mt-1">
-                    <span class="text-2xl font-black text-[#F5A623]" x-text="totalHm">0.0</span>
+                <div id="section-c-total-hm-wrapper" class="flex items-baseline space-x-1 mt-1">
+                    <span class="text-2xl font-black text-[#F5A623]" id="section-c-total-hm">0.0</span>
                     <span class="text-xs text-emerald-200 font-bold">Hours</span>
                 </div>
-                <div x-show="hmError" x-cloak x-text="hmError" class="text-xs text-rose-300 font-medium mt-1"></div>
+                <div id="section-c-hm-error" class="text-xs text-rose-300 font-medium mt-1" style="display: none;"></div>
             </div>
         </div>
     </div>
@@ -1406,5 +1398,60 @@
             });
         });
     });
+})();
+</script>
+<script>
+(function() {
+    const hmStartInput = document.getElementById('hm_start_section_a');
+    const hmEndInput = document.getElementById('hm_end_section_a');
+    const sectionCHmStart = document.getElementById('section-c-hm-start');
+    const sectionCHmEnd = document.getElementById('section-c-hm-end');
+    const sectionCTotalHm = document.getElementById('section-c-total-hm');
+    const sectionCHmError = document.getElementById('section-c-hm-error');
+
+    function updateSectionC() {
+        const start = hmStartInput ? hmStartInput.value : '';
+        const end = hmEndInput ? hmEndInput.value : '';
+
+        if (sectionCHmStart) sectionCHmStart.textContent = start !== '' ? start : '-';
+        if (sectionCHmEnd) sectionCHmEnd.textContent = end !== '' ? end : '-';
+
+        const startNum = parseFloat(start);
+        const endNum = parseFloat(end);
+        const totalHmWrapper = document.getElementById('section-c-total-hm-wrapper');
+
+        if (sectionCHmError) {
+            if (start === '' || end === '' || isNaN(startNum) || isNaN(endNum)) {
+                sectionCHmError.textContent = '';
+                sectionCHmError.style.display = 'none';
+                if (totalHmWrapper) totalHmWrapper.style.display = '';
+            } else if (endNum < startNum) {
+                sectionCHmError.textContent = 'HM Akhir tidak boleh lebih kecil dari HM Awal.';
+                sectionCHmError.style.display = 'block';
+                if (totalHmWrapper) totalHmWrapper.style.display = 'none';
+            } else {
+                sectionCHmError.textContent = '';
+                sectionCHmError.style.display = 'none';
+                if (totalHmWrapper) totalHmWrapper.style.display = '';
+            }
+        }
+
+        if (sectionCTotalHm) {
+            if (start === '' || end === '' || isNaN(startNum) || isNaN(endNum) || endNum < startNum) {
+                sectionCTotalHm.textContent = '0.0';
+            } else {
+                sectionCTotalHm.textContent = (endNum - startNum).toFixed(1);
+            }
+        }
+    }
+
+    if (hmStartInput) hmStartInput.addEventListener('input', updateSectionC);
+    if (hmEndInput) hmEndInput.addEventListener('input', updateSectionC);
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateSectionC);
+    } else {
+        updateSectionC();
+    }
 })();
 </script>

@@ -23,8 +23,6 @@ class OjtLogbook extends Model
         'date',
         'shift',
         'location',
-        'start_time',
-        'finish_time',
         'hm_start',
         'hm_end',
         'total_hm',

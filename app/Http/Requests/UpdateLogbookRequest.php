@@ -24,8 +24,6 @@ class UpdateLogbookRequest extends FormRequest
             'equipment_number' => [$isDraft ? 'nullable' : 'required', 'string', 'max:100'],
             'trainer_id' => [$isDraft ? 'nullable' : 'required', 'exists:users,id'],
             'location' => [$isDraft ? 'nullable' : 'required', 'string', 'max:255'],
-            'start_time' => [$isDraft ? 'nullable' : 'required'],
-            'finish_time' => [$isDraft ? 'nullable' : 'required'],
             'hm_start' => [$isDraft ? 'nullable' : 'required', 'numeric', 'min:0'],
             'hm_end' => [$isDraft ? 'nullable' : 'required', 'numeric', 'gte:hm_start'],
             'daily_activity' => [$isDraft ? 'nullable' : 'required', 'string', 'min:10'],
