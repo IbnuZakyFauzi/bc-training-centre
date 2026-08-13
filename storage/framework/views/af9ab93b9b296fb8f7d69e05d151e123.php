@@ -19,7 +19,7 @@
                 <span>OPERATOR COMPETENCY MONITORING</span>
             </div>
             <h1 class="text-2xl font-bold tracking-tight text-white">Selamat Datang, <?php echo e($user->name); ?></h1>
-            <p class="text-emerald-100 text-xs mt-1">NRP: <?php echo e($user->nrp); ?> | Departemen: <?php echo e($user->department->name ?? 'Mining Operations'); ?></p>
+            <p class="text-emerald-100 text-xs mt-1">SID: <?php echo e($user->sid); ?> | Departemen: <?php echo e($user->department->name ?? 'Mining Operations'); ?></p>
         </div>
         <div class="mt-4 md:mt-0 flex items-center space-x-3">
             <?php if($latestDraft): ?>
@@ -166,7 +166,7 @@
                     </div>
                     <div class="py-6">
                         <h3 class="text-lg font-bold text-slate-800 group-hover:text-[#003829] transition">Create Digital Logbook</h3>
-                        <p class="text-sm text-slate-500 mt-2 leading-relaxed">Catat HM awal, HM akhir, lokasi pit, dan unggah foto bukti P2H harian.</p>
+                        <p class="text-sm text-slate-500 mt-2 leading-relaxed">Catat HM awal, HM akhir, lokasi pit, dan isi checklist SOP harian.</p>
                     </div>
                     <span class="inline-flex items-center border-t border-slate-100 pt-5 text-sm font-bold text-[#00A859]">Input Logbook<svg class="w-5 h-5 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></span>
                 </a>
@@ -258,7 +258,6 @@
         <ul class="grid grid-cols-1 gap-3 text-sm text-slate-200 leading-relaxed md:grid-cols-2 xl:grid-cols-4">
             <li class="rounded-xl border border-white/10 bg-white/5 p-4">Logbook wajib diisi setelah selesai shift kerja harian.</li>
             <li class="rounded-xl border border-white/10 bg-white/5 p-4">HM Awal dan HM Akhir harus sesuai dengan angka pada display unit.</li>
-            <li class="rounded-xl border border-white/10 bg-white/5 p-4">Wajib mengunggah bukti fisik checklist P2H yang valid.</li>
             <li class="rounded-xl border border-white/10 bg-white/5 p-4">Pastikan memilih Trainer dan Supervisor sesuai pit lokasi tugas.</li>
         </ul>
     </section>

@@ -4,7 +4,6 @@
     $roleLabels = [
         'trainee' => 'Trainee',
         'trainer' => 'Trainer',
-        'department_ops' => 'Dept Operation',
         'admin' => 'Admin TC',
     ];
 
@@ -13,7 +12,6 @@
     $quickAction = match ($role) {
         'trainee' => ['label' => 'Buka Logbook Saya', 'route' => 'ojt.logbooks.index'],
         'trainer' => ['label' => 'Buka Review Queue', 'route' => 'trainer.dashboard'],
-        'department_ops' => ['label' => 'Buka Pending Approval', 'route' => 'department-operation.approvals.pending'],
         'admin' => ['label' => 'Buka Final Approval', 'route' => 'training-centre.approvals.index'],
         default => ['label' => 'Dashboard', 'route' => 'dashboard'],
     };
@@ -52,7 +50,7 @@
                 <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-3">
                     <div>
                         <p class="text-xs font-bold text-slate-800"><?php echo e($user->name ?? 'User'); ?></p>
-                        <p class="text-[11px] text-slate-500 mt-0.5"><?php echo e($user->nrp ?? '-'); ?> · <?php echo e($roleLabel); ?></p>
+                        <p class="text-[11px] text-slate-500 mt-0.5"><?php echo e($user->sid ?? '-'); ?> · <?php echo e($roleLabel); ?></p>
                     </div>
                     <div class="w-10 h-10 rounded-full bg-[#003829] text-white flex items-center justify-center font-bold text-xs">
                         <?php echo e(collect(explode(' ', $user->name ?? 'U'))->filter()->take(2)->map(fn ($part) => strtoupper(substr($part, 0, 1)))->implode('') ?: 'U'); ?>
@@ -81,7 +79,7 @@
             <img class="w-8 h-8 rounded-full border-2 border-[#00A859] object-cover" src="https://ui-avatars.com/api/?name=<?php echo e(urlencode($user->name ?? 'User')); ?>&background=003829&color=fff" alt="User Avatar">
             <div class="hidden lg:block text-left">
                 <span class="text-xs font-bold text-slate-800 block leading-tight"><?php echo e($user->name ?? 'User'); ?></span>
-                <span class="text-[10px] text-slate-500 font-medium block"><?php echo e($user->nrp ?? '-'); ?> · <?php echo e($roleLabel); ?></span>
+                <span class="text-[10px] text-slate-500 font-medium block"><?php echo e($user->sid ?? '-'); ?> · <?php echo e($roleLabel); ?></span>
             </div>
         </div>
     </div>

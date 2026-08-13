@@ -20,9 +20,9 @@ class DashboardController extends Controller
             'draft' => OjtLogbook::where('trainee_id', $traineeId)->where('status', 'draft')->count(),
             'submitted' => OjtLogbook::where('trainee_id', $traineeId)->where('status', 'submitted')->count(),
             'revision' => OjtLogbook::where('trainee_id', $traineeId)->where('status', 'revision')->count(),
-            'approved' => OjtLogbook::where('trainee_id', $traineeId)->whereIn('status', ['approved', 'supervisor_approved', 'final_approved'])->count(),
+            'approved' => OjtLogbook::where('trainee_id', $traineeId)->whereIn('status', ['verified', 'final_approved'])->count(),
             'total_logbooks' => OjtLogbook::where('trainee_id', $traineeId)->count(),
-            'total_hm' => OjtLogbook::where('trainee_id', $traineeId)->whereIn('status', ['submitted', 'verified', 'approved', 'supervisor_approved', 'final_approved'])->sum('total_hm'),
+            'total_hm' => OjtLogbook::where('trainee_id', $traineeId)->whereIn('status', ['verified', 'final_approved'])->sum('total_hm'),
             'target_hm' => 200.0, // 200 HM Hours required for OJT completion
         ];
 

@@ -44,6 +44,8 @@ class OjtLogbook extends Model
         'trainer_signature_path',
         'pjo_signature_path',
         'training_centre_signature_path',
+        'assigned_pjo_id',
+        'assigned_tc_id',
     ];
 
     protected $casts = [
@@ -74,7 +76,7 @@ class OjtLogbook extends Model
         return $this->belongsTo(User::class, 'supervisor_id');
     }
 
-    public function departmentOperation(): BelongsTo
+    public function pengawasTrainer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'pjo_id');
     }
@@ -82,6 +84,16 @@ class OjtLogbook extends Model
     public function trainingCentre(): BelongsTo
     {
         return $this->belongsTo(User::class, 'training_centre_id');
+    }
+
+    public function assignedPjo(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_pjo_id');
+    }
+
+    public function assignedTc(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_tc_id');
     }
 
     public function department(): BelongsTo
@@ -107,11 +119,6 @@ class OjtLogbook extends Model
             ?? data_get($this->sop_payload, 'meta.equipment_number')
             ?? $this->equipment->unit_code
             ?? '-';
-    }
-
-    public function evidences(): HasMany
-    {
-        return $this->hasMany(LogbookEvidence::class);
     }
 
     public function histories(): HasMany

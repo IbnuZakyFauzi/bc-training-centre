@@ -44,6 +44,24 @@
                 </label>
             </div>
 
+            <div x-show="action === 'verify'" x-cloak class="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-4">
+                <p class="text-xs font-bold text-slate-700">Assign Approval (Opsional)</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Assign ke Kabag Training Centre</label>
+                        <select name="assigned_tc_id" class="w-full rounded-lg border-slate-300 text-xs">
+                            <option value="">-- Pilih Kabag TC --</option>
+                            @foreach(\App\Models\User::where('role', 'admin')->get() as $tc)
+                                <option value="{{ $tc->id }}" {{ old('assigned_tc_id', $logbook->assigned_tc_id) == $tc->id ? 'selected' : '' }}>
+                                    {{ $tc->name }} ({{ $tc->sid }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <p class="text-[10px] text-slate-400">Biarkan kosong jika tidak ingin assign specifically. Super Admin tetap bisa melihat semua logbook.</p>
+            </div>
+
             <div x-show="action === 'revision'" x-cloak class="rounded-xl border border-amber-200 bg-amber-50 p-4">
                 <label for="revision_instruction" class="text-xs font-bold text-amber-900">Instruksi Revisi <span class="font-normal text-amber-700">(wajib diisi saat meminta revisi)</span></label>
                 <textarea id="revision_instruction" name="revision_instruction" rows="4" class="mt-2 w-full rounded-xl border-amber-300 bg-white text-xs" placeholder="Jelaskan poin-poin yang harus diperbaiki trainee sebelum logbook disetujui...">{{ old('revision_instruction') }}</textarea>

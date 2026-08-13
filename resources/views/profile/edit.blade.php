@@ -15,6 +15,13 @@
         </div>
     @endif
 
+    @if($user->must_change_password)
+        <div class="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-900">
+            <p class="font-bold">Anda harus mengganti password default terlebih dahulu.</p>
+            <p class="mt-1 text-[11px] text-amber-700">Gunakan form di bawah ini untuk mengubah password Anda.</p>
+        </div>
+    @endif
+
     <div class="grid gap-6 lg:grid-cols-2">
         <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
             @csrf
@@ -33,8 +40,8 @@
             </div>
 
             <div>
-                <label class="text-xs font-bold text-slate-700">Phone</label>
-                <input name="phone" value="{{ old('phone', $user->phone) }}" class="mt-2 w-full rounded-xl border-slate-300 text-sm" placeholder="Opsional">
+                <label class="text-xs font-bold text-slate-700">No. HP <span class="text-rose-500">*</span></label>
+                <input name="phone" value="{{ old('phone', $user->phone) }}" class="mt-2 w-full rounded-xl border-slate-300 text-sm" required placeholder="Contoh: 08123456789">
                 @error('phone')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
             </div>
 
@@ -43,6 +50,26 @@
                 <input type="file" name="signature" accept="image/png,image/jpeg" class="mt-2 block w-full text-xs text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-[#003829] file:px-3 file:py-2 file:text-xs file:font-bold file:text-white">
                 <p class="mt-2 text-[11px] text-slate-500">Format PNG, JPG, atau JPEG. Maksimal 2 MB. Tanda tangan ini akan dipakai otomatis saat approval.</p>
                 @error('signature')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
+            </div>
+
+            <div class="border-t border-slate-200 pt-5">
+                <p class="text-xs font-bold text-slate-700 mb-4">Ganti Password</p>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-700">Password Saat Ini</label>
+                        <input type="password" name="current_password" class="mt-2 w-full rounded-xl border-slate-300 text-sm" placeholder="Wajib diisi jika ingin ganti password">
+                        @error('current_password')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-700">Password Baru</label>
+                        <input type="password" name="new_password" class="mt-2 w-full rounded-xl border-slate-300 text-sm" placeholder="Minimal 6 karakter">
+                        @error('new_password')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-700">Konfirmasi Password Baru</label>
+                        <input type="password" name="new_password_confirmation" class="mt-2 w-full rounded-xl border-slate-300 text-sm" placeholder="Ulangi password baru">
+                    </div>
+                </div>
             </div>
 
             <div class="flex justify-end">
@@ -55,8 +82,8 @@
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Informasi Akun</p>
                 <div class="mt-4 space-y-3 text-sm">
                     <div class="flex items-center justify-between gap-4">
-                        <span class="text-slate-500 text-xs">NRP</span>
-                        <span class="font-semibold text-slate-800">{{ $user->nrp }}</span>
+                        <span class="text-slate-500 text-xs">SID</span>
+                        <span class="font-semibold text-slate-800">{{ $user->sid }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4">
                         <span class="text-slate-500 text-xs">Role</span>
@@ -65,6 +92,12 @@
                     <div class="flex items-center justify-between gap-4">
                         <span class="text-slate-500 text-xs">Department</span>
                         <span class="font-semibold text-slate-800">{{ $user->department->name ?? '-' }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                        <span class="text-slate-500 text-xs">Status Password</span>
+                        <span class="font-semibold {{ $user->must_change_password ? 'text-amber-600' : 'text-emerald-600' }}">
+                            {{ $user->must_change_password ? 'Harus diganti' : 'Sudah diganti' }}
+                        </span>
                     </div>
                 </div>
             </div>

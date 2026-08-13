@@ -1,14 +1,13 @@
 <x-app-layout>
-    <x-slot name="title">{{ ($trainingCentreApproval ?? false) ? 'Final Approval Training Centre' : (($departmentOperationApproval ?? false) ? 'Approval Pengawas' : 'Detail Logbook') }} - {{ $logbook->logbook_number }}</x-slot>
+    <x-slot name="title">{{ ($trainingCentreApproval ?? false) ? 'Final Approval Training Centre' : 'Detail Logbook' }} - {{ $logbook->logbook_number }}</x-slot>
     @php($trainerReview = $trainerReview ?? false)
-    @php($departmentOperationApproval = $departmentOperationApproval ?? false)
     @php($trainingCentreApproval = $trainingCentreApproval ?? false)
 
     <!-- Page Header & Action Bar -->
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#00A859] mb-1">
-                <a href="{{ $trainingCentreApproval ? route('training-centre.approvals.index') : ($departmentOperationApproval ? route('department-operation.approvals.pending') : ($trainerReview ? route('trainer.reviews.index') : route('ojt.logbooks.index'))) }}" class="hover:underline">{{ $trainingCentreApproval ? 'Final Approval Training Centre' : ($departmentOperationApproval ? 'Approval Pengawas' : ($trainerReview ? 'Trainer Review Queue' : 'My Logbook')) }}</a>
+                <a href="{{ $trainingCentreApproval ? route('training-centre.approvals.index') : ($trainerReview ? route('trainer.reviews.index') : route('ojt.logbooks.index')) }}" class="hover:underline">{{ $trainingCentreApproval ? 'Final Approval Training Centre' : ($trainerReview ? 'Trainer Review Queue' : 'My Logbook') }}</a>
                 <span>/</span>
                 <span class="text-slate-500">{{ $logbook->logbook_number }}</span>
             </div>
@@ -22,7 +21,10 @@
             @if($trainerReview && $logbook->status === 'submitted')
                 <a href="{{ route('trainer.reviews.edit', $logbook->id) }}" class="inline-flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold text-xs rounded-xl shadow-xs transition">Edit Logbook</a>
             @endif
-            @if(!$trainerReview && !$departmentOperationApproval && !$trainingCentreApproval && in_array($logbook->status, ['draft', 'revision']))
+            @if($trainerReview && $logbook->status === 'verified')
+                <a href="{{ route('trainer.reviews.index') }}" class="inline-flex items-center px-4 py-2 bg-[#00A859] hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-xs transition">Approval Pengawas</a>
+            @endif
+            @if(!$trainerReview && !$trainingCentreApproval && in_array($logbook->status, ['draft', 'revision']))
                 <a href="{{ route('ojt.logbooks.edit', $logbook->id) }}" class="inline-flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold text-xs rounded-xl shadow-xs transition">
                     <svg class="w-4 h-4 mr-2 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                     Edit Logbook
@@ -59,7 +61,7 @@
         </div>
     @endif
 
-    @if($trainerReview || $departmentOperationApproval || $trainingCentreApproval)
+    @if($trainerReview || $trainingCentreApproval)
         @include('trainer.reviews.partials.submitted-checklist')
     @endif
 
@@ -154,31 +156,6 @@
                 </div>
             </div>
 
-            <!-- Evidence Gallery Section -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-                    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Galeri Lampiran & Bukti Fisik</h2>
-                    <span class="text-xs font-bold text-slate-500">{{ $logbook->evidences->count() }} Berkas</span>
-                </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        @forelse($logbook->evidences as $ev)
-                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center space-x-3">
-                                <div class="w-10 h-10 rounded-lg bg-emerald-100 text-[#00A859] flex items-center justify-center font-bold text-xs flex-shrink-0">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                </div>
-                                <div class="overflow-hidden min-w-0 flex-1">
-                                    <p class="text-xs font-bold text-slate-800 truncate" title="{{ $ev->file_name }}">{{ $ev->file_name }}</p>
-                                    <p class="text-[10px] text-slate-400 mt-0.5">{{ $ev->file_size ?? 'File Bukti' }}</p>
-                                </div>
-                            </div>
-                        @empty
-                            <p class="text-xs text-slate-400 col-span-3 py-4 text-center">Tidak ada lampiran foto/berkas terunggah.</p>
-                        @endforelse
-                    </div>
-                </div>
-            </div>
-
         </div>
 
         <!-- Right Column: Audit Timeline & Signatures -->
@@ -238,16 +215,16 @@
                     @endif
                 </div>
 
-                @if($departmentOperationApproval || $trainingCentreApproval)
-                    <div class="flex-1 p-5 {{ in_array($logbook->status, ['approved', 'supervisor_approved', 'final_approved']) ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200' }} rounded-xl border flex items-center justify-between">
+                @if($logbook->pjo_decided_at || $trainingCentreApproval)
+                    <div class="flex-1 p-5 {{ in_array($logbook->status, ['verified', 'approved', 'supervisor_approved', 'final_approved']) ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200' }} rounded-xl border flex items-center justify-between">
                     <div>
-                        <span class="text-xs text-slate-500 font-bold uppercase block">Pengawas</span>
-                        <span class="text-sm font-bold text-slate-800 mt-1 block">{{ $logbook->departmentOperation->name ?? 'Menunggu Approval Pengawas' }}</span>
+                        <span class="text-xs text-slate-500 font-bold uppercase block">Pengawas Trainer</span>
+                        <span class="text-sm font-bold text-slate-800 mt-1 block">{{ $logbook->pengawasTrainer->name ?? 'Menunggu Approval Pengawas' }}</span>
                         @if($logbook->pjo_signature_path)
-                            <img src="{{ asset('storage/'.$logbook->pjo_signature_path) }}" alt="Supervisor signature" class="mt-2 max-h-12 w-auto object-contain bg-white rounded-lg border border-emerald-200 p-1">
+                            <img src="{{ asset('storage/'.$logbook->pjo_signature_path) }}" alt="Pengawas signature" class="mt-2 max-h-12 w-auto object-contain bg-white rounded-lg border border-emerald-200 p-1">
                         @endif
                     </div>
-                        <span class="px-3 py-1 {{ in_array($logbook->status, ['approved', 'supervisor_approved', 'final_approved']) ? 'bg-[#00A859] text-white' : 'bg-slate-200 text-slate-600' }} text-xs font-bold rounded">{{ in_array($logbook->status, ['approved', 'supervisor_approved', 'final_approved']) ? 'Approved' : 'Pending' }}</span>
+                        <span class="px-3 py-1 {{ in_array($logbook->status, ['verified', 'approved', 'supervisor_approved', 'final_approved']) ? 'bg-[#00A859] text-white' : 'bg-slate-200 text-slate-600' }} text-xs font-bold rounded">{{ in_array($logbook->status, ['verified', 'approved', 'supervisor_approved', 'final_approved']) ? 'Approved' : 'Pending' }}</span>
                     </div>
                 @endif
 
@@ -269,10 +246,6 @@
 
     @if($trainerReview)
         @include('trainer.reviews.partials.decision-form')
-    @endif
-
-    @if($departmentOperationApproval && ($isPending ?? false))
-        @include('department-operation.approvals.partials.decision-form')
     @endif
 
     @if($trainingCentreApproval && ($isPending ?? false))

@@ -13,7 +13,7 @@ class TrainingCentreSeeder extends Seeder
     {
         User::firstOrCreate(
             ['email' => 'training.centre@beraucoal.co.id'],
-            ['nrp' => 'BC-10001', 'name' => 'Rudi Hartono (Kabag Training Centre)', 'password' => Hash::make('password'), 'role' => 'admin', 'department_id' => Department::where('code', 'SHE-TC')->value('id'), 'phone' => '+62 812-1000-2000']
+            ['sid' => 'BC-10001', 'name' => 'Rudi Hartono (Kabag Training Centre)', 'password' => Hash::make('password'), 'role' => 'admin', 'department_id' => Department::where('code', 'SHE-TC')->value('id'), 'phone' => '+62 812-1000-2000']
         );
     }
 }

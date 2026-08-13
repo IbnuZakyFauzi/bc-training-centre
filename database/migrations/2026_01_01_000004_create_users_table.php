@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('nrp')->unique(); // Mining ID / Employee ID
+            $table->string('sid')->unique(); // Student ID
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');

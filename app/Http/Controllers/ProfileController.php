@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
@@ -28,8 +30,10 @@ class ProfileController extends Controller
                 'max:255',
                 Rule::unique('users', 'email')->ignore($user->id),
             ],
-            'phone' => ['nullable', 'string', 'max:30'],
+            'phone' => ['required', 'string', 'max:30'],
             'signature' => ['nullable', 'file', 'mimes:png,jpg,jpeg', 'max:2048'],
+            'current_password' => ['nullable', 'required_with:new_password', 'current_password'],
+            'new_password' => ['nullable', 'required_with:current_password', 'string', 'min:6', 'confirmed'],
         ]);
 
         $signaturePath = $user->signature_path;
@@ -42,13 +46,20 @@ class ProfileController extends Controller
             $signaturePath = $request->file('signature')->store('signatures', 'public');
         }
 
-        $user->update([
+        $updateData = [
             'name' => $data['name'],
             'email' => $data['email'],
             'phone' => $data['phone'] ?? null,
             'signature_path' => $signaturePath,
-        ]);
+        ];
 
-        return back()->with('success', 'Profil dan tanda tangan berhasil disimpan.');
+        if (!empty($data['new_password'])) {
+            $updateData['password'] = bcrypt($data['new_password']);
+            $updateData['must_change_password'] = false;
+        }
+
+        $user->update($updateData);
+
+        return back()->with('success', 'Profil berhasil disimpan.');
     }
 }

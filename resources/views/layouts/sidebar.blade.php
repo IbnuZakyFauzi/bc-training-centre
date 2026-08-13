@@ -4,7 +4,6 @@
     $roleLabels = [
         'trainee' => 'Trainee',
         'trainer' => 'Trainer',
-        'department_ops' => 'Dept Operation',
         'admin' => 'Admin TC',
     ];
 
@@ -19,7 +18,6 @@
     $dashboardRoute = match ($role) {
         'trainee' => 'ojt.dashboard',
         'trainer' => 'trainer.dashboard',
-        'department_ops' => 'department-operation.dashboard',
         'admin' => 'training-centre.dashboard',
         default => 'dashboard',
     };
@@ -43,21 +41,13 @@
                 ['label' => 'Review Logbook', 'route' => 'trainer.reviews.index', 'match' => 'trainer.reviews.*'],
             ],
         ],
-        'department_ops' => [
-            'label' => 'Approval Pengawas',
-            'tag' => 'PENGAWAS',
-            'items' => [
-                ['label' => 'Dashboard', 'route' => 'department-operation.dashboard', 'match' => 'department-operation.dashboard'],
-                ['label' => 'Pending Approval', 'route' => 'department-operation.approvals.pending', 'match' => 'department-operation.approvals.pending'],
-                ['label' => 'Approval History', 'route' => 'department-operation.approvals.history', 'match' => 'department-operation.approvals.history'],
-            ],
-        ],
         'admin' => [
             'label' => 'Admin Training Centre',
             'tag' => 'ADMIN',
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'training-centre.dashboard', 'match' => 'training-centre.dashboard'],
                 ['label' => 'Final Approval', 'route' => 'training-centre.approvals.index', 'match' => 'training-centre.approvals.*'],
+                ['label' => 'Manajemen Pengguna', 'route' => 'training-centre.users.index', 'match' => 'training-centre.users.*'],
             ],
         ],
     ];
@@ -131,7 +121,7 @@
             </div>
             <div class="overflow-hidden text-ellipsis whitespace-nowrap">
                 <p class="text-xs font-bold text-white truncate">{{ $user->name ?? 'User' }}</p>
-                <p class="text-[10px] text-emerald-300 font-mono truncate">{{ $user->nrp ?? '-' }} ({{ $roleLabel }})</p>
+                <p class="text-[10px] text-emerald-300 font-mono truncate">{{ $user->sid ?? '-' }} ({{ $roleLabel }})</p>
             </div>
         </div>
     </div>

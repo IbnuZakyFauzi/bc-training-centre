@@ -9,7 +9,7 @@
         </div>
         <div class="rounded-xl bg-white/10 border border-white/15 px-4 py-3 text-xs">
             <p class="text-emerald-200">Admin Training Centre</p>
-            <p class="font-bold mt-0.5">{{ $reviewer->name }} · {{ $reviewer->nrp }}</p>
+            <p class="font-bold mt-0.5">{{ $reviewer->name }} · {{ $reviewer->sid }}</p>
         </div>
     </div>
 
@@ -40,7 +40,7 @@
             </div>
             <form class="flex gap-2" method="GET">
                 <input type="hidden" name="status" value="{{ $activeStatus ?? 'pending' }}">
-                <input name="search" value="{{ request('search') }}" placeholder="Cari NRP atau logbook..." class="text-xs rounded-xl border-slate-300">
+                <input name="search" value="{{ request('search') }}" placeholder="Cari SID atau logbook..." class="text-xs rounded-xl border-slate-300">
                 <button class="px-4 rounded-xl bg-[#003829] text-white text-xs font-bold">Cari</button>
             </form>
         </div>
@@ -50,7 +50,6 @@
                     <tr>
                         <th class="px-5 py-3">Logbook / Trainee</th>
                         <th class="px-5 py-3">Trainer</th>
-                        <th class="px-5 py-3">Pengawas</th>
                         <th class="px-5 py-3">Status / Tanggal</th>
                         <th class="px-5 py-3 text-right">Aksi</th>
                     </tr>
@@ -60,14 +59,13 @@
                         <tr class="hover:bg-emerald-50/30">
                             <td class="px-5 py-4">
                                 <p class="text-xs font-bold text-slate-800">{{ $logbook->logbook_number }}</p>
-                                <p class="text-[11px] text-slate-500 mt-1">{{ $logbook->trainee->name }} · {{ $logbook->trainee->nrp }}</p>
+                                <p class="text-[11px] text-slate-500 mt-1">{{ $logbook->trainee->name }} · {{ $logbook->trainee->sid }}</p>
                             </td>
-                            <td class="px-5 py-4 text-xs text-slate-600">{{ $logbook->trainer->name ?? '-' }}</td>
-                            <td class="px-5 py-4 text-xs text-slate-600">{{ $logbook->departmentOperation->name ?? '-' }}</td>
+                            <td class="px-5 py-4 text-xs text-slate-600">{{ $logbook->trainer->name ?? '-' }}                            </td>
                             <td class="px-5 py-4 text-xs text-slate-600">
                                 <x-badge :status="$logbook->status" />
                                 <span class="block text-[10px] text-slate-400 mt-1">
-                                    {{ optional($logbook->training_centre_decided_at ?? $logbook->pjo_decided_at)->format('d M Y, H:i') }}
+                                    {{ optional($logbook->training_centre_decided_at ?? $logbook->verified_at)->format('d M Y, H:i') }}
                                 </span>
                             </td>
                             <td class="px-5 py-4 text-right">

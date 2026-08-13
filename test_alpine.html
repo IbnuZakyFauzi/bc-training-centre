@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js" defer></script>
+</head>
+<body>
+<div x-data="{
+    categoryMap: {'1':'EXC','2':'DZ'},
+    existingSopPayload: JSON.parse('{\"track\":{\"groups\":[{\"items\":[{\"status\":\"K\"}]}]}}'),
+    get totalHm() {
+        return '0.0';
+    },
+    get hmError() {
+        return '';
+    },
+    fillExistingChecklist() {
+        console.log('fillExistingChecklist called');
+    }
+}">
+    <div x-text="'Alpine works! hmError=' + hmError + ' totalHm=' + totalHm"></div>
+    <div x-show="!hmError">No error</div>
+    <div x-show="hmError" x-text="hmError"></div>
+</div>
+</body>
+</html>

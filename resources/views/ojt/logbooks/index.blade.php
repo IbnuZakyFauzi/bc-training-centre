@@ -146,7 +146,7 @@
                             <!-- Trainer -->
                             <td class="py-4 px-4">
                                 <div class="font-semibold text-slate-800">{{ $log->trainer->name ?? 'Belum Ditunjuk' }}</div>
-                                <div class="text-[10px] text-slate-400 font-mono">{{ $log->trainer->nrp ?? '-' }}</div>
+                                <div class="text-[10px] text-slate-400 font-mono">{{ $log->trainer->sid ?? '-' }}</div>
                             </td>
 
                             <!-- Status Badge -->

@@ -7,7 +7,6 @@ use App\Models\Department;
 use App\Models\EquipmentCategory;
 use App\Models\Equipment;
 use App\Models\User;
-use App\Models\LogbookEvidence;
 use App\Models\LogbookHistory;
 use App\Http\Requests\StoreLogbookRequest;
 use App\Http\Requests\UpdateLogbookRequest;
@@ -42,7 +41,7 @@ class OjtLogbookController extends Controller
         // Status Filter
         if ($request->filled('status') && $request->status !== 'all') {
             if ($request->status === 'approved') {
-                $query->whereIn('status', ['approved', 'supervisor_approved', 'final_approved']);
+                $query->whereIn('status', ['verified', 'final_approved']);
             } else {
                 $query->where('status', $request->status);
             }
@@ -63,13 +62,13 @@ class OjtLogbookController extends Controller
 
         $logbooks = $query->orderBy('date', 'desc')->paginate(10)->withQueryString();
 
-        $equipments = Equipment::where('status', 'active')->get();
+        $equipments = Equipment::with('category')->where('status', 'active')->get();
         $statusCounts = [
             'all' => OjtLogbook::where('trainee_id', $traineeId)->count(),
             'draft' => OjtLogbook::where('trainee_id', $traineeId)->where('status', 'draft')->count(),
             'submitted' => OjtLogbook::where('trainee_id', $traineeId)->where('status', 'submitted')->count(),
             'revision' => OjtLogbook::where('trainee_id', $traineeId)->where('status', 'revision')->count(),
-            'approved' => OjtLogbook::where('trainee_id', $traineeId)->whereIn('status', ['approved', 'supervisor_approved', 'final_approved'])->count(),
+            'approved' => OjtLogbook::where('trainee_id', $traineeId)->whereIn('status', ['verified', 'final_approved'])->count(),
         ];
 
         return view('ojt.logbooks.index', compact('logbooks', 'equipments', 'statusCounts'));
@@ -78,13 +77,12 @@ class OjtLogbookController extends Controller
     public function create()
     {
         $user = Auth::user() ?? User::where('role', 'trainee')->first();
-        $departments = Department::all();
-        $categories = EquipmentCategory::with('equipments')->get();
+        $departments = Department::whereIn('code', ['CHCPP', 'RIM', 'PLANT'])->get();
+        $categories = EquipmentCategory::whereIn('code', ['EXC', 'DZ', 'MG', 'HDT', 'SDT', 'WL'])->with('equipments')->get();
         $trainers = User::where('role', 'trainer')->get();
-        $supervisors = User::where('role', 'supervisor')->get();
-        $equipments = Equipment::where('status', 'active')->get();
+        $equipments = Equipment::with('category')->where('status', 'active')->get();
 
-        return view('ojt.logbooks.create', compact('user', 'departments', 'categories', 'trainers', 'supervisors', 'equipments'));
+        return view('ojt.logbooks.create', compact('user', 'departments', 'categories', 'trainers', 'equipments'));
     }
 
     public function store(StoreLogbookRequest $request)
@@ -100,8 +98,6 @@ class OjtLogbookController extends Controller
         $logbook = OjtLogbook::create([
             'logbook_number' => $logbookNumber,
             'trainee_id' => $traineeId,
-            'trainer_id' => $request->trainer_id,
-            'supervisor_id' => $request->supervisor_id,
             'department_id' => $request->department_id,
             'equipment_category_id' => $request->equipment_category_id,
             'equipment_id' => $request->equipment_id,
@@ -120,23 +116,6 @@ class OjtLogbookController extends Controller
             'submitted_at' => $status === 'submitted' ? now() : null,
         ]);
 
-        // Upload Evidences
-        if ($request->hasFile('evidences')) {
-            foreach ($request->file('evidences') as $file) {
-                $path = $file->store('evidences', 'public');
-                $mime = $file->getClientMimeType();
-                $fileType = str_contains($mime, 'video') ? 'video' : (str_contains($mime, 'pdf') ? 'document' : 'image');
-
-                LogbookEvidence::create([
-                    'ojt_logbook_id' => $logbook->id,
-                    'file_path' => $path,
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_type' => $fileType,
-                    'file_size' => round($file->getSize() / 1024, 1) . ' KB',
-                ]);
-            }
-        }
-
         // History Log
         LogbookHistory::create([
             'ojt_logbook_id' => $logbook->id,
@@ -154,14 +133,14 @@ class OjtLogbookController extends Controller
 
     public function show($id)
     {
-        $logbook = OjtLogbook::with(['trainee', 'trainer', 'supervisor', 'department', 'equipmentCategory', 'equipment', 'evidences', 'histories.user'])->findOrFail($id);
+        $logbook = OjtLogbook::with(['trainee', 'trainer', 'supervisor', 'department', 'equipmentCategory', 'equipment', 'histories.user'])->findOrFail($id);
 
         return view('ojt.logbooks.show', compact('logbook'));
     }
 
     public function edit($id)
     {
-        $logbook = OjtLogbook::with(['evidences'])->findOrFail($id);
+        $logbook = OjtLogbook::findOrFail($id);
 
         // Check editable
         if (!in_array($logbook->status, ['draft', 'revision'])) {
@@ -170,13 +149,12 @@ class OjtLogbookController extends Controller
         }
 
         $user = Auth::user() ?? User::where('role', 'trainee')->first();
-        $departments = Department::all();
-        $categories = EquipmentCategory::all();
+        $departments = Department::whereIn('code', ['CHCPP', 'RIM', 'PLANT'])->get();
+        $categories = EquipmentCategory::whereIn('code', ['EXC', 'DZ', 'MG', 'HDT', 'SDT', 'WL'])->with('equipments')->get();
         $trainers = User::where('role', 'trainer')->get();
-        $supervisors = User::where('role', 'supervisor')->get();
-        $equipments = Equipment::where('status', 'active')->get();
+        $equipments = Equipment::with('category')->where('status', 'active')->get();
 
-        return view('ojt.logbooks.edit', compact('logbook', 'user', 'departments', 'categories', 'trainers', 'supervisors', 'equipments'));
+        return view('ojt.logbooks.edit', compact('logbook', 'user', 'departments', 'categories', 'trainers', 'equipments'));
     }
 
     public function update(UpdateLogbookRequest $request, $id)
@@ -193,9 +171,6 @@ class OjtLogbookController extends Controller
         $totalHm = floatval($request->hm_end) - floatval($request->hm_start);
 
         $logbook->update([
-            'trainer_id' => $request->trainer_id,
-            'supervisor_id' => $request->supervisor_id,
-            'department_id' => $request->department_id,
             'equipment_category_id' => $request->equipment_category_id,
             'equipment_id' => $request->equipment_id,
             'equipment_number' => $request->equipment_number,
@@ -224,23 +199,6 @@ class OjtLogbookController extends Controller
             'training_centre_signature_path' => $newStatus === 'submitted' ? null : $logbook->training_centre_signature_path,
         ]);
 
-        // Upload Evidences if any
-        if ($request->hasFile('evidences')) {
-            foreach ($request->file('evidences') as $file) {
-                $path = $file->store('evidences', 'public');
-                $mime = $file->getClientMimeType();
-                $fileType = str_contains($mime, 'video') ? 'video' : (str_contains($mime, 'pdf') ? 'document' : 'image');
-
-                LogbookEvidence::create([
-                    'ojt_logbook_id' => $logbook->id,
-                    'file_path' => $path,
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_type' => $fileType,
-                    'file_size' => round($file->getSize() / 1024, 1) . ' KB',
-                ]);
-            }
-        }
-
         // History Log
         LogbookHistory::create([
             'ojt_logbook_id' => $logbook->id,
@@ -248,7 +206,7 @@ class OjtLogbookController extends Controller
             'action' => $newStatus === 'submitted' ? 'Logbook Resubmitted after Revision/Draft' : 'Draft Updated',
             'from_status' => $oldStatus,
             'to_status' => $newStatus,
-            'comment' => $newStatus === 'submitted' ? 'Resubmitted logbook with updated information and evidence.' : 'Updated draft details.',
+            'comment' => $newStatus === 'submitted' ? 'Resubmitted logbook with updated information.' : 'Updated draft details.',
         ]);
 
         $message = $newStatus === 'submitted' ? 'Logbook berhasil dikirim ulang ke Trainer.' : 'Perubahan draft logbook berhasil disimpan.';
@@ -268,7 +226,8 @@ class OjtLogbookController extends Controller
             'logbook_number' => $newLogbookNumber,
             'trainee_id' => $traineeId,
             'trainer_id' => $original->trainer_id,
-            'supervisor_id' => $original->supervisor_id,
+            'pjo_id' => $original->pjo_id,
+            'assigned_pjo_id' => $original->assigned_pjo_id,
             'department_id' => $original->department_id,
             'equipment_category_id' => $original->equipment_category_id,
             'equipment_id' => $original->equipment_id,
@@ -309,13 +268,13 @@ class OjtLogbookController extends Controller
 
         $payload = $logbook->sop_payload ?? [];
         $family = data_get($payload, 'meta.unit_family');
-        abort_unless(in_array($family, ['track', 'excavator'], true), 422, 'Tipe alat tidak valid untuk checklist SOP.');
+        abort_unless(in_array($family, ['track', 'excavator', 'dumptruck', 'semidump', 'wheelloader'], true), 422, 'Tipe alat tidak valid untuk checklist SOP.');
 
-        foreach (['groups', 'behavior'] as $section) {
+        foreach (['groups', 'compliance', 'behavior'] as $section) {
             foreach ($data['checklist'][$section] ?? [] as $groupIndex => $group) {
                 $items = $section === 'groups' ? ($group['items'] ?? []) : [$groupIndex => $group];
                 foreach ($items as $itemIndex => $item) {
-                    $path = $section === 'groups' ? "{$family}.groups.{$groupIndex}.items.{$itemIndex}" : "{$family}.behavior.{$itemIndex}";
+                    $path = $section === 'groups' ? "{$family}.groups.{$groupIndex}.items.{$itemIndex}" : ($section === 'compliance' ? "{$family}.compliance.{$itemIndex}" : "{$family}.behavior.{$itemIndex}");
                     data_set($payload, "{$path}.status", $item['status'] ?? null);
                     data_set($payload, "{$path}.note", $item['note'] ?? null);
                 }
@@ -341,7 +300,7 @@ class OjtLogbookController extends Controller
         $user = Auth::user();
         abort_unless($user && $user->isTrainingCentre(), 403, 'Hanya Admin Training Centre yang dapat mencetak atau mengunduh logbook.');
 
-        $logbook = OjtLogbook::with(['trainee', 'trainer', 'supervisor', 'department', 'equipmentCategory', 'equipment', 'evidences', 'histories.user', 'trainingCentre', 'departmentOperation'])->findOrFail($id);
+        $logbook = OjtLogbook::with(['trainee', 'trainer', 'supervisor', 'department', 'equipmentCategory', 'equipment', 'histories.user', 'trainingCentre', 'pengawasTrainer'])->findOrFail($id);
 
         abort_unless($logbook->status === 'final_approved', 403, 'Hanya logbook yang telah disahkan (Final Approved) oleh Training Centre yang dapat dicetak.');
 

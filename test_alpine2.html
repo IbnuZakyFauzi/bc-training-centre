@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js" defer></script>
+</head>
+<body>
+<div x-data="{
+    categoryMap: JSON.parse('{\\u00221\\u0022:\\u0022EXC\\u0022,\\u00222\\u0022:\\u0022DZ\\u0022}'),
+    existingSopPayload: JSON.parse('{\\u0022track\\u0022:{\\u0022groups\\u0022:[{\\u0022items\\u0022:[{\\u0022status\\u0022:\\u0022K\\u0022}]}]}}'),
+    get totalHm() {
+        return '0.0';
+    },
+    get hmError() {
+        return '';
+    }
+}">
+    <div x-text="'totalHm=' + totalHm + ' hmError=' + hmError"></div>
+    <div x-show="!hmError">No error</div>
+    <div x-show="hmError" x-text="hmError"></div>
+</div>
+</body>
+</html>

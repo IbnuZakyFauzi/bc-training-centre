@@ -21,10 +21,16 @@ class TrainingCentreApprovalController extends Controller
 
     private function pendingQuery()
     {
-        return OjtLogbook::with(['trainee.department', 'trainer', 'departmentOperation', 'equipment', 'evaluation'])
-            ->whereIn('status', ['approved', 'supervisor_approved'])
-            ->whereNotNull('pjo_decided_at')
+        $reviewer = $this->reviewer();
+        $query = OjtLogbook::with(['trainee.department', 'trainer', 'equipment', 'evaluation', 'assignedTc'])
+            ->where('status', 'verified')
             ->whereNull('training_centre_decided_at');
+
+        if (!$reviewer->isSuperAdmin()) {
+            $query->where('assigned_tc_id', $reviewer->id);
+        }
+
+        return $query;
     }
 
     public function index(Request $request)
@@ -32,7 +38,7 @@ class TrainingCentreApprovalController extends Controller
         $reviewer = $this->reviewer();
         $activeStatus = $request->get('status', 'pending');
 
-        $query = OjtLogbook::with(['trainee.department', 'trainer', 'departmentOperation', 'equipment', 'evaluation']);
+        $query = OjtLogbook::with(['trainee.department', 'trainer', 'equipment', 'evaluation', 'assignedTc']);
 
         if ($activeStatus === 'finalized') {
             $query->where('status', 'final_approved')->whereNotNull('training_centre_decided_at');
@@ -40,32 +46,36 @@ class TrainingCentreApprovalController extends Controller
             $query->where('status', 'revision')->whereNotNull('training_centre_decided_at');
         } else {
             $activeStatus = 'pending';
-            $query->whereIn('status', ['approved', 'supervisor_approved'])
-                ->whereNotNull('pjo_decided_at')
+            $query->where('status', 'verified')
                 ->whereNull('training_centre_decided_at');
+        }
+
+        if (!$reviewer->isSuperAdmin()) {
+            $query->where('assigned_tc_id', $reviewer->id);
         }
 
         if ($request->filled('search')) {
             $term = $request->search;
             $query->where(fn ($q) => $q->where('logbook_number', 'like', "%{$term}%")
-                ->orWhereHas('trainee', fn ($u) => $u->where('name', 'like', "%{$term}%")->orWhere('nrp', 'like', "%{$term}%")));
+                ->orWhereHas('trainee', fn ($u) => $u->where('name', 'like', "%{$term}%")->orWhere('sid', 'like', "%{$term}%")));
         }
         $logbooks = $query->latest('updated_at')->paginate(10)->withQueryString();
         $counts = [
             'pending' => $this->pendingQuery()->count(),
-            'finalized' => OjtLogbook::where('status', 'final_approved')->whereNotNull('training_centre_decided_at')->count(),
-            'revision' => OjtLogbook::where('status', 'revision')->whereNotNull('training_centre_decided_at')->count(),
+            'finalized' => OjtLogbook::where('status', 'final_approved')->whereNotNull('training_centre_decided_at')->when(!$reviewer->isSuperAdmin(), fn ($q) => $q->where('assigned_tc_id', $reviewer->id))->count(),
+            'revision' => OjtLogbook::where('status', 'revision')->whereNotNull('training_centre_decided_at')->when(!$reviewer->isSuperAdmin(), fn ($q) => $q->where('assigned_tc_id', $reviewer->id))->count(),
         ];
         return view('training-centre.approvals.index', compact('reviewer', 'logbooks', 'counts', 'activeStatus'));
     }
 
     public function show($id)
     {
-        $this->reviewer();
-        $logbook = OjtLogbook::with(['trainee', 'trainer', 'supervisor', 'department', 'equipmentCategory', 'equipment', 'evidences', 'histories.user', 'evaluation.trainer', 'departmentOperation', 'trainingCentre'])->findOrFail($id);
-        $isPending = in_array($logbook->status, ['approved', 'supervisor_approved'], true) && $logbook->pjo_decided_at && !$logbook->training_centre_decided_at;
+        $reviewer = $this->reviewer();
+        $logbook = OjtLogbook::with(['trainee', 'trainer', 'supervisor', 'department', 'equipmentCategory', 'equipment', 'histories.user', 'evaluation.trainer', 'trainingCentre', 'assignedTc'])->findOrFail($id);
+        $isPending = $logbook->status === 'verified' && !$logbook->training_centre_decided_at;
         abort_unless($isPending || $logbook->training_centre_decided_at, 403);
-        return view('ojt.logbooks.show', ['logbook' => $logbook, 'trainerReview' => false, 'departmentOperationApproval' => false, 'trainingCentreApproval' => true, 'isPending' => $isPending]);
+        abort_unless($reviewer->isSuperAdmin() || $logbook->assigned_tc_id === $reviewer->id, 403);
+        return view('ojt.logbooks.show', ['logbook' => $logbook, 'trainerReview' => false, 'trainingCentreApproval' => true, 'isPending' => $isPending]);
     }
 
     public function decide(Request $request, $id)
@@ -73,6 +83,7 @@ class TrainingCentreApprovalController extends Controller
         $reviewer = $this->reviewer();
         $data = $request->validate(['action' => ['required', 'in:approve,revision'], 'approval_notes' => ['required_if:action,revision', 'nullable', 'string', 'max:2000']]);
         $logbook = $this->pendingQuery()->findOrFail($id);
+        abort_unless($reviewer->isSuperAdmin() || $logbook->assigned_tc_id === $reviewer->id, 403);
         $previousStatus = $logbook->status;
         $approved = $data['action'] === 'approve';
         if ($approved && !$reviewer->signature_path) {

@@ -18,13 +18,31 @@ class OjtSeeder extends Seeder
     public function run(): void
     {
         // 1. Departments
+        $deptChcpp = Department::create([
+            'code' => 'CHCPP',
+            'name' => 'CHCPP',
+            'description' => 'Coal Handling & Processing Plant',
+        ]);
+
+        $deptRim = Department::create([
+            'code' => 'RIM',
+            'name' => 'RIM',
+            'description' => 'Road & Infrastructure Maintenance',
+        ]);
+
+        $deptPlant = Department::create([
+            'code' => 'PLANT',
+            'name' => 'PLANT',
+            'description' => 'Plant Operations',
+        ]);
+
         $deptMining = Department::create([
             'code' => 'MIN-OPS',
             'name' => 'Mining Operations',
             'description' => 'Mine Operation & Production Division',
         ]);
         
-        $deptPlant = Department::create([
+        $deptMaintenance = Department::create([
             'code' => 'PLT-MAINT',
             'name' => 'Plant & Asset Maintenance',
             'description' => 'Heavy Equipment Maintenance Division',
@@ -96,32 +114,33 @@ class OjtSeeder extends Seeder
 
         // 4. Users (Trainee, Trainer, Supervisor)
         $trainee = User::create([
-            'nrp' => 'BC-60491',
+            'sid' => 'BC-60491',
             'name' => 'Ahmad Rian Syahputra',
             'email' => 'trainee@beraucoal.co.id',
             'password' => Hash::make('password'),
             'role' => 'trainee',
-            'department_id' => $deptMining->id,
+            'department_id' => $deptChcpp->id,
             'phone' => '+62 812-5543-9901',
         ]);
 
         $trainer = User::create([
-            'nrp' => 'BC-30112',
+            'sid' => 'BC-30112',
             'name' => 'Bambang Hermawan (Senior Instructor)',
             'email' => 'trainer@beraucoal.co.id',
             'password' => Hash::make('password'),
             'role' => 'trainer',
+            'trainer_type' => 'instruktur',
             'department_id' => $deptShe->id,
             'phone' => '+62 811-9876-1234',
         ]);
 
         $supervisor = User::create([
-            'nrp' => 'BC-20054',
+            'sid' => 'BC-20054',
             'name' => 'Rahmat Hidayat (Pit Superintendent)',
             'email' => 'supervisor@beraucoal.co.id',
             'password' => Hash::make('password'),
             'role' => 'supervisor',
-            'department_id' => $deptMining->id,
+            'department_id' => $deptChcpp->id,
             'phone' => '+62 813-1122-3344',
         ]);
 
@@ -133,12 +152,12 @@ class OjtSeeder extends Seeder
             'trainee_id' => $trainee->id,
             'trainer_id' => $trainer->id,
             'supervisor_id' => $supervisor->id,
-            'department_id' => $deptMining->id,
+            'department_id' => $deptChcpp->id,
             'equipment_category_id' => $catExcavator->id,
             'equipment_id' => $eqEx2001->id,
             'date' => Carbon::now()->subDays(5)->format('Y-m-d'),
             'shift' => 'day',
-            'location' => 'Pit H1 East - Bench 45',
+            'location' => 'BMO 1',
             'start_time' => '07:00',
             'finish_time' => '17:00',
             'hm_start' => 4520.5,
@@ -193,12 +212,12 @@ class OjtSeeder extends Seeder
             'trainee_id' => $trainee->id,
             'trainer_id' => $trainer->id,
             'supervisor_id' => $supervisor->id,
-            'department_id' => $deptMining->id,
+            'department_id' => $deptChcpp->id,
             'equipment_category_id' => $catHaulTruck->id,
             'equipment_id' => $eqHt7042->id,
             'date' => Carbon::now()->subDays(3)->format('Y-m-d'),
             'shift' => 'night',
-            'location' => 'Pit 3 West to Disposal Block 4',
+            'location' => 'BMO 3',
             'start_time' => '19:00',
             'finish_time' => '05:00',
             'hm_start' => 8910.0,
@@ -225,12 +244,12 @@ class OjtSeeder extends Seeder
             'trainee_id' => $trainee->id,
             'trainer_id' => $trainer->id,
             'supervisor_id' => $supervisor->id,
-            'department_id' => $deptMining->id,
+            'department_id' => $deptChcpp->id,
             'equipment_category_id' => $catExcavator->id,
             'equipment_id' => $eqEx2001->id,
             'date' => Carbon::now()->subDays(1)->format('Y-m-d'),
             'shift' => 'day',
-            'location' => 'Pit H1 East - Bench 48',
+            'location' => 'GMO',
             'start_time' => '07:00',
             'finish_time' => '17:00',
             'hm_start' => 4529.0,
@@ -256,12 +275,12 @@ class OjtSeeder extends Seeder
             'trainee_id' => $trainee->id,
             'trainer_id' => $trainer->id,
             'supervisor_id' => $supervisor->id,
-            'department_id' => $deptMining->id,
+            'department_id' => $deptChcpp->id,
             'equipment_category_id' => $catDozer->id,
             'equipment_id' => $eqDz3015->id,
             'date' => Carbon::now()->format('Y-m-d'),
             'shift' => 'day',
-            'location' => 'Disposal Area Block 4 North',
+            'location' => 'LMO',
             'start_time' => '07:00',
             'finish_time' => '17:00',
             'hm_start' => 3105.0,

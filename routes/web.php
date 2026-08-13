@@ -8,7 +8,6 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OjtLogbookController;
 use App\Http\Controllers\SubmissionHistoryController;
 use App\Http\Controllers\TrainerReviewController;
-use App\Http\Controllers\DepartmentOperationController;
 use App\Http\Controllers\TrainingCentreApprovalController;
 
 Route::get('/', function () {
@@ -22,7 +21,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'must.change.password'])->group(function () {
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -33,24 +32,31 @@ Route::middleware('auth')->group(function () {
         return match ($user?->role) {
             'trainee' => redirect()->route('ojt.dashboard'),
             'trainer' => redirect()->route('trainer.dashboard'),
-            'department_ops' => redirect()->route('department-operation.dashboard'),
             'admin' => redirect()->route('training-centre.dashboard'),
             default => abort(403),
         };
     })->name('dashboard');
 });
 
-Route::middleware(['auth', 'role:admin'])->prefix('training-centre')->name('training-centre.')->group(function () {
+Route::middleware(['auth', 'must.change.password', 'role:admin'])->prefix('training-centre')->name('training-centre.')->group(function () {
     Route::get('/dashboard', [TrainingCentreApprovalController::class, 'index'])->name('dashboard');
     Route::get('/approvals', [TrainingCentreApprovalController::class, 'index'])->name('approvals.index');
     Route::get('/approvals/{id}', [TrainingCentreApprovalController::class, 'show'])->name('approvals.show');
     Route::post('/approvals/{id}/decision', [TrainingCentreApprovalController::class, 'decide'])->name('approvals.decide');
+
+    Route::get('/users', ['App\Http\Controllers\UserManagementController', 'index'])->name('users.index');
+    Route::get('/users/create', ['App\Http\Controllers\UserManagementController', 'create'])->name('users.create');
+    Route::post('/users', ['App\Http\Controllers\UserManagementController', 'store'])->name('users.store');
+    Route::get('/users/{id}/edit', ['App\Http\Controllers\UserManagementController', 'edit'])->name('users.edit');
+    Route::put('/users/{id}', ['App\Http\Controllers\UserManagementController', 'update'])->name('users.update');
+    Route::delete('/users/{id}', ['App\Http\Controllers\UserManagementController', 'destroy'])->name('users.destroy');
+    Route::post('/users/{id}/reset-password', ['App\Http\Controllers\UserManagementController', 'resetPassword'])->name('users.reset-password');
 });
 
 // Final Logbook Print Route (Restricted to Admin Training Centre only)
-Route::middleware(['auth', 'role:admin'])->get('/ojt/logbooks/{id}/print', [OjtLogbookController::class, 'print'])->name('ojt.logbooks.print');
+Route::middleware(['auth', 'must.change.password', 'role:admin'])->get('/ojt/logbooks/{id}/print', [OjtLogbookController::class, 'print'])->name('ojt.logbooks.print');
 
-Route::middleware(['auth', 'role:trainer'])->prefix('trainer')->name('trainer.')->group(function () {
+Route::middleware(['auth', 'must.change.password', 'role:trainer'])->prefix('trainer')->name('trainer.')->group(function () {
     Route::get('/dashboard', [TrainerReviewController::class, 'index'])->name('dashboard');
     Route::get('/reviews', [TrainerReviewController::class, 'index'])->name('reviews.index');
     Route::get('/reviews/{id}', [TrainerReviewController::class, 'show'])->name('reviews.show');
@@ -60,17 +66,8 @@ Route::middleware(['auth', 'role:trainer'])->prefix('trainer')->name('trainer.')
     Route::post('/reviews/{id}/evaluate', [TrainerReviewController::class, 'evaluate'])->name('reviews.evaluate');
 });
 
-// Supervisor approval workspace. Supervisors use the Department Operation role.
-Route::middleware(['auth', 'role:department_ops'])->prefix('department-operation')->name('department-operation.')->group(function () {
-    Route::get('/dashboard', [DepartmentOperationController::class, 'dashboard'])->name('dashboard');
-    Route::get('/approvals/pending', [DepartmentOperationController::class, 'pending'])->name('approvals.pending');
-    Route::get('/approvals/history', [DepartmentOperationController::class, 'history'])->name('approvals.history');
-    Route::get('/approvals/{id}', [DepartmentOperationController::class, 'show'])->name('approvals.show');
-    Route::post('/approvals/{id}/decision', [DepartmentOperationController::class, 'decide'])->name('approvals.decide');
-});
-
 // OJT Trainee Module Routes
-Route::middleware(['auth', 'role:trainee'])->prefix('ojt')->name('ojt.')->group(function () {
+Route::middleware(['auth', 'must.change.password', 'role:trainee'])->prefix('ojt')->name('ojt.')->group(function () {
     // Page 1: Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

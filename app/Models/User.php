@@ -13,11 +13,14 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
-        'nrp',
+        'sid',
         'name',
         'email',
         'password',
+        'must_change_password',
+        'is_super_admin',
         'role',
+        'trainer_type',
         'department_id',
         'phone',
         'avatar',
@@ -57,14 +60,44 @@ class User extends Authenticatable
         return $this->role === 'trainee';
     }
 
-    public function isTrainer(): bool
+    public function assignedTrainers()
     {
-        return $this->role === 'trainer';
+        return $this->belongsToMany(User::class, 'trainee_trainer', 'trainee_id', 'trainer_id')
+            ->withPivot('trainer_type')
+            ->withTimestamps();
     }
 
-    public function isDepartmentOperation(): bool
+    public function assignedInstruktur()
     {
-        return $this->role === 'department_ops';
+        return $this->belongsToMany(User::class, 'trainee_trainer', 'trainee_id', 'trainer_id')
+            ->wherePivot('trainer_type', 'instruktur');
+    }
+
+    public function assignedPengawas()
+    {
+        return $this->belongsToMany(User::class, 'trainee_trainer', 'trainee_id', 'trainer_id')
+            ->wherePivot('trainer_type', 'pengawas');
+    }
+
+    public function assignedOperatorPendamping()
+    {
+        return $this->belongsToMany(User::class, 'trainee_trainer', 'trainee_id', 'trainer_id')
+            ->wherePivot('trainer_type', 'operator_pendamping');
+    }
+
+    public function isInstruktur(): bool
+    {
+        return $this->role === 'trainer' && $this->trainer_type === 'instruktur';
+    }
+
+    public function isPengawas(): bool
+    {
+        return $this->role === 'trainer' && $this->trainer_type === 'pengawas';
+    }
+
+    public function isOperatorPendamping(): bool
+    {
+        return $this->role === 'trainer' && $this->trainer_type === 'operator_pendamping';
     }
 
     public function isTrainingCentre(): bool
@@ -72,8 +105,13 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+    public function isSuperAdmin(): bool
+    {
+        return $this->is_super_admin || $this->email === 'training.centre@beraucoal.co.id';
+    }
+
     public function usesStoredSignature(): bool
     {
-        return in_array($this->role, ['trainer', 'department_ops', 'admin'], true);
+        return in_array($this->role, ['trainer', 'admin'], true);
     }
 }

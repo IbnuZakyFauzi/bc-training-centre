@@ -19,7 +19,7 @@ class TrainerReviewSampleSeeder extends Seeder
         $supervisor = User::where('role', 'supervisor')->first();
         $category = EquipmentCategory::where('code', 'DZ')->firstOrFail();
         $equipment = Equipment::where('equipment_category_id', $category->id)->firstOrFail();
-        $department = Department::where('code', 'MIN-OPS')->first() ?? $trainee->department;
+        $department = Department::where('code', 'CHCPP')->first() ?? $trainee->department;
 
         $groups = [
             ['Teknik Pengoperasian', 'Dozing & digging untuk Bulldozer', [['1.1','Skl','Cara memposisikan blade pada saat mendorong / grading'],['1.2','Kwn','Penggunaan tilt blade'],['1.3','Skl','Cara pengoperasian blade untuk mendorong / ditching'],['1.4','Skl','Cara pengoperasian blade untuk menggali / sloping'],['1.5','Skl','Penyesuaian beban dengan RPM / posisi transmisi'],['1.6','Skl','Teknik dozing / grading / digging']]],
@@ -38,7 +38,7 @@ class TrainerReviewSampleSeeder extends Seeder
             [
                 'trainee_id' => $trainee->id, 'trainer_id' => $trainer->id, 'supervisor_id' => $supervisor?->id,
                 'department_id' => $department?->id, 'equipment_category_id' => $category->id, 'equipment_id' => $equipment->id,
-                'date' => now()->toDateString(), 'shift' => 'day', 'location' => 'Disposal Area Block 4 North',
+                'date' => now()->toDateString(), 'shift' => 'day', 'location' => 'BMO 1',
                 'start_time' => '07:00', 'finish_time' => '17:00', 'hm_start' => 3112.5, 'hm_end' => 3120.0, 'total_hm' => 7.5,
                 'daily_activity' => "P2H unit DZ dilakukan sebelum operasi.\nMelaksanakan dozing, spreading overburden, dan perapihan safety crest di Disposal Block 4 North.\nMelakukan ripping pada material keras sesuai arahan supervisor serta housekeeping akhir shift.",
                 'sop_payload' => ['meta' => ['company' => 'PT BERAU COAL / PT MTL', 'category_code' => 'DZ', 'unit_family' => 'track', 'certification' => 'Green', 'assessment_mode' => 'pendampingan', 'assessment_stage' => 'bulanan'], 'track' => ['groups' => $payloadGroups]],

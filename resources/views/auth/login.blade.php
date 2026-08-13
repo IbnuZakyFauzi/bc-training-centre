@@ -37,7 +37,7 @@
                 <div class="flex items-center bg-white px-8 py-10 sm:px-12 lg:px-16">
                     <div class="w-full max-w-md">
                         <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">Selamat Datang</h1>
-                        <p class="mt-3 text-lg text-slate-600">Masuk menggunakan email dan password Anda</p>
+                        <p class="mt-3 text-lg text-slate-600">Masuk menggunakan SID dan password Anda</p>
 
                         @if($errors->any())
                             <div class="mt-6 rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-700">
@@ -60,9 +60,9 @@
                             @csrf
 
                             <div>
-                                <label for="email" class="mb-2 block text-sm font-semibold text-slate-700">Email</label>
+                                <label for="sid" class="mb-2 block text-sm font-semibold text-slate-700">SID</label>
                                 <!-- Input disesuaikan dengan background terang (bg-slate-50, border abu-abu, teks gelap) -->
-                                <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus autocomplete="username" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-[#8FC31F] focus:ring-2 focus:ring-[#8FC31F]/20" placeholder="nama@beraucoal.co.id">
+                                <input id="sid" name="sid" type="text" value="{{ old('sid') }}" required autofocus autocomplete="username" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-[#8FC31F] focus:ring-2 focus:ring-[#8FC31F]/20" placeholder="Masukkan SID (contoh: XXXXX)">
                             </div>
 
                             <div>
