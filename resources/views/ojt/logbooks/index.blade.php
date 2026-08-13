@@ -103,12 +103,12 @@
                     <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
                         <th class="py-3.5 px-5">Logbook Number</th>
                         <th class="py-3.5 px-4">Date</th>
-                        <th class="py-3.5 px-4">Equipment Unit</th>
                         <th class="py-3.5 px-4">Category</th>
-                        <th class="py-3.5 px-4">Trainer</th>
+                        <th class="py-3.5 px-4">Instruktur</th>
+                        <th class="py-3.5 px-4">Pengawas</th>
+                        <th class="py-3.5 px-4">Operator Pendamping</th>
                         <th class="py-3.5 px-4">Status</th>
                         <th class="py-3.5 px-4">Last Updated</th>
-                        <th class="py-3.5 px-5 text-right">Action</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-xs">
@@ -130,12 +130,6 @@
                                 </span>
                             </td>
 
-                            <!-- Equipment -->
-                            <td class="py-4 px-4">
-                                <div class="font-bold text-[#003829]">{{ $log->equipment->unit_code ?? '-' }}</div>
-                                <div class="text-[10px] text-slate-500">{{ $log->equipment->model_name ?? '-' }}</div>
-                            </td>
-
                             <!-- Equipment Category -->
                             <td class="py-4 px-4">
                                 <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-bold">
@@ -143,10 +137,38 @@
                                 </span>
                             </td>
 
-                            <!-- Trainer -->
+                            <!-- Instruktur -->
                             <td class="py-4 px-4">
-                                <div class="font-semibold text-slate-800">{{ $log->trainer->name ?? 'Belum Ditunjuk' }}</div>
-                                <div class="text-[10px] text-slate-400 font-mono">{{ $log->trainer->sid ?? '-' }}</div>
+                                <div class="font-semibold text-slate-800">{{ optional($log->trainer)->name ?? 'Belum Ditunjuk' }}</div>
+                                <div class="text-[10px] text-slate-400 font-mono">{{ optional($log->trainer)->sid ?? '-' }}</div>
+                            </td>
+
+                            <!-- Pengawas -->
+                            <td class="py-4 px-4">
+                                @php
+                                    $pengawasList = collect($log->selected_pengawas_ids ?? [])->map(fn($id) => $usersMap[$id] ?? null)->filter();
+                                @endphp
+                                @if($pengawasList->count() > 0)
+                                    @foreach($pengawasList as $pengawas)
+                                        <div class="font-semibold text-slate-800">{{ $pengawas->name }}</div>
+                                    @endforeach
+                                @else
+                                    <span class="text-slate-400">-</span>
+                                @endif
+                            </td>
+
+                            <!-- Operator Pendamping -->
+                            <td class="py-4 px-4">
+                                @php
+                                    $operatorList = collect($log->selected_operator_pendamping_ids ?? [])->map(fn($id) => $usersMap[$id] ?? null)->filter();
+                                @endphp
+                                @if($operatorList->count() > 0)
+                                    @foreach($operatorList as $operator)
+                                        <div class="font-semibold text-slate-800">{{ $operator->name }}</div>
+                                    @endforeach
+                                @else
+                                    <span class="text-slate-400">-</span>
+                                @endif
                             </td>
 
                             <!-- Status Badge -->
@@ -162,23 +184,6 @@
                             <!-- Last Updated -->
                             <td class="py-4 px-4 text-slate-500 text-[11px]">
                                 {{ $log->updated_at->diffForHumans() }}
-                            </td>
-
-                            <!-- Actions (View, Edit Draft) -->
-                            <td class="py-4 px-5 text-right">
-                                <div class="flex items-center justify-end space-x-2">
-                                    <!-- View Button -->
-                                    <a href="{{ route('ojt.logbooks.show', $log->id) }}" class="p-1.5 text-slate-600 hover:text-[#00A859] hover:bg-emerald-50 rounded-lg transition" title="View Detail">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                    </a>
-
-                                    <!-- Edit Draft / Returned Button (Only when status is Draft or Revision) -->
-                                    @if(in_array($log->status, ['draft', 'revision']))
-                                        <a href="{{ route('ojt.logbooks.edit', $log->id) }}" class="p-1.5 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-lg transition" title="Edit Draft / Returned Logbook">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                                        </a>
-                                    @endif
-                                </div>
                             </td>
                         </tr>
                     @empty

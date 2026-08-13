@@ -60,6 +60,11 @@ class User extends Authenticatable
         return $this->role === 'trainee';
     }
 
+    public function isTrainer(): bool
+    {
+        return $this->role === 'trainer';
+    }
+
     public function assignedTrainers()
     {
         return $this->belongsToMany(User::class, 'trainee_trainer', 'trainee_id', 'trainer_id')

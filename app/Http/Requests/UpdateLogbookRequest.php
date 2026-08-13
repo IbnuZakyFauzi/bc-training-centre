@@ -18,26 +18,38 @@ class UpdateLogbookRequest extends FormRequest
         return [
             'date' => [$isDraft ? 'nullable' : 'required', 'date'],
             'shift' => [$isDraft ? 'nullable' : 'required', 'in:day,night'],
-            'department_id' => [$isDraft ? 'nullable' : 'required', 'exists:departments,id'],
             'equipment_category_id' => [$isDraft ? 'nullable' : 'required', 'exists:equipment_categories,id'],
             'equipment_id' => ['nullable', 'exists:equipments,id'],
             'equipment_number' => [$isDraft ? 'nullable' : 'required', 'string', 'max:100'],
-            'trainer_id' => [$isDraft ? 'nullable' : 'required', 'exists:users,id'],
+            'trainer_id' => ['nullable', 'exists:users,id'],
+            'selected_pengawas_ids' => [$isDraft ? 'nullable' : 'required', 'array', 'min:1'],
+            'selected_pengawas_ids.*' => ['exists:users,id'],
+            'selected_operator_pendamping_ids' => [$isDraft ? 'nullable' : 'required', 'array', 'min:1'],
+            'selected_operator_pendamping_ids.*' => ['exists:users,id'],
             'location' => [$isDraft ? 'nullable' : 'required', 'string', 'max:255'],
             'hm_start' => [$isDraft ? 'nullable' : 'required', 'numeric', 'min:0'],
             'hm_end' => [$isDraft ? 'nullable' : 'required', 'numeric', 'gte:hm_start'],
-            'daily_activity' => [$isDraft ? 'nullable' : 'required', 'string', 'min:10'],
+            'daily_activity' => ['nullable', 'string'],
+            'daily_activity_backup' => ['nullable', 'string'],
             'sop_payload' => ['nullable', 'array'],
             'action_type' => ['required', 'in:draft,submit'],
         ];
     }
 
-    /**
-     * Draft boleh belum lengkap, tetapi pengiriman ke Trainer harus memuat
-     * keputusan K/BK untuk setiap item checklist dari unit yang dipilih.
-     */
     public function withValidator($validator): void
     {
+        if ($this->action_type === 'submit') {
+            $activity = trim((string)($this->daily_activity ?? ''));
+            $backup = trim((string)($this->daily_activity_backup ?? ''));
+            $value = $activity !== '' ? $activity : $backup;
+
+            if ($value === '') {
+                $validator->errors()->add('daily_activity', 'The daily activity field is required.');
+            } elseif (strlen($value) < 10) {
+                $validator->errors()->add('daily_activity', 'The daily activity field must be at least 10 characters.');
+            }
+        }
+
         if ($this->action_type !== 'submit') {
             return;
         }
@@ -51,21 +63,33 @@ class UpdateLogbookRequest extends FormRequest
                 return;
             }
 
-            $statuses = [];
+            $blankItems = [];
             foreach (data_get($checklist, 'groups', []) as $group) {
                 foreach (data_get($group, 'items', []) as $item) {
-                    $statuses[] = $item['status'] ?? null;
+                    $status = $item['status'] ?? null;
+                    $note = trim((string)($item['note'] ?? ''));
+                    if (!in_array($status, ['K', 'BK'], true) && $note === '') {
+                        $blankItems[] = $item['code'] . ' - ' . $item['label'];
+                    }
                 }
             }
             foreach (data_get($checklist, 'compliance', []) as $item) {
-                $statuses[] = $item['status'] ?? null;
+                $status = $item['status'] ?? null;
+                $note = trim((string)($item['note'] ?? ''));
+                if (!in_array($status, ['K', 'BK'], true) && $note === '') {
+                    $blankItems[] = $item['code'] . ' - ' . $item['label'];
+                }
             }
             foreach (data_get($checklist, 'behavior', []) as $item) {
-                $statuses[] = $item['status'] ?? null;
+                $status = $item['status'] ?? null;
+                $note = trim((string)($item['note'] ?? ''));
+                if (!in_array($status, ['K', 'BK'], true) && $note === '') {
+                    $blankItems[] = $item['code'] . ' - ' . $item['label'];
+                }
             }
 
-            if (!$statuses || collect($statuses)->contains(fn ($status) => !in_array($status, ['K', 'BK'], true))) {
-                $validator->errors()->add('sop_payload', 'Semua poin checklist SOP wajib dipilih K atau BK sebelum logbook dikirim.');
+            if (!empty($blankItems)) {
+                $validator->errors()->add('sop_payload', 'Item evaluasi berikut belum diisi: ' . implode(', ', $blankItems) . '. Pilih K/BK atau isi catatan penguji.');
             }
         });
     }

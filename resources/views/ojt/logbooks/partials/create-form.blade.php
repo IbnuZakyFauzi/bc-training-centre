@@ -333,16 +333,18 @@
            equipmentId: @js(old('equipment_id', $isEditing ? $logbook->equipment_id : '')),
           categoryMap: @js($categoryMap),
           equipmentMap: @js($equipmentMap),
-          company: @js(old('sop_payload.meta.company', data_get($formPayload, 'meta.company', ''))),
-          certification: @js(old('sop_payload.meta.certification', data_get($formPayload, 'meta.certification', 'Green'))),
-          stickerExpiredAt: @js(old('sop_payload.meta.sticker_expired_at', data_get($formPayload, 'meta.sticker_expired_at', ''))),
-           assessmentMode: @js(old('sop_payload.meta.assessment_mode', data_get($formPayload, 'meta.assessment_mode', ''))),
-           assessmentStage: @js(old('sop_payload.meta.assessment_stage', data_get($formPayload, 'meta.assessment_stage', ''))),
-           assessmentStageDetail: @js(old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', ''))),
-           hmStart: @js(old('hm_start', $isEditing ? $logbook->hm_start : '')),
-           hmEnd: @js(old('hm_end', $isEditing ? $logbook->hm_end : '')),
-           unitType: @js(old('sop_payload.meta.unit_type', data_get($formPayload, 'meta.unit_type', ''))),
-           existingSopPayload: @js($formPayload),
+            company: @js(old('sop_payload.meta.company', data_get($formPayload, 'meta.company', ''))),
+            certification: @js(old('sop_payload.meta.certification', data_get($formPayload, 'meta.certification', 'Green'))),
+            stickerExpiredAt: @js(old('sop_payload.meta.sticker_expired_at', data_get($formPayload, 'meta.sticker_expired_at', ''))),
+            assessmentMode: @js(old('sop_payload.meta.assessment_mode', data_get($formPayload, 'meta.assessment_mode', ''))),
+            assessmentStage: @js(old('sop_payload.meta.assessment_stage', data_get($formPayload, 'meta.assessment_stage', ''))),
+            assessmentStageDetail: @js(old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', ''))),
+            hmStart: @js(old('hm_start', $isEditing ? $logbook->hm_start : '')),
+            hmEnd: @js(old('hm_end', $isEditing ? $logbook->hm_end : '')),
+            unitType: @js(old('sop_payload.meta.unit_type', data_get($formPayload, 'meta.unit_type', ''))),
+            location: @js(old('location', $isEditing ? $logbook->location : '')),
+            dailyActivity: @js(old('daily_activity', $isEditing ? $logbook->daily_activity : '')),
+            existingSopPayload: @js($formPayload),
            get selectedCategoryCode() {
               return this.categoryMap[this.categoryId] || '';
           },
@@ -429,7 +431,7 @@
 
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">LOKASI (OJT)</div>
                     <div class="px-3 py-1.5 border-b border-slate-900">
-                        <select name="location" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
+                        <select name="location" x-model="location" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                             <option value="">Pilih lokasi</option>
                             <option value="BMO 1" {{ old('location', $isEditing ? $logbook->location : '') == 'BMO 1' ? 'selected' : '' }}>BMO 1</option>
                             <option value="BMO 2" {{ old('location', $isEditing ? $logbook->location : '') == 'BMO 2' ? 'selected' : '' }}>BMO 2</option>
@@ -550,6 +552,61 @@
         </div>
     </div>
 
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center gap-2">
+            <svg class="w-5 h-5 text-[#003829]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Penugasan Personil</h2>
+        </div>
+        <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div>
+                <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Instruktur <span class="text-rose-500">*</span></label>
+                <select name="trainer_id" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+                    <option value="">Pilih instruktur</option>
+                    @foreach($user->assignedInstruktur as $instruktur)
+                        <option value="{{ $instruktur->id }}" {{ old('trainer_id', $isEditing ? $logbook->trainer_id : '') == $instruktur->id ? 'selected' : '' }}>{{ $instruktur->name }}</option>
+                    @endforeach
+                </select>
+                @if($user->assignedInstruktur->isEmpty())
+                    <p class="text-[10px] text-slate-400 mt-1">Belum ada instruktur yang ditugaskan.</p>
+                @endif
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Pengawas <span class="text-rose-500">*</span></label>
+                <div class="space-y-2">
+                    @foreach($assignedPengawas as $pengawas)
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="selected_pengawas_ids[]" value="{{ $pengawas->id }}" {{ in_array($pengawas->id, old('selected_pengawas_ids', $isEditing ? ($logbook->selected_pengawas_ids ?? []) : [])) ? 'checked' : '' }} class="accent-emerald-600">
+                            <span class="text-xs">{{ $pengawas->name }}</span>
+                        </label>
+                    @endforeach
+                    @if($assignedPengawas->isEmpty())
+                        <span class="text-[10px] text-slate-400">Belum ada pengawas yang ditugaskan.</span>
+                    @endif
+                </div>
+                @error('selected_pengawas_ids')
+                    <p class="text-[10px] text-rose-600 mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Operator Pendamping <span class="text-rose-500">*</span></label>
+                <div class="space-y-2">
+                    @foreach($assignedOperators as $operator)
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="selected_operator_pendamping_ids[]" value="{{ $operator->id }}" {{ in_array($operator->id, old('selected_operator_pendamping_ids', $isEditing ? ($logbook->selected_operator_pendamping_ids ?? []) : [])) ? 'checked' : '' }} class="accent-emerald-600">
+                            <span class="text-xs">{{ $operator->name }}</span>
+                        </label>
+                    @endforeach
+                    @if($assignedOperators->isEmpty())
+                        <span class="text-[10px] text-slate-400">Belum ada operator pendamping yang ditugaskan.</span>
+                    @endif
+                </div>
+                @error('selected_operator_pendamping_ids')
+                    <p class="text-[10px] text-rose-600 mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+        </div>
+    </div>
+
     <div class="space-y-3">
         <div x-show="unitFamily === 'track'" x-cloak class="w-full space-y-3">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
@@ -609,8 +666,8 @@
                                                 <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
                                                 <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                                 <td class="px-3 py-3 text-slate-700 leading-relaxed break-words">{{ $item['label'] }}</td>
-                                                <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.track.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
-                                                <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.track.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
+                                                <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.track.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
+                                                <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.track.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
                                                 <td class="px-3 py-3"><textarea name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis catatan penguji">{{ old('sop_payload.track.groups.'.$groupIndex.'.items.'.$itemIndex.'.note') }}</textarea></td>
                                             </tr>
                                         @endforeach
@@ -651,8 +708,8 @@
                                             <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-                                            <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[track][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[track][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[track][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600" name="sop_payload[track][compliance][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.track.compliance.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
-                                            <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600" name="sop_payload[track][compliance][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.track.compliance.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
+                                            <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[track][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[track][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[track][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[track][compliance][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.track.compliance.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
+                                            <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[track][compliance][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.track.compliance.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
                                             <td class="px-3 py-3"><textarea name="sop_payload[track][compliance][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.track.compliance.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
@@ -692,8 +749,8 @@
                                             <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-                                            <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[track][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[track][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[track][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600" name="sop_payload[track][behavior][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.track.behavior.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
-                                            <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600" name="sop_payload[track][behavior][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.track.behavior.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
+                                            <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[track][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[track][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[track][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[track][behavior][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.track.behavior.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
+                                            <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[track][behavior][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.track.behavior.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
                                             <td class="px-3 py-3"><textarea name="sop_payload[track][behavior][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.track.behavior.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
@@ -753,8 +810,8 @@
                                                 <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
                                                 <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                                 <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-                                                <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.excavator.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
-                                                <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.excavator.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
+                                                <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.excavator.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
+                                                <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.excavator.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
                                             <td class="px-3 py-3"><textarea name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis catatan penguji">{{ old('sop_payload.excavator.groups.'.$groupIndex.'.items.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
@@ -795,8 +852,8 @@
                                             <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-                                            <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[excavator][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[excavator][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[excavator][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600" name="sop_payload[excavator][compliance][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.excavator.compliance.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
-                                            <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600" name="sop_payload[excavator][compliance][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.excavator.compliance.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
+                                            <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[excavator][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[excavator][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[excavator][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[excavator][compliance][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.excavator.compliance.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
+                                            <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[excavator][compliance][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.excavator.compliance.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
                                             <td class="px-3 py-3"><textarea name="sop_payload[excavator][compliance][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.excavator.compliance.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
@@ -836,8 +893,8 @@
                                             <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-                                            <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[excavator][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[excavator][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[excavator][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600" name="sop_payload[excavator][behavior][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.excavator.behavior.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
-                                            <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600" name="sop_payload[excavator][behavior][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.excavator.behavior.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
+                                            <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[excavator][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[excavator][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[excavator][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[excavator][behavior][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.excavator.behavior.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
+                                            <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[excavator][behavior][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.excavator.behavior.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
                                             <td class="px-3 py-3"><textarea name="sop_payload[excavator][behavior][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.excavator.behavior.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
@@ -907,8 +964,8 @@
                                                 <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
                                                 <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                                 <td class="px-3 py-3 text-slate-700 leading-relaxed break-words">{{ $item['label'] }}</td>
-<td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
-<td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
+<td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
+<td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
 <td class="px-3 py-3"><textarea name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis catatan penguji">{{ old('sop_payload.dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex.'.note') }}</textarea></td>
                                             </tr>
                                         @endforeach
@@ -949,8 +1006,8 @@
                                             <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-<td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.dumptruck.compliance.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
-<td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.dumptruck.compliance.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
+<td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.dumptruck.compliance.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
+<td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.dumptruck.compliance.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
 <td class="px-3 py-3"><textarea name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.dumptruck.compliance.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
@@ -990,8 +1047,8 @@
                                             <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-<td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.dumptruck.behavior.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
-<td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.dumptruck.behavior.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
+<td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.dumptruck.behavior.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
+<td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.dumptruck.behavior.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
 <td class="px-3 py-3"><textarea name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.dumptruck.behavior.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
@@ -1060,8 +1117,8 @@
         <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
         <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
         <td class="px-3 py-3 text-slate-700 leading-relaxed break-words">{{ $item['label'] }}</td>
-<td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.semidump.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
-<td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.semidump.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
+<td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.semidump.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
+<td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.semidump.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
 <td class="px-3 py-3"><textarea name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis catatan penguji">{{ old('sop_payload.semidump.groups.'.$groupIndex.'.items.'.$itemIndex.'.note') }}</textarea></td>
                                             </tr>
                                         @endforeach
@@ -1101,8 +1158,8 @@
                                             <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-<td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[semidump][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[semidump][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[semidump][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600" name="sop_payload[semidump][compliance][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.semidump.compliance.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
-<td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600" name="sop_payload[semidump][compliance][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.semidump.compliance.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
+<td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[semidump][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[semidump][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[semidump][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[semidump][compliance][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.semidump.compliance.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
+<td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[semidump][compliance][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.semidump.compliance.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
 <td class="px-3 py-3"><textarea name="sop_payload[semidump][compliance][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.semidump.compliance.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
@@ -1142,8 +1199,8 @@
                                             <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-<td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[semidump][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[semidump][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[semidump][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600" name="sop_payload[semidump][behavior][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.semidump.behavior.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
-<td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600" name="sop_payload[semidump][behavior][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.semidump.behavior.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
+<td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[semidump][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[semidump][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[semidump][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[semidump][behavior][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.semidump.behavior.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
+<td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[semidump][behavior][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.semidump.behavior.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
 <td class="px-3 py-3"><textarea name="sop_payload[semidump][behavior][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.semidump.behavior.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
@@ -1202,8 +1259,8 @@
         <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
         <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
         <td class="px-3 py-3 text-slate-700 leading-relaxed break-words">{{ $item['label'] }}</td>
-<td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
-<td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
+<td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
+<td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
 <td class="px-3 py-3"><textarea name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis catatan penguji">{{ old('sop_payload.wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex.'.note') }}</textarea></td>
                                             </tr>
                                         @endforeach
@@ -1243,8 +1300,8 @@
                                             <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-<td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.wheelloader.compliance.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
-<td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.wheelloader.compliance.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
+<td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.wheelloader.compliance.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
+<td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.wheelloader.compliance.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
 <td class="px-3 py-3"><textarea name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.wheelloader.compliance.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
@@ -1284,8 +1341,8 @@
                                             <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-<td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.wheelloader.behavior.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
-<td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.wheelloader.behavior.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
+<td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.wheelloader.behavior.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
+<td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.wheelloader.behavior.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
 <td class="px-3 py-3"><textarea name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.wheelloader.behavior.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
@@ -1314,7 +1371,8 @@
 
         <div class="p-4">
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Catatan kegiatan / pekerjaan harian <span class="text-rose-500">*</span></label>
-            <textarea name="daily_activity" rows="3" placeholder="Tuliskan ringkasan aktivitas harian, kondisi unit, dan poin penting pekerjaan shift ini..." class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">{{ old('daily_activity', $isEditing ? $logbook->daily_activity : '') }}</textarea>
+            <textarea id="daily_activity_field" name="daily_activity" rows="3" placeholder="Tuliskan ringkasan aktivitas harian, kondisi unit, dan poin penting pekerjaan shift ini..." class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">{{ old('daily_activity', $isEditing ? $logbook->daily_activity : '') }}</textarea>
+            <input type="hidden" name="daily_activity_backup" id="daily_activity_backup">
         </div>
     </div>
 
@@ -1398,6 +1456,21 @@
             });
         });
     });
+
+    const checklistRadios = document.querySelectorAll('.checklist-radio');
+    checklistRadios.forEach(function(radio) {
+        if (radio.checked) radio.dataset.toggled = 'true';
+        radio.addEventListener('click', function() {
+            if (this.checked && this.dataset.toggled === 'true') {
+                this.checked = false;
+                this.dataset.toggled = 'false';
+                this.dispatchEvent(new Event('change', { bubbles: true }));
+            } else {
+                checklistRadios.forEach(function(r) { r.dataset.toggled = 'false'; });
+                this.dataset.toggled = 'true';
+            }
+        });
+    });
 })();
 </script>
 <script>
@@ -1447,6 +1520,33 @@
 
     if (hmStartInput) hmStartInput.addEventListener('input', updateSectionC);
     if (hmEndInput) hmEndInput.addEventListener('input', updateSectionC);
+
+    const dailyActivityTextarea = document.querySelector('textarea[name="daily_activity"]');
+    const dailyActivityBackup = document.getElementById('daily_activity_backup');
+    if (dailyActivityTextarea && dailyActivityBackup) {
+        dailyActivityTextarea.addEventListener('input', function() {
+            dailyActivityBackup.value = this.value;
+            try { localStorage.setItem('daily_activity_backup', this.value); } catch (e) {}
+        });
+
+        const saved = (function() {
+            try { return localStorage.getItem('daily_activity_backup'); } catch (e) { return ''; }
+        })();
+        if (saved && !dailyActivityTextarea.value.trim()) {
+            dailyActivityTextarea.value = saved;
+            dailyActivityBackup.value = saved;
+        }
+
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function() {
+                if (!dailyActivityTextarea.value.trim() && dailyActivityBackup.value.trim()) {
+                    dailyActivityTextarea.value = dailyActivityBackup.value;
+                }
+                try { localStorage.removeItem('daily_activity_backup'); } catch (e) {}
+            });
+        }
+    }
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', updateSectionC);

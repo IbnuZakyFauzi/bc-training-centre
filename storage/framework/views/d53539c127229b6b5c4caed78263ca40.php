@@ -11,7 +11,7 @@
     $roleLabel = $roleLabels[$role] ?? 'User';
     $quickAction = match ($role) {
         'trainee' => ['label' => 'Buka Logbook Saya', 'route' => 'ojt.logbooks.index'],
-        'trainer' => ['label' => 'Buka Review Queue', 'route' => 'trainer.dashboard'],
+        'trainer' => ['label' => 'Buka Dashboard', 'route' => 'trainer.dashboard'],
         'admin' => ['label' => 'Buka Final Approval', 'route' => 'training-centre.approvals.index'],
         default => ['label' => 'Dashboard', 'route' => 'dashboard'],
     };

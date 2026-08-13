@@ -8,8 +8,9 @@
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
 <?php $component->withAttributes([]); ?>
-     <?php $__env->slot('title', null, []); ?> Create Digital OJT Logbook <?php $__env->endSlot(); ?>
+     <?php $__env->slot('title', null, []); ?> Edit Logbook <?php echo e($logbook->logbook_number); ?> <?php $__env->endSlot(); ?>
 
+    <?php ($isTrainerEditing = true); ?>
     <?php echo $__env->make('ojt.logbooks.partials.create-form', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
  <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
@@ -21,4 +22,4 @@
 <?php $component = $__componentOriginal4619374cef299e94fd7263111d0abc69; ?>
 <?php unset($__componentOriginal4619374cef299e94fd7263111d0abc69); ?>
 <?php endif; ?>
-<?php /**PATH D:\KULIAH\BERAU COAL INTERN\logbook\resources\views/ojt/logbooks/create.blade.php ENDPATH**/ ?>
+<?php /**PATH D:\KULIAH\BERAU COAL INTERN\logbook\resources\views/trainer/reviews/edit.blade.php ENDPATH**/ ?>

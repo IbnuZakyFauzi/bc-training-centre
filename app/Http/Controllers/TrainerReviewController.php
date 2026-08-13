@@ -9,6 +9,7 @@ use App\Models\EquipmentCategory;
 use App\Models\LogbookHistory;
 use App\Models\OjtLogbook;
 use App\Models\User;
+use App\Models\LogbookAssignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -21,7 +22,6 @@ class TrainerReviewController extends Controller
         abort_unless($trainer && $trainer->isTrainer(), 403);
 
         $query = OjtLogbook::with(['trainee.department', 'equipment', 'department', 'evaluation'])
-            ->where('trainer_id', $trainer->id)
             ->whereIn('status', ['submitted']);
 
         if ($request->filled('status') && $request->status !== 'all') $query->where('status', $request->status);
@@ -34,7 +34,7 @@ class TrainerReviewController extends Controller
         $logbooks = $query->latest('submitted_at')->paginate(10)->withQueryString();
 
         $counts = [
-            'submitted' => OjtLogbook::where('trainer_id', $trainer->id)->where('status', 'submitted')->count(),
+            'submitted' => OjtLogbook::where('status', 'submitted')->count(),
             'revision' => 0,
             'verified' => 0,
         ];
@@ -46,7 +46,6 @@ class TrainerReviewController extends Controller
         $logbook = OjtLogbook::with(['trainee.department', 'trainer', 'department', 'equipment', 'equipmentCategory', 'histories.user', 'evaluation', 'assignedPjo', 'assignedTc'])->findOrFail($id);
         $trainer = auth()->user();
         abort_unless($logbook->status !== 'draft', 403);
-        abort_unless($logbook->trainer_id === $trainer->id, 403);
 
         return view('ojt.logbooks.show', ['logbook' => $logbook, 'trainerReview' => true]);
     }
@@ -54,25 +53,27 @@ class TrainerReviewController extends Controller
     public function edit($id)
     {
         $trainer = auth()->user();
-        abort_unless($trainer && $trainer->isTrainer() && !$trainer->isPengawas(), 403);
+        abort_unless($trainer && $trainer->isTrainer(), 403);
         $logbook = OjtLogbook::with(['equipmentCategory'])->findOrFail($id);
-        abort_unless($logbook->trainer_id === $trainer->id && $logbook->status === 'submitted', 403);
+        abort_unless($logbook->status === 'submitted', 403);
 
         $user = $trainer;
         $departments = Department::whereIn('code', ['CHCPP', 'RIM', 'PLANT'])->get();
         $categories = EquipmentCategory::whereIn('code', ['EXC', 'DZ', 'MG', 'HDT', 'SDT', 'WL'])->get();
         $trainers = User::where('role', 'trainer')->get();
         $equipments = Equipment::where('status', 'active')->get();
+        $assignedPengawas = collect();
+        $assignedOperators = collect();
 
-        return view('trainer.reviews.edit', compact('logbook', 'user', 'departments', 'categories', 'trainers', 'equipments'));
+        return view('trainer.reviews.edit', compact('logbook', 'user', 'departments', 'categories', 'trainers', 'equipments', 'assignedPengawas', 'assignedOperators'));
     }
 
     public function updateLogbook(Request $request, $id)
     {
         $trainer = auth()->user();
-        abort_unless($trainer && $trainer->isTrainer() && !$trainer->isPengawas(), 403);
+        abort_unless($trainer && $trainer->isTrainer(), 403);
         $logbook = OjtLogbook::findOrFail($id);
-        abort_unless($logbook->trainer_id === $trainer->id && $logbook->status === 'submitted', 403);
+        abort_unless($logbook->status === 'submitted', 403);
 
         $data = $request->validate([
             'date' => ['required', 'date'], 'shift' => ['required', 'in:day,night'],
@@ -92,9 +93,9 @@ class TrainerReviewController extends Controller
     public function updateChecklist(Request $request, $id)
     {
         $trainer = auth()->user();
-        abort_unless($trainer && $trainer->isTrainer() && !$trainer->isPengawas(), 403);
+        abort_unless($trainer && $trainer->isTrainer(), 403);
         $logbook = OjtLogbook::findOrFail($id);
-        abort_unless($logbook->trainer_id === $trainer->id && $logbook->status === 'submitted', 403);
+        abort_unless($logbook->status === 'submitted', 403);
         $data = $request->validate(['checklist' => ['required', 'array']]);
 
         $payload = $logbook->sop_payload ?? [];
@@ -191,6 +192,7 @@ class TrainerReviewController extends Controller
                 'verified_at' => now(),
                 'training_centre_id' => null, 'training_centre_notes' => null, 'training_centre_decided_at' => null,
                 'assigned_tc_id' => $data['assigned_tc_id'] ?? null,
+                'assigned_pjo_id' => !empty($logbook->selected_pengawas_ids) ? $logbook->selected_pengawas_ids[0] : null,
             ]);
             LogbookHistory::create([
                 'ojt_logbook_id' => $logbook->id, 'user_id' => $trainer->id,
@@ -198,6 +200,29 @@ class TrainerReviewController extends Controller
                 'from_status' => $previousStatus, 'to_status' => $newStatus,
                 'comment' => 'Logbook diverifikasi trainer. Evaluasi: '.($data['competency_status'] === 'competent' ? 'Kompeten' : 'Belum Kompeten').'.',
             ]);
+
+            if (!empty($logbook->selected_pengawas_ids)) {
+                foreach ($logbook->selected_pengawas_ids as $pengawasId) {
+                    LogbookAssignment::updateOrCreate([
+                        'ojt_logbook_id' => $logbook->id,
+                        'user_id' => $pengawasId,
+                        'role_type' => 'pengawas',
+                    ], [
+                        'status' => 'pending',
+                    ]);
+                }
+            }
+            if (!empty($logbook->selected_operator_pendamping_ids)) {
+                foreach ($logbook->selected_operator_pendamping_ids as $operatorId) {
+                    LogbookAssignment::updateOrCreate([
+                        'ojt_logbook_id' => $logbook->id,
+                        'user_id' => $operatorId,
+                        'role_type' => 'operator_pendamping',
+                    ], [
+                        'status' => 'pending',
+                    ]);
+                }
+            }
         });
         return redirect()->route('trainer.reviews.index')->with('success', 'Logbook berhasil diverifikasi dan dikirim ke Final Approval Kabag Training Centre.');
     }

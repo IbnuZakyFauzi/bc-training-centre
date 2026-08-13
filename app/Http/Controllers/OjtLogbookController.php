@@ -8,6 +8,7 @@ use App\Models\EquipmentCategory;
 use App\Models\Equipment;
 use App\Models\User;
 use App\Models\LogbookHistory;
+use App\Models\LogbookAssignment;
 use App\Http\Requests\StoreLogbookRequest;
 use App\Http\Requests\UpdateLogbookRequest;
 use Illuminate\Http\Request;
@@ -62,6 +63,11 @@ class OjtLogbookController extends Controller
 
         $logbooks = $query->orderBy('date', 'desc')->paginate(10)->withQueryString();
 
+        $allPengawasIds = $logbooks->flatMap(fn ($log) => $log->selected_pengawas_ids ?? [])->filter()->unique()->values();
+        $allOperatorIds = $logbooks->flatMap(fn ($log) => $log->selected_operator_pendamping_ids ?? [])->filter()->unique()->values();
+
+        $usersMap = User::whereIn('id', $allPengawasIds->merge($allOperatorIds))->get()->mapWithKeys(fn ($user) => [$user->id => $user]);
+
         $equipments = Equipment::with('category')->where('status', 'active')->get();
         $statusCounts = [
             'all' => OjtLogbook::where('trainee_id', $traineeId)->count(),
@@ -71,7 +77,7 @@ class OjtLogbookController extends Controller
             'approved' => OjtLogbook::where('trainee_id', $traineeId)->whereIn('status', ['verified', 'final_approved'])->count(),
         ];
 
-        return view('ojt.logbooks.index', compact('logbooks', 'equipments', 'statusCounts'));
+        return view('ojt.logbooks.index', compact('logbooks', 'equipments', 'statusCounts', 'usersMap'));
     }
 
     public function create()
@@ -82,7 +88,10 @@ class OjtLogbookController extends Controller
         $trainers = User::where('role', 'trainer')->get();
         $equipments = Equipment::with('category')->where('status', 'active')->get();
 
-        return view('ojt.logbooks.create', compact('user', 'departments', 'categories', 'trainers', 'equipments'));
+        $assignedPengawas = $user->assignedPengawas()->get();
+        $assignedOperators = $user->assignedOperatorPendamping()->get();
+
+        return view('ojt.logbooks.create', compact('user', 'departments', 'categories', 'trainers', 'equipments', 'assignedPengawas', 'assignedOperators'));
     }
 
     public function store(StoreLogbookRequest $request)
@@ -98,21 +107,39 @@ class OjtLogbookController extends Controller
         $logbook = OjtLogbook::create([
             'logbook_number' => $logbookNumber,
             'trainee_id' => $traineeId,
-            'department_id' => $request->department_id,
             'equipment_category_id' => $request->equipment_category_id,
             'equipment_id' => $request->equipment_id,
             'equipment_number' => $request->equipment_number,
             'date' => $request->date,
             'shift' => $request->shift,
             'location' => $request->location,
+            'trainer_id' => $request->trainer_id,
+            'selected_pengawas_ids' => $request->input('selected_pengawas_ids', []),
+            'selected_operator_pendamping_ids' => $request->input('selected_operator_pendamping_ids', []),
             'hm_start' => $request->hm_start,
             'hm_end' => $request->hm_end,
             'total_hm' => max(0, $totalHm),
-            'daily_activity' => $request->daily_activity,
+            'daily_activity' => $request->input('daily_activity', $request->input('daily_activity_backup', '')),
             'sop_payload' => $request->input('sop_payload', []),
             'status' => $status,
             'submitted_at' => $status === 'submitted' ? now() : null,
         ]);
+
+        if ($status === 'submitted') {
+            $assignments = [];
+            if ($request->trainer_id) {
+                $assignments[] = ['user_id' => $request->trainer_id, 'role_type' => 'instruktur'];
+            }
+            foreach ($request->input('selected_pengawas_ids', []) as $pengawasId) {
+                $assignments[] = ['user_id' => $pengawasId, 'role_type' => 'pengawas'];
+            }
+            foreach ($request->input('selected_operator_pendamping_ids', []) as $operatorId) {
+                $assignments[] = ['user_id' => $operatorId, 'role_type' => 'operator_pendamping'];
+            }
+            foreach ($assignments as $assignment) {
+                LogbookAssignment::create(array_merge($assignment, ['ojt_logbook_id' => $logbook->id, 'status' => 'pending']));
+            }
+        }
 
         // History Log
         LogbookHistory::create([
@@ -151,8 +178,10 @@ class OjtLogbookController extends Controller
         $categories = EquipmentCategory::whereIn('code', ['EXC', 'DZ', 'MG', 'HDT', 'SDT', 'WL'])->with('equipments')->get();
         $trainers = User::where('role', 'trainer')->get();
         $equipments = Equipment::with('category')->where('status', 'active')->get();
+        $assignedPengawas = $user->assignedPengawas()->get();
+        $assignedOperators = $user->assignedOperatorPendamping()->get();
 
-        return view('ojt.logbooks.edit', compact('logbook', 'user', 'departments', 'categories', 'trainers', 'equipments'));
+        return view('ojt.logbooks.edit', compact('logbook', 'user', 'departments', 'categories', 'trainers', 'equipments', 'assignedPengawas', 'assignedOperators'));
     }
 
     public function update(UpdateLogbookRequest $request, $id)
@@ -175,10 +204,13 @@ class OjtLogbookController extends Controller
             'date' => $request->date,
             'shift' => $request->shift,
             'location' => $request->location,
+            'trainer_id' => $request->trainer_id,
+            'selected_pengawas_ids' => $request->input('selected_pengawas_ids', []),
+            'selected_operator_pendamping_ids' => $request->input('selected_operator_pendamping_ids', []),
             'hm_start' => $request->hm_start,
             'hm_end' => $request->hm_end,
             'total_hm' => max(0, $totalHm),
-            'daily_activity' => $request->daily_activity,
+            'daily_activity' => $request->input('daily_activity', $request->input('daily_activity_backup', $logbook->daily_activity)),
             'sop_payload' => $request->input('sop_payload', $logbook->sop_payload ?? []),
             'status' => $newStatus,
             'revision_notes' => $newStatus === 'submitted' ? null : $logbook->revision_notes,
@@ -194,6 +226,23 @@ class OjtLogbookController extends Controller
             'training_centre_decided_at' => $newStatus === 'submitted' ? null : $logbook->training_centre_decided_at,
             'training_centre_signature_path' => $newStatus === 'submitted' ? null : $logbook->training_centre_signature_path,
         ]);
+
+        if ($newStatus === 'submitted') {
+            LogbookAssignment::where('ojt_logbook_id', $logbook->id)->delete();
+            $assignments = [];
+            if ($request->trainer_id) {
+                $assignments[] = ['user_id' => $request->trainer_id, 'role_type' => 'instruktur'];
+            }
+            foreach ($request->input('selected_pengawas_ids', []) as $pengawasId) {
+                $assignments[] = ['user_id' => $pengawasId, 'role_type' => 'pengawas'];
+            }
+            foreach ($request->input('selected_operator_pendamping_ids', []) as $operatorId) {
+                $assignments[] = ['user_id' => $operatorId, 'role_type' => 'operator_pendamping'];
+            }
+            foreach ($assignments as $assignment) {
+                LogbookAssignment::create(array_merge($assignment, ['ojt_logbook_id' => $logbook->id, 'status' => 'pending']));
+            }
+        }
 
         // History Log
         LogbookHistory::create([
@@ -224,7 +273,6 @@ class OjtLogbookController extends Controller
             'trainer_id' => $original->trainer_id,
             'pjo_id' => $original->pjo_id,
             'assigned_pjo_id' => $original->assigned_pjo_id,
-            'department_id' => $original->department_id,
             'equipment_category_id' => $original->equipment_category_id,
             'equipment_id' => $original->equipment_id,
             'date' => now()->format('Y-m-d'),
@@ -235,6 +283,8 @@ class OjtLogbookController extends Controller
             'total_hm' => 0,
             'daily_activity' => "[Duplicated from {$original->logbook_number}]\n" . $original->daily_activity,
             'sop_payload' => $original->sop_payload ?? [],
+            'selected_pengawas_ids' => $original->selected_pengawas_ids ?? [],
+            'selected_operator_pendamping_ids' => $original->selected_operator_pendamping_ids ?? [],
             'status' => 'draft',
         ]);
 

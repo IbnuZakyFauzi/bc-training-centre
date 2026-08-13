@@ -39,6 +39,7 @@
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'trainer.dashboard', 'match' => 'trainer.dashboard'],
                 ['label' => 'Review Logbook', 'route' => 'trainer.reviews.index', 'match' => 'trainer.reviews.*'],
+                ['label' => 'Approval Pengawas', 'route' => 'supervisor.approvals.index', 'match' => 'supervisor.approvals.*'],
             ],
         ],
         'admin' => [

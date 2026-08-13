@@ -15,7 +15,7 @@
         'submitted' => 'Submitted / Menunggu',
         'revision' => 'Perlu Revisi',
         'verified' => 'Terverifikasi Trainer',
-        'supervisor_approved' => 'Disetujui Trainer',
+        'supervisor_approved' => 'Disetujui Pengawas',
         'final_approved' => 'Final Approved TC',
         default => ucfirst($status),
     };

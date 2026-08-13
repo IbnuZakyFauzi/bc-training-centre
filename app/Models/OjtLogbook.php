@@ -16,7 +16,6 @@ class OjtLogbook extends Model
         'trainee_id',
         'trainer_id',
         'supervisor_id',
-        'department_id',
         'equipment_category_id',
         'equipment_id',
         'equipment_number',
@@ -44,6 +43,8 @@ class OjtLogbook extends Model
         'training_centre_signature_path',
         'assigned_pjo_id',
         'assigned_tc_id',
+        'selected_pengawas_ids',
+        'selected_operator_pendamping_ids',
     ];
 
     protected $casts = [
@@ -52,6 +53,8 @@ class OjtLogbook extends Model
         'hm_end' => 'decimal:1',
         'total_hm' => 'decimal:1',
         'sop_payload' => 'array',
+        'selected_pengawas_ids' => 'array',
+        'selected_operator_pendamping_ids' => 'array',
         'submitted_at' => 'datetime',
         'verified_at' => 'datetime',
         'approved_at' => 'datetime',
@@ -93,6 +96,8 @@ class OjtLogbook extends Model
     {
         return $this->belongsTo(User::class, 'assigned_tc_id');
     }
+
+
 
     public function department(): BelongsTo
     {

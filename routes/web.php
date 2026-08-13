@@ -9,6 +9,7 @@ use App\Http\Controllers\OjtLogbookController;
 use App\Http\Controllers\SubmissionHistoryController;
 use App\Http\Controllers\TrainerReviewController;
 use App\Http\Controllers\TrainingCentreApprovalController;
+use App\Http\Controllers\SupervisorApprovalController;
 
 Route::get('/', function () {
     return Auth::check()
@@ -64,6 +65,13 @@ Route::middleware(['auth', 'must.change.password', 'role:trainer'])->prefix('tra
     Route::put('/reviews/{id}', [TrainerReviewController::class, 'updateLogbook'])->name('reviews.update');
     Route::put('/reviews/{id}/checklist', [TrainerReviewController::class, 'updateChecklist'])->name('reviews.checklist.update');
     Route::post('/reviews/{id}/evaluate', [TrainerReviewController::class, 'evaluate'])->name('reviews.evaluate');
+});
+
+Route::middleware(['auth', 'must.change.password', 'role:trainer'])->prefix('supervisor')->name('supervisor.')->group(function () {
+    Route::get('/dashboard', [SupervisorApprovalController::class, 'index'])->name('dashboard');
+    Route::get('/approvals', [SupervisorApprovalController::class, 'index'])->name('approvals.index');
+    Route::get('/approvals/{id}', [SupervisorApprovalController::class, 'show'])->name('approvals.show');
+    Route::post('/approvals/{id}/decide', [SupervisorApprovalController::class, 'decide'])->name('approvals.decide');
 });
 
 // OJT Trainee Module Routes
