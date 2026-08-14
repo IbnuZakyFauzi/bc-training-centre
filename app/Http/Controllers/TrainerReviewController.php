@@ -79,9 +79,15 @@ class TrainerReviewController extends Controller
             'date' => ['required', 'date'], 'shift' => ['required', 'in:day,night'],
             'location' => ['required', 'string', 'max:255'], 'equipment_number' => ['required', 'string', 'max:100'],
             'hm_start' => ['required', 'numeric', 'min:0'], 'hm_end' => ['required', 'numeric', 'gte:hm_start'],
-            'daily_activity' => ['required', 'string', 'min:10'],
+            'daily_activity' => ['nullable', 'string', 'min:10'],
+            'daily_activity_backup' => ['nullable', 'string'],
             'sop_payload' => ['nullable', 'array'],
         ]);
+
+        $activity = trim((string)($data['daily_activity'] ?? ''));
+        $backup = trim((string)($data['daily_activity_backup'] ?? ''));
+        $data['daily_activity'] = $activity !== '' ? $activity : $backup;
+
         $data['total_hm'] = max(0, (float) $data['hm_end'] - (float) $data['hm_start']);
         $logbook->update($data);
 

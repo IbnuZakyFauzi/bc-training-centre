@@ -25,6 +25,11 @@ class User extends Authenticatable
         'phone',
         'avatar',
         'signature_path',
+        'certification',
+        'company',
+        'equipment_category_id',
+        'equipment_number',
+        'sticker_expired_at',
     ];
 
     protected $hidden = [
@@ -37,6 +42,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'sticker_expired_at' => 'date',
         ];
     }
 

@@ -28,9 +28,8 @@
             'tag' => 'TRAINEE',
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'ojt.dashboard', 'match' => 'ojt.dashboard'],
-                ['label' => 'My Logbook', 'route' => 'ojt.logbooks.index', 'match' => 'ojt.logbooks.*'],
-                ['label' => 'Create Logbook', 'route' => 'ojt.logbooks.create', 'match' => 'ojt.logbooks.create'],
-                ['label' => 'Submission History', 'route' => 'ojt.history', 'match' => 'ojt.history'],
+                ['label' => 'My Submission', 'route' => 'ojt.logbooks.index', 'match' => 'ojt.logbooks.*'],
+                ['label' => 'Form OJT', 'route' => 'ojt.logbooks.create', 'match' => 'ojt.logbooks.create'],
             ],
         ],
         'trainer' => [

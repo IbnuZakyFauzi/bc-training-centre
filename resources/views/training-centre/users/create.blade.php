@@ -77,6 +77,53 @@
                         @endforeach
                     </div>
                 </div>
+                <div id="trainee-identity-fields" class="hidden md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Identitas Trainee (Opsional)</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Sertifikasi</label>
+                            <select name="certification" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+                                <option value="">Pilih Sertifikasi</option>
+                                <option value="Green" {{ old('certification') === 'Green' ? 'selected' : '' }}>Green</option>
+                                <option value="Skill-up" {{ old('certification') === 'Skill-up' ? 'selected' : '' }}>Skill-up</option>
+                                <option value="Experience" {{ old('certification') === 'Experience' ? 'selected' : '' }}>Experience</option>
+                            </select>
+                            @error('certification')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Perusahaan</label>
+                            <input type="text" name="company" value="{{ old('company') }}" placeholder="Contoh: PT Mutiara Tanjung Lestari" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+                            @error('company')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Tipe Alat</label>
+                            <select name="equipment_category_id" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+                                <option value="">Pilih tipe alat</option>
+                                @php
+                                    $groupedOptions = [
+                                        ['code' => 'EXC', 'label' => 'Excavator (EX)'],
+                                        ['code' => 'DZ', 'label' => 'Bulldozer (DZ) / Motor Grader (GR)'],
+                                        ['code' => 'HDT', 'label' => 'Heavy Dump Truck (HDT) / Light Dump Truck (LDT)'],
+                                        ['code' => 'SDT', 'label' => 'Semi Dump Trailler (SDT) / Articulated Dump Truck (ADT)'],
+                                        ['code' => 'WL', 'label' => 'Wheel Loader (WL)'],
+                                    ];
+                                @endphp
+                                @foreach($groupedOptions as $group)
+                                    @php $cat = $categories->firstWhere('code', $group['code']) @endphp
+                                    @if($cat)
+                                        <option value="{{ $cat->id }}" {{ old('equipment_category_id') == $cat->id ? 'selected' : '' }}>{{ $group['label'] }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                            @error('equipment_category_id')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Expired Date Stiker (SKO)</label>
+                            <input type="date" name="sticker_expired_at" value="{{ old('sticker_expired_at') }}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+                            @error('sticker_expired_at')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="rounded-xl bg-amber-50 border border-amber-200 p-4">
                 <p class="text-xs text-amber-900 font-bold">Password default akan di-set menjadi <span class="font-black">password</span></p>
@@ -93,17 +140,21 @@
         const roleSelect = document.getElementById('role-select');
         const trainerTypeField = document.getElementById('trainer-type-field');
         const trainerAssignments = document.getElementById('trainer-assignments');
+        const traineeIdentityFields = document.getElementById('trainee-identity-fields');
 
         function toggleFields() {
             if (roleSelect.value === 'trainer') {
                 trainerTypeField.classList.remove('hidden');
                 trainerAssignments.classList.add('hidden');
+                traineeIdentityFields.classList.add('hidden');
             } else if (roleSelect.value === 'trainee') {
                 trainerTypeField.classList.add('hidden');
                 trainerAssignments.classList.remove('hidden');
+                traineeIdentityFields.classList.remove('hidden');
             } else {
                 trainerTypeField.classList.add('hidden');
                 trainerAssignments.classList.add('hidden');
+                traineeIdentityFields.classList.add('hidden');
             }
         }
 

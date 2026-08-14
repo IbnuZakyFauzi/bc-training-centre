@@ -84,6 +84,14 @@
         </div>
     </div>
     <div class="p-5 space-y-5">
+        <div class="rounded-xl border border-slate-200 overflow-hidden">
+            <div class="bg-slate-50 px-4 py-3 border-b border-slate-200">
+                <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wide">Catatan Harian Trainee</h3>
+            </div>
+            <div class="p-4 text-xs font-mono whitespace-pre-line leading-relaxed text-slate-800 bg-white">
+                {{ $logbook->daily_activity ?: '-' }}
+            </div>
+        </div>
         @forelse(data_get($checklist, 'groups', []) as $groupIndex => $group)
             <div class="rounded-xl border border-slate-200 overflow-hidden">
                 <div class="bg-[#003829] px-4 py-3 text-white"><p class="text-xs font-bold uppercase">{{ $group['title'] ?? 'Checklist Unit '.($groupIndex + 1) }}</p><p class="text-[10px] text-emerald-100 mt-1">{{ $group['subtitle'] ?? 'Tipe kompetensi sesuai SOP unit' }}</p></div>

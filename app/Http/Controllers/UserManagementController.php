@@ -45,8 +45,9 @@ class UserManagementController extends Controller
         abort_unless($admin && $admin->isTrainingCentre(), 403);
 
         $trainers = User::where('role', 'trainer')->get()->groupBy('trainer_type');
+        $categories = \App\Models\EquipmentCategory::all();
 
-        return view('training-centre.users.create', compact('admin', 'trainers'));
+        return view('training-centre.users.create', compact('admin', 'trainers', 'categories'));
     }
 
     public function store(Request $request)
@@ -67,6 +68,10 @@ class UserManagementController extends Controller
             'assigned_trainers.instruktur.*' => ['exists:users,id'],
             'assigned_trainers.pengawas.*' => ['exists:users,id'],
             'assigned_trainers.operator_pendamping.*' => ['exists:users,id'],
+            'certification' => ['nullable', Rule::in(['Green', 'Skill-up', 'Experience'])],
+            'company' => ['nullable', 'string', 'max:255'],
+            'equipment_category_id' => ['nullable', 'exists:equipment_categories,id'],
+            'sticker_expired_at' => ['nullable', 'date'],
         ]);
 
         if ($data['role'] !== 'trainer') {
@@ -102,8 +107,9 @@ class UserManagementController extends Controller
             'pengawas' => $user->assignedPengawas->pluck('id')->toArray(),
             'operator_pendamping' => $user->assignedOperatorPendamping->pluck('id')->toArray(),
         ];
+        $categories = \App\Models\EquipmentCategory::all();
 
-        return view('training-centre.users.edit', compact('admin', 'user', 'trainers', 'assignedTrainers'));
+        return view('training-centre.users.edit', compact('admin', 'user', 'trainers', 'assignedTrainers', 'categories'));
     }
 
     public function update(Request $request, $id)
@@ -130,6 +136,10 @@ class UserManagementController extends Controller
             'assigned_trainers.instruktur.*' => ['exists:users,id'],
             'assigned_trainers.pengawas.*' => ['exists:users,id'],
             'assigned_trainers.operator_pendamping.*' => ['exists:users,id'],
+            'certification' => ['nullable', Rule::in(['Green', 'Skill-up', 'Experience'])],
+            'company' => ['nullable', 'string', 'max:255'],
+            'equipment_category_id' => ['nullable', 'exists:equipment_categories,id'],
+            'sticker_expired_at' => ['nullable', 'date'],
         ]);
 
         if ($data['role'] !== 'trainer') {

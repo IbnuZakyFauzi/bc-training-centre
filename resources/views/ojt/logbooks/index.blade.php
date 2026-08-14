@@ -1,16 +1,16 @@
 <x-app-layout>
-    <x-slot name="title">Daftar Logbook OJT Saya</x-slot>
+    <x-slot name="title">Daftar Submission Saya</x-slot>
 
     <!-- Page Header & Action Bar -->
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">Daftar Logbook OJT Saya</h1>
-            <p class="text-xs text-slate-500 mt-1">Kelola, tinjau status verifikasi, dan perbarui logbook harian pengoperasian alat berat.</p>
+            <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">Daftar Submission Saya</h1>
+            <p class="text-xs text-slate-500 mt-1">Kelola, tinjau status verifikasi, dan perbarui submission.</p>
         </div>
         <div>
             <a href="{{ route('ojt.logbooks.create') }}" class="inline-flex items-center px-4 py-2.5 bg-[#00A859] hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all transform hover:-translate-y-0.5">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Create Digital Logbook
+                Create Form OJT
             </a>
         </div>
     </div>
@@ -19,7 +19,7 @@
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-2 mb-6 overflow-x-auto">
         <div class="flex items-center space-x-1 min-w-max">
             <a href="{{ route('ojt.logbooks.index') }}" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 {{ !request('status') || request('status') === 'all' ? 'bg-[#003829] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100' }}">
-                <span>Semua Logbook</span>
+                <span>Semua</span>
                 <span class="px-2 py-0.5 rounded-full text-[10px] {{ !request('status') || request('status') === 'all' ? 'bg-emerald-800 text-emerald-100' : 'bg-slate-100 text-slate-600' }}">{{ $statusCounts['all'] }}</span>
             </a>
             <a href="{{ route('ojt.logbooks.index', ['status' => 'draft']) }}" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 {{ request('status') === 'draft' ? 'bg-slate-800 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100' }}">
