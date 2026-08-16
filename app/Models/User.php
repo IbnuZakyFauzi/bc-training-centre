@@ -74,6 +74,7 @@ class User extends Authenticatable
     public function assignedTrainers()
     {
         return $this->belongsToMany(User::class, 'trainee_trainer', 'trainee_id', 'trainer_id')
+            ->select('users.*')
             ->withPivot('trainer_type')
             ->withTimestamps();
     }
@@ -81,18 +82,21 @@ class User extends Authenticatable
     public function assignedInstruktur()
     {
         return $this->belongsToMany(User::class, 'trainee_trainer', 'trainee_id', 'trainer_id')
+            ->select('users.*')
             ->wherePivot('trainer_type', 'instruktur');
     }
 
     public function assignedPengawas()
     {
         return $this->belongsToMany(User::class, 'trainee_trainer', 'trainee_id', 'trainer_id')
+            ->select('users.*')
             ->wherePivot('trainer_type', 'pengawas');
     }
 
     public function assignedOperatorPendamping()
     {
         return $this->belongsToMany(User::class, 'trainee_trainer', 'trainee_id', 'trainer_id')
+            ->select('users.*')
             ->wherePivot('trainer_type', 'operator_pendamping');
     }
 

@@ -115,6 +115,44 @@
                 </div>
             </div>
 
+            @php
+                $assignedPengawas = collect($logbook->selected_pengawas_ids ?? [])
+                    ->map(fn($id) => \App\Models\User::find($id))
+                    ->filter();
+                $assignedOperators = collect($logbook->selected_operator_pendamping_ids ?? [])
+                    ->map(fn($id) => \App\Models\User::find($id))
+                    ->filter();
+            @endphp
+            @if($assignedPengawas->count() > 0 || $assignedOperators->count() > 0)
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
+                        <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Penugasan Personil</h2>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
+                        @if($assignedPengawas->count() > 0)
+                            <div>
+                                <span class="text-slate-400 font-medium block">Pengawas</span>
+                                <div class="mt-2 space-y-1">
+                                    @foreach($assignedPengawas as $p)
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold">{{ $p->name }}</span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                        @if($assignedOperators->count() > 0)
+                            <div>
+                                <span class="text-slate-400 font-medium block">Operator Pendamping</span>
+                                <div class="mt-2 space-y-1">
+                                    @foreach($assignedOperators as $o)
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50 text-blue-800 border border-blue-200 font-semibold">{{ $o->name }}</span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
             <!-- Hour Meter Summary Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">

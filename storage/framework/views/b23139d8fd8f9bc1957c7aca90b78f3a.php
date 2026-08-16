@@ -326,14 +326,15 @@
         <p class="text-xs text-slate-500 mt-1">Form ini menampilkan checklist harian per unit: track unit (DZ/GR), excavator (EXC), dump truck (HDT/LDT), dan semi dump (SDT/ADT).</p>
     </div>
     <a href="<?php echo e(route('ojt.logbooks.index')); ?>" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition">Kembali</a>
-</div>
+    </div>
 
-<form action="<?php echo e($isTrainerEditing ? route('trainer.reviews.update', $logbook->id) : ($isEditing ? route('ojt.logbooks.update', $logbook->id) : route('ojt.logbooks.store'))); ?>" method="POST"
-      x-data="{
-           categoryId: <?php echo \Illuminate\Support\Js::from(old('equipment_category_id', $selectedCategoryId))->toHtml() ?>,
-           equipmentId: <?php echo \Illuminate\Support\Js::from(old('equipment_id', $isEditing ? $logbook->equipment_id : ''))->toHtml() ?>,
-          categoryMap: <?php echo \Illuminate\Support\Js::from($categoryMap)->toHtml() ?>,
-          equipmentMap: <?php echo \Illuminate\Support\Js::from($equipmentMap)->toHtml() ?>,
+    <script>
+        window.existingSopPayload = <?php echo \Illuminate\Support\Js::from($formPayload)->toHtml() ?>;
+        window.logbookFormData = () => ({
+            categoryId: <?php echo \Illuminate\Support\Js::from(old('equipment_category_id', $selectedCategoryId))->toHtml() ?>,
+            equipmentId: <?php echo \Illuminate\Support\Js::from(old('equipment_id', $isEditing ? $logbook->equipment_id : ''))->toHtml() ?>,
+            categoryMap: <?php echo \Illuminate\Support\Js::from($categoryMap)->toHtml() ?>,
+            equipmentMap: <?php echo \Illuminate\Support\Js::from($equipmentMap)->toHtml() ?>,
             company: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.company', data_get($formPayload, 'meta.company', $trainee->company ?? '')))->toHtml() ?>,
             certification: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.certification', data_get($formPayload, 'meta.certification', $trainee->certification ?? 'Green')))->toHtml() ?>,
             stickerExpiredAt: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.sticker_expired_at', data_get($formPayload, 'meta.sticker_expired_at', $trainee->sticker_expired_at?->format('Y-m-d') ?? '')))->toHtml() ?>,
@@ -345,48 +346,86 @@
             unitType: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.unit_type', data_get($formPayload, 'meta.unit_type', '')))->toHtml() ?>,
             location: <?php echo \Illuminate\Support\Js::from(old('location', $isEditing ? $logbook->location : ''))->toHtml() ?>,
             dailyActivity: <?php echo \Illuminate\Support\Js::from(old('daily_activity', $isEditing ? $logbook->daily_activity : ''))->toHtml() ?>,
-            existingSopPayload: <?php echo \Illuminate\Support\Js::from($formPayload)->toHtml() ?>,
-           get selectedCategoryCode() {
-              return this.categoryMap[this.categoryId] || '';
-          },
-          get filteredEquipments() {
-              return this.equipmentMap[this.categoryId] || [];
-          },
-           get unitFamily() {
-               if (['DZ', 'MG'].includes(this.selectedCategoryCode)) return 'track';
-               if (this.selectedCategoryCode === 'EXC') return 'excavator';
-               if (['HDT', 'LDT'].includes(this.selectedCategoryCode)) return 'dumptruck';
-               if (['SDT', 'ADT'].includes(this.selectedCategoryCode)) return 'semidump';
-               if (this.selectedCategoryCode === 'WL') return 'wheelloader';
-               return '';
-           },
-           get totalHm() {
-              let calc = parseFloat(this.hmEnd) - parseFloat(this.hmStart);
-              return isNaN(calc) || calc < 0 ? '0.0' : calc.toFixed(1);
-           },
-           get hmError() {
-              const start = parseFloat(this.hmStart);
-              const end = parseFloat(this.hmEnd);
-              if (this.hmStart === '' || this.hmEnd === '' || isNaN(start) || isNaN(end)) {
-                  return '';
-              }
-              if (end < start) {
-                  return 'HM Akhir tidak boleh lebih kecil dari HM Awal.';
-              }
-              return '';
-           },
+            trainerRatings: {},
+            selectedTrainerId: '',
+            selectedPengawasIds: [],
+            selectedOperatorIds: [],
+            get selectedCategoryCode() {
+                return this.categoryMap[this.categoryId] || '';
+            },
+            get filteredEquipments() {
+                return this.equipmentMap[this.categoryId] || [];
+            },
+            get unitFamily() {
+                if (['DZ', 'MG'].includes(this.selectedCategoryCode)) return 'track';
+                if (this.selectedCategoryCode === 'EXC') return 'excavator';
+                if (['HDT', 'LDT'].includes(this.selectedCategoryCode)) return 'dumptruck';
+                if (['SDT', 'ADT'].includes(this.selectedCategoryCode)) return 'semidump';
+                if (this.selectedCategoryCode === 'WL') return 'wheelloader';
+                return '';
+            },
+            get totalHm() {
+                let calc = parseFloat(this.hmEnd) - parseFloat(this.hmStart);
+                return isNaN(calc) || calc < 0 ? '0.0' : calc.toFixed(1);
+            },
+            get hmError() {
+                const start = parseFloat(this.hmStart);
+                const end = parseFloat(this.hmEnd);
+                if (this.hmStart === '' || this.hmEnd === '' || isNaN(start) || isNaN(end)) {
+                    return '';
+                }
+                if (end < start) {
+                    return 'HM Akhir tidak boleh lebih kecil dari HM Awal.';
+                }
+                return '';
+            },
             fillExistingChecklist() {
-              this.$root.querySelectorAll('[name]').forEach((field) => {
-                  if (!field.name.startsWith('sop_payload[')) return;
-                  const path = Array.from(field.name.matchAll(/\[([^\]]+)\]/g)).map((match) => match[1]);
-                  const value = path.reduce((data, key) => data?.[key], this.existingSopPayload);
-                  if (value === undefined || value === null || field.type === 'hidden') return;
-                  if (field.type === 'radio') field.checked = String(value) === field.value;
-                  else if (!field.value) field.value = value;
-              });
-          }
-      }"
-      x-init="$nextTick(() => fillExistingChecklist())"
+                this.$root.querySelectorAll('[name]').forEach((field) => {
+                    if (!field.name.startsWith('sop_payload[')) return;
+                    const path = Array.from(field.name.matchAll(/\[([^\]]+)\]/g)).map((match) => match[1]);
+                    const value = path.reduce((data, key) => data?.[key], window.existingSopPayload);
+                    if (value === undefined || value === null || field.type === 'hidden') return;
+                    if (field.type === 'radio') field.checked = String(value) === field.value;
+                    else if (!field.value) field.value = value;
+                });
+            },
+            getTrainerRating(userId) {
+                return this.trainerRatings[userId] || 0;
+            },
+            setTrainerRating(userId, rating) {
+                this.trainerRatings[userId] = rating;
+            },
+            initTrainerRatings() {
+                const raw = <?php echo \Illuminate\Support\Js::from(old('trainer_ratings', $isEditing ? ($logbook->trainer_ratings ?? []) : []))->toHtml() ?>;
+                for (const [userId, entry] of Object.entries(raw)) {
+                    this.trainerRatings[userId] = entry.rating || 0;
+                }
+            },
+            initSelectedTrainers() {
+                const trainerId = <?php echo \Illuminate\Support\Js::from(old('trainer_id', $isEditing ? $logbook->trainer_id : ''))->toHtml() ?>;
+                this.selectedTrainerId = trainerId ? Number(trainerId) : '';
+
+                const pengawasIds = <?php echo \Illuminate\Support\Js::from(old('selected_pengawas_ids', $isEditing ? ($logbook->selected_pengawas_ids ?? []) : []))->toHtml() ?>;
+                this.selectedPengawasIds = pengawasIds.map(Number);
+
+                const operatorIds = <?php echo \Illuminate\Support\Js::from(old('selected_operator_pendamping_ids', $isEditing ? ($logbook->selected_operator_pendamping_ids ?? []) : []))->toHtml() ?>;
+                this.selectedOperatorIds = operatorIds.map(Number);
+            },
+            toggleOperator(userId, event) {
+                if (event) event.stopPropagation();
+                const idx = this.selectedOperatorIds.indexOf(userId);
+                if (idx > -1) {
+                    this.selectedOperatorIds.splice(idx, 1);
+                } else {
+                    this.selectedOperatorIds.push(userId);
+                }
+            }
+        });
+    </script>
+
+    <form action="<?php echo e($isTrainerEditing ? route('trainer.reviews.update', $logbook->id) : ($isEditing ? route('ojt.logbooks.update', $logbook->id) : route('ojt.logbooks.store'))); ?>" method="POST"
+      x-data="logbookFormData()"
+       x-init="$nextTick(() => { fillExistingChecklist(); initTrainerRatings(); initSelectedTrainers(); })"
        class="space-y-3 pb-10">
     <?php echo csrf_field(); ?>
     <?php if($isEditing): ?>
@@ -567,7 +606,7 @@
         <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Instruktur <span class="text-rose-500">*</span></label>
-                <select name="trainer_id" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+                <select name="trainer_id" x-model="selectedTrainerId" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
                     <option value="">Pilih instruktur</option>
                     <?php $__currentLoopData = $user->assignedInstruktur; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $instruktur): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <option value="<?php echo e($instruktur->id); ?>" <?php echo e(old('trainer_id', $isEditing ? $logbook->trainer_id : '') == $instruktur->id ? 'selected' : ''); ?>><?php echo e($instruktur->name); ?></option>
@@ -582,7 +621,7 @@
                 <div class="space-y-2">
                     <?php $__currentLoopData = $assignedPengawas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pengawas): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" name="selected_pengawas_ids[]" value="<?php echo e($pengawas->id); ?>" <?php echo e(in_array($pengawas->id, old('selected_pengawas_ids', $isEditing ? ($logbook->selected_pengawas_ids ?? []) : [])) ? 'checked' : ''); ?> class="accent-emerald-600">
+                            <input type="checkbox" name="selected_pengawas_ids[]" value="<?php echo e($pengawas->id); ?>" <?php echo e(in_array($pengawas->id, old('selected_pengawas_ids', $isEditing ? ($logbook->selected_pengawas_ids ?? []) : [])) ? 'checked' : ''); ?> x-model="selectedPengawasIds" class="accent-emerald-600">
                             <span class="text-xs"><?php echo e($pengawas->name); ?></span>
                         </label>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -606,7 +645,7 @@ unset($__errorArgs, $__bag); ?>
                 <div class="space-y-2">
                     <?php $__currentLoopData = $assignedOperators; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $operator): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" name="selected_operator_pendamping_ids[]" value="<?php echo e($operator->id); ?>" <?php echo e(in_array($operator->id, old('selected_operator_pendamping_ids', $isEditing ? ($logbook->selected_operator_pendamping_ids ?? []) : [])) ? 'checked' : ''); ?> class="accent-emerald-600">
+                            <input type="checkbox" name="selected_operator_pendamping_ids[]" value="<?php echo e($operator->id); ?>" <?php echo e(in_array($operator->id, old('selected_operator_pendamping_ids', $isEditing ? ($logbook->selected_operator_pendamping_ids ?? []) : [])) ? 'checked' : ''); ?> @click="toggleOperator(<?php echo e($operator->id); ?>, $event)" class="accent-emerald-600">
                             <span class="text-xs"><?php echo e($operator->name); ?></span>
                         </label>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -1385,17 +1424,131 @@ unset($__errorArgs, $__bag); ?>
         <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <span class="w-7 h-7 rounded-lg bg-[#003829] text-white font-bold text-xs flex items-center justify-center">B</span>
-                <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Trainer Feedback</h2>
+                <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Penilaian Trainer</h2>
             </div>
-            <span class="text-[11px] text-slate-400 font-medium">Ringkasan aktivitas shift</span>
+            <span class="text-[11px] text-slate-400 font-medium">Klik bintang untuk memberikan rating</span>
         </div>
 
-        <div class="p-4">
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Catatan kegiatan / pekerjaan harian <span class="text-rose-500">*</span></label>
-            <textarea id="daily_activity_field" name="daily_activity" rows="3" placeholder="Tuliskan ringkasan aktivitas harian, kondisi unit, dan poin penting pekerjaan shift ini..." class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition"><?php echo e(old('daily_activity', $isEditing ? $logbook->daily_activity : '')); ?></textarea>
-            <input type="hidden" name="daily_activity_backup" id="daily_activity_backup">
+        <div class="p-6 space-y-5">
+            <div>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Instruktur</p>
+                <?php $__currentLoopData = $user->assignedInstruktur; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $instruktur): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">
+                                <?php echo e(substr($instruktur->name, 0, 1)); ?>
+
+                            </div>
+                            <span class="text-xs font-semibold text-slate-700"><?php echo e($instruktur->name); ?></span>
+                        </div>
+                        <div class="flex items-center gap-1 trainer-rating" data-user-id="<?php echo e($instruktur->id); ?>" data-input-name="trainer_ratings[<?php echo e($instruktur->id); ?>][rating]">
+                            <?php for($i = 1; $i <= 5; $i++): ?>
+                                <button type="button" data-rating="<?php echo e($i); ?>" class="rating-star relative w-7 h-7 cursor-pointer transition-transform duration-150 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-1 rounded">
+                                    <svg class="star-icon w-full h-full transition-colors duration-150 pointer-events-none <?php echo e(($logbook->trainer_ratings[$instruktur->id]['rating'] ?? 0) >= $i ? 'text-amber-400 drop-shadow-sm' : 'text-slate-200'); ?>" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                    </svg>
+                                </button>
+                            <?php endfor; ?>
+                            <input type="hidden" name="trainer_ratings[<?php echo e($instruktur->id); ?>][user_id]" value="<?php echo e($instruktur->id); ?>">
+                            <input type="hidden" class="rating-value" name="trainer_ratings[<?php echo e($instruktur->id); ?>][rating]" value="<?php echo e($logbook->trainer_ratings[$instruktur->id]['rating'] ?? 0); ?>">
+                        </div>
+                    </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php if($user->assignedInstruktur->isEmpty()): ?>
+                    <p class="text-[10px] text-slate-400 py-2">Belum ada instruktur yang ditugaskan.</p>
+                <?php endif; ?>
+            </div>
+
+            <div>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Pengawas</p>
+                <?php $__currentLoopData = $assignedPengawas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pengawas): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">
+                                <?php echo e(substr($pengawas->name, 0, 1)); ?>
+
+                            </div>
+                            <span class="text-xs font-semibold text-slate-700"><?php echo e($pengawas->name); ?></span>
+                        </div>
+                        <div class="flex items-center gap-1 trainer-rating" data-user-id="<?php echo e($pengawas->id); ?>" data-input-name="trainer_ratings[<?php echo e($pengawas->id); ?>][rating]">
+                            <?php for($i = 1; $i <= 5; $i++): ?>
+                                <button type="button" data-rating="<?php echo e($i); ?>" class="rating-star relative w-7 h-7 cursor-pointer transition-transform duration-150 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-1 rounded">
+                                    <svg class="star-icon w-full h-full transition-colors duration-150 pointer-events-none <?php echo e(($logbook->trainer_ratings[$pengawas->id]['rating'] ?? 0) >= $i ? 'text-amber-400 drop-shadow-sm' : 'text-slate-200'); ?>" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                    </svg>
+                                </button>
+                            <?php endfor; ?>
+                            <input type="hidden" name="trainer_ratings[<?php echo e($pengawas->id); ?>][user_id]" value="<?php echo e($pengawas->id); ?>">
+                            <input type="hidden" class="rating-value" name="trainer_ratings[<?php echo e($pengawas->id); ?>][rating]" value="<?php echo e($logbook->trainer_ratings[$pengawas->id]['rating'] ?? 0); ?>">
+                        </div>
+                    </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php if($assignedPengawas->isEmpty()): ?>
+                    <p class="text-[10px] text-slate-400 py-2">Belum ada pengawas yang ditugaskan.</p>
+                <?php endif; ?>
+            </div>
+
+            <div>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Operator Pendamping</p>
+                <?php $__currentLoopData = $assignedOperators; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $operator): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold">
+                                <?php echo e(substr($operator->name, 0, 1)); ?>
+
+                            </div>
+                            <span class="text-xs font-semibold text-slate-700"><?php echo e($operator->name); ?></span>
+                        </div>
+                        <div class="flex items-center gap-1 trainer-rating" data-user-id="<?php echo e($operator->id); ?>" data-input-name="trainer_ratings[<?php echo e($operator->id); ?>][rating]">
+                            <?php for($i = 1; $i <= 5; $i++): ?>
+                                <button type="button" data-rating="<?php echo e($i); ?>" class="rating-star relative w-7 h-7 cursor-pointer transition-transform duration-150 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-1 rounded">
+                                    <svg class="star-icon w-full h-full transition-colors duration-150 pointer-events-none <?php echo e(($logbook->trainer_ratings[$operator->id]['rating'] ?? 0) >= $i ? 'text-amber-400 drop-shadow-sm' : 'text-slate-200'); ?>" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                    </svg>
+                                </button>
+                            <?php endfor; ?>
+                            <input type="hidden" name="trainer_ratings[<?php echo e($operator->id); ?>][user_id]" value="<?php echo e($operator->id); ?>">
+                            <input type="hidden" class="rating-value" name="trainer_ratings[<?php echo e($operator->id); ?>][rating]" value="<?php echo e($logbook->trainer_ratings[$operator->id]['rating'] ?? 0); ?>">
+                        </div>
+                    </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php if($assignedOperators->isEmpty()): ?>
+                    <p class="text-[10px] text-slate-400 py-2">Belum ada operator pendamping yang ditugaskan.</p>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <div class="px-6 py-3 bg-slate-50 border-t border-slate-200">
+            <p class="text-[10px] text-slate-500">Rating akan disimpan bersama logbook saat submit.</p>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.trainer-rating').forEach(function(container) {
+                const stars = container.querySelectorAll('.rating-star');
+                const ratingValue = container.querySelector('.rating-value');
+                
+                stars.forEach(function(star) {
+                    star.addEventListener('click', function() {
+                        const rating = parseInt(this.dataset.rating);
+                        if (ratingValue) ratingValue.value = rating;
+                        
+                        stars.forEach(function(s, index) {
+                            const icon = s.querySelector('.star-icon');
+                            if (index < rating) {
+                                icon.classList.remove('text-slate-200');
+                                icon.classList.add('text-amber-400', 'drop-shadow-sm');
+                            } else {
+                                icon.classList.remove('text-amber-400', 'drop-shadow-sm');
+                                icon.classList.add('text-slate-200');
+                            }
+                        });
+                    });
+                });
+            });
+        });
+    </script>
 
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
@@ -1542,33 +1695,6 @@ unset($__errorArgs, $__bag); ?>
     if (hmStartInput) hmStartInput.addEventListener('input', updateSectionC);
     if (hmEndInput) hmEndInput.addEventListener('input', updateSectionC);
 
-    const dailyActivityTextarea = document.querySelector('textarea[name="daily_activity"]');
-    const dailyActivityBackup = document.getElementById('daily_activity_backup');
-    if (dailyActivityTextarea && dailyActivityBackup) {
-        dailyActivityTextarea.addEventListener('input', function() {
-            dailyActivityBackup.value = this.value;
-            try { localStorage.setItem('daily_activity_backup', this.value); } catch (e) {}
-        });
-
-        const saved = (function() {
-            try { return localStorage.getItem('daily_activity_backup'); } catch (e) { return ''; }
-        })();
-        if (saved && !dailyActivityTextarea.value.trim()) {
-            dailyActivityTextarea.value = saved;
-            dailyActivityBackup.value = saved;
-        }
-
-        const form = document.querySelector('form');
-        if (form) {
-            form.addEventListener('submit', function() {
-                if (!dailyActivityTextarea.value.trim() && dailyActivityBackup.value.trim()) {
-                    dailyActivityTextarea.value = dailyActivityBackup.value;
-                }
-                try { localStorage.removeItem('daily_activity_backup'); } catch (e) {}
-            });
-        }
-    }
-
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', updateSectionC);
     } else {
@@ -1576,4 +1702,5 @@ unset($__errorArgs, $__bag); ?>
     }
 })();
 </script>
+
 <?php /**PATH D:\KULIAH\BERAU COAL INTERN\logbook\resources\views/ojt/logbooks/partials/create-form.blade.php ENDPATH**/ ?>

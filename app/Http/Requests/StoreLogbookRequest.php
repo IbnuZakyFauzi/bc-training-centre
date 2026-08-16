@@ -31,6 +31,9 @@ class StoreLogbookRequest extends FormRequest
             'hm_end' => [$isDraft ? 'nullable' : 'required', 'numeric', 'gte:hm_start'],
             'daily_activity' => ['nullable', 'string'],
             'daily_activity_backup' => ['nullable', 'string'],
+            'trainer_ratings' => ['nullable', 'array'],
+            'trainer_ratings.*.user_id' => ['required_with:trainer_ratings', 'exists:users,id'],
+            'trainer_ratings.*.rating' => ['required_with:trainer_ratings', 'integer', 'min:1', 'max:5'],
             'sop_payload' => [$isDraft ? 'nullable' : 'required', 'array'],
             'action_type' => ['required', 'in:draft,submit'],
         ];
@@ -38,20 +41,13 @@ class StoreLogbookRequest extends FormRequest
 
     public function withValidator($validator): void
     {
-        if ($this->action_type === 'submit') {
-            $activity = trim((string)($this->daily_activity ?? ''));
-            $backup = trim((string)($this->daily_activity_backup ?? ''));
-            $value = $activity !== '' ? $activity : $backup;
-
-            if ($value === '') {
-                $validator->errors()->add('daily_activity', 'The daily activity field is required.');
-            } elseif (strlen($value) < 10) {
-                $validator->errors()->add('daily_activity', 'The daily activity field must be at least 10 characters.');
-            }
-        }
-
         if ($this->action_type !== 'submit') {
             return;
+        }
+
+        $ratings = $this->input('trainer_ratings', []);
+        if (empty($ratings)) {
+            $validator->errors()->add('trainer_ratings', 'Penilaian trainer wajib diisi sebelum submit.');
         }
 
         $validator->after(function ($validator) {

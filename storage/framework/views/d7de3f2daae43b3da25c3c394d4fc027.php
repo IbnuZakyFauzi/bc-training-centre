@@ -92,7 +92,7 @@
         <?php endif; ?>
 
         <!-- Main View Scrollable Area -->
-        <main class="flex-1 overflow-y-auto p-6 md:p-8">
+        <main class="flex-1 overflow-y-auto p-6 md:p-8 min-h-0">
             <div class="max-w-[1440px] mx-auto">
                 <?php echo e($slot); ?>
 

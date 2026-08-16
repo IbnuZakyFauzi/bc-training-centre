@@ -22,9 +22,13 @@ class TrainerReviewController extends Controller
         abort_unless($trainer && $trainer->isTrainer(), 403);
 
         $query = OjtLogbook::with(['trainee.department', 'equipment', 'department', 'evaluation'])
-            ->whereIn('status', ['submitted']);
+            ->where('trainer_id', $trainer->id);
 
-        if ($request->filled('status') && $request->status !== 'all') $query->where('status', $request->status);
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        } else {
+            $query->whereIn('status', ['submitted']);
+        }
         if ($request->filled('search')) {
             $term = $request->search;
             $query->where(fn ($q) => $q->where('logbook_number', 'like', "%{$term}%")
@@ -57,13 +61,17 @@ class TrainerReviewController extends Controller
         $logbook = OjtLogbook::with(['equipmentCategory'])->findOrFail($id);
         abort_unless($logbook->status === 'submitted', 403);
 
-        $user = $trainer;
+        $user = $logbook->trainee;
         $departments = Department::whereIn('code', ['CHCPP', 'RIM', 'PLANT'])->get();
         $categories = EquipmentCategory::whereIn('code', ['EXC', 'DZ', 'MG', 'HDT', 'SDT', 'WL'])->get();
         $trainers = User::where('role', 'trainer')->get();
         $equipments = Equipment::where('status', 'active')->get();
-        $assignedPengawas = collect();
-        $assignedOperators = collect();
+        $assignedPengawas = !empty($logbook->selected_pengawas_ids)
+            ? User::whereIn('id', $logbook->selected_pengawas_ids)->get()
+            : collect();
+        $assignedOperators = !empty($logbook->selected_operator_pendamping_ids)
+            ? User::whereIn('id', $logbook->selected_operator_pendamping_ids)->get()
+            : collect();
 
         return view('trainer.reviews.edit', compact('logbook', 'user', 'departments', 'categories', 'trainers', 'equipments', 'assignedPengawas', 'assignedOperators'));
     }
@@ -79,7 +87,7 @@ class TrainerReviewController extends Controller
             'date' => ['required', 'date'], 'shift' => ['required', 'in:day,night'],
             'location' => ['required', 'string', 'max:255'], 'equipment_number' => ['required', 'string', 'max:100'],
             'hm_start' => ['required', 'numeric', 'min:0'], 'hm_end' => ['required', 'numeric', 'gte:hm_start'],
-            'daily_activity' => ['nullable', 'string', 'min:10'],
+            'daily_activity' => ['nullable', 'string'],
             'daily_activity_backup' => ['nullable', 'string'],
             'sop_payload' => ['nullable', 'array'],
         ]);

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\LogbookAssignment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,6 +27,7 @@ class OjtLogbook extends Model
         'hm_end',
         'total_hm',
         'daily_activity',
+        'trainer_ratings',
         'sop_payload',
         'status',
         'revision_notes',
@@ -53,6 +55,7 @@ class OjtLogbook extends Model
         'hm_end' => 'decimal:1',
         'total_hm' => 'decimal:1',
         'sop_payload' => 'array',
+        'trainer_ratings' => 'array',
         'selected_pengawas_ids' => 'array',
         'selected_operator_pendamping_ids' => 'array',
         'submitted_at' => 'datetime',
@@ -132,5 +135,10 @@ class OjtLogbook extends Model
     public function evaluation()
     {
         return $this->hasOne(CompetencyEvaluation::class);
+    }
+
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(LogbookAssignment::class);
     }
 }
