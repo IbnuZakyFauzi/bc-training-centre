@@ -22,15 +22,9 @@ class TrainingCentreApprovalController extends Controller
     private function pendingQuery()
     {
         $reviewer = $this->reviewer();
-        $query = OjtLogbook::with(['trainee.department', 'trainer', 'equipment', 'evaluation', 'assignedTc'])
+        return OjtLogbook::with(['trainee.department', 'trainer', 'equipment', 'evaluation', 'assignedTc'])
             ->where('status', 'verified')
             ->whereNull('training_centre_decided_at');
-
-        if (!$reviewer->isSuperAdmin()) {
-            $query->where('assigned_tc_id', $reviewer->id);
-        }
-
-        return $query;
     }
 
     public function index(Request $request)
@@ -48,10 +42,6 @@ class TrainingCentreApprovalController extends Controller
             $activeStatus = 'pending';
             $query->where('status', 'verified')
                 ->whereNull('training_centre_decided_at');
-        }
-
-        if (!$reviewer->isSuperAdmin()) {
-            $query->where('assigned_tc_id', $reviewer->id);
         }
 
         if ($request->filled('search')) {
@@ -74,7 +64,6 @@ class TrainingCentreApprovalController extends Controller
         $logbook = OjtLogbook::with(['trainee', 'trainer', 'supervisor', 'department', 'equipmentCategory', 'equipment', 'histories.user', 'evaluation.trainer', 'trainingCentre', 'assignedTc'])->findOrFail($id);
         $isPending = $logbook->status === 'verified' && !$logbook->training_centre_decided_at;
         abort_unless($isPending || $logbook->training_centre_decided_at, 403);
-        abort_unless($reviewer->isSuperAdmin() || $logbook->assigned_tc_id === $reviewer->id, 403);
         $assignedPengawas = collect($logbook->selected_pengawas_ids ?? [])->map(fn ($id) => User::find($id))->filter();
         $assignedOperators = collect($logbook->selected_operator_pendamping_ids ?? [])->map(fn ($id) => User::find($id))->filter();
         return view('ojt.logbooks.show', ['logbook' => $logbook, 'trainerReview' => false, 'trainingCentreApproval' => true, 'isPending' => $isPending, 'assignedPengawas' => $assignedPengawas, 'assignedOperators' => $assignedOperators]);
@@ -85,7 +74,6 @@ class TrainingCentreApprovalController extends Controller
         $reviewer = $this->reviewer();
         $data = $request->validate(['action' => ['required', 'in:approve,revision'], 'approval_notes' => ['required_if:action,revision', 'nullable', 'string', 'max:2000']]);
         $logbook = $this->pendingQuery()->findOrFail($id);
-        abort_unless($reviewer->isSuperAdmin() || $logbook->assigned_tc_id === $reviewer->id, 403);
         $previousStatus = $logbook->status;
         $approved = $data['action'] === 'approve';
         if ($approved && !$reviewer->signature_path) {

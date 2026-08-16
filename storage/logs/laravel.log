@@ -8208,3 +8208,7 @@ Did you mean one of these?
 #63 D:/KULIAH/BERAU COAL INTERN/logbook/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php(23): require_once('D://KULIAH//BERAU...')
 #64 {main}
 "} 
+[2026-08-16 19:19:29] local.ERROR: Maximum execution time of 30 seconds exceeded {"userId":14,"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Maximum execution time of 30 seconds exceeded at D:/KULIAH/BERAU COAL INTERN/logbook/vendor/laravel/framework/src/Illuminate/View/Compilers/BladeCompiler.php:18)
+[stacktrace]
+#0 {main}
+"} 
