@@ -1419,7 +1419,7 @@
             <div>
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Instruktur</p>
                 @foreach($user->assignedInstruktur as $instruktur)
-                    <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
+                    <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0 trainer-rating-row" data-type="instruktur" data-user-id="{{ $instruktur->id }}" style="display: none;">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">
                                 {{ substr($instruktur->name, 0, 1) }}
@@ -1429,13 +1429,13 @@
                         <div class="flex items-center gap-1 trainer-rating" data-user-id="{{ $instruktur->id }}" data-input-name="trainer_ratings[{{ $instruktur->id }}][rating]">
                             @for($i = 1; $i <= 5; $i++)
                                 <button type="button" data-rating="{{ $i }}" class="rating-star relative w-7 h-7 cursor-pointer transition-transform duration-150 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-1 rounded">
-                                    <svg class="star-icon w-full h-full transition-colors duration-150 pointer-events-none {{ ($logbook->trainer_ratings[$instruktur->id]['rating'] ?? 0) >= $i ? 'text-amber-400 drop-shadow-sm' : 'text-slate-200' }}" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="star-icon w-full h-full transition-colors duration-150 pointer-events-none text-slate-200" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                     </svg>
                                 </button>
                             @endfor
                             <input type="hidden" name="trainer_ratings[{{ $instruktur->id }}][user_id]" value="{{ $instruktur->id }}">
-                            <input type="hidden" class="rating-value" name="trainer_ratings[{{ $instruktur->id }}][rating]" value="{{ $logbook->trainer_ratings[$instruktur->id]['rating'] ?? 0 }}">
+                            <input type="hidden" class="rating-value" name="trainer_ratings[{{ $instruktur->id }}][rating]" value="0">
                         </div>
                     </div>
                 @endforeach
@@ -1446,8 +1446,8 @@
 
             <div>
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Pengawas</p>
-                @foreach($assignedPengawas as $pengawas)
-                    <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
+                @foreach($user->assignedPengawas as $pengawas)
+                    <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0 trainer-rating-row" data-type="pengawas" data-user-id="{{ $pengawas->id }}" style="display: none;">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">
                                 {{ substr($pengawas->name, 0, 1) }}
@@ -1457,25 +1457,25 @@
                         <div class="flex items-center gap-1 trainer-rating" data-user-id="{{ $pengawas->id }}" data-input-name="trainer_ratings[{{ $pengawas->id }}][rating]">
                             @for($i = 1; $i <= 5; $i++)
                                 <button type="button" data-rating="{{ $i }}" class="rating-star relative w-7 h-7 cursor-pointer transition-transform duration-150 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-1 rounded">
-                                    <svg class="star-icon w-full h-full transition-colors duration-150 pointer-events-none {{ ($logbook->trainer_ratings[$pengawas->id]['rating'] ?? 0) >= $i ? 'text-amber-400 drop-shadow-sm' : 'text-slate-200' }}" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="star-icon w-full h-full transition-colors duration-150 pointer-events-none text-slate-200" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                     </svg>
                                 </button>
                             @endfor
                             <input type="hidden" name="trainer_ratings[{{ $pengawas->id }}][user_id]" value="{{ $pengawas->id }}">
-                            <input type="hidden" class="rating-value" name="trainer_ratings[{{ $pengawas->id }}][rating]" value="{{ $logbook->trainer_ratings[$pengawas->id]['rating'] ?? 0 }}">
+                            <input type="hidden" class="rating-value" name="trainer_ratings[{{ $pengawas->id }}][rating]" value="0">
                         </div>
                     </div>
                 @endforeach
-                @if($assignedPengawas->isEmpty())
+                @if($user->assignedPengawas->isEmpty())
                     <p class="text-[10px] text-slate-400 py-2">Belum ada pengawas yang ditugaskan.</p>
                 @endif
             </div>
 
             <div>
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Operator Pendamping</p>
-                @foreach($assignedOperators as $operator)
-                    <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
+                @foreach($user->assignedOperatorPendamping as $operator)
+                    <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0 trainer-rating-row" data-type="operator" data-user-id="{{ $operator->id }}" style="display: none;">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold">
                                 {{ substr($operator->name, 0, 1) }}
@@ -1485,17 +1485,17 @@
                         <div class="flex items-center gap-1 trainer-rating" data-user-id="{{ $operator->id }}" data-input-name="trainer_ratings[{{ $operator->id }}][rating]">
                             @for($i = 1; $i <= 5; $i++)
                                 <button type="button" data-rating="{{ $i }}" class="rating-star relative w-7 h-7 cursor-pointer transition-transform duration-150 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-1 rounded">
-                                    <svg class="star-icon w-full h-full transition-colors duration-150 pointer-events-none {{ ($logbook->trainer_ratings[$operator->id]['rating'] ?? 0) >= $i ? 'text-amber-400 drop-shadow-sm' : 'text-slate-200' }}" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                    <svg class="star-icon w-full h-full transition-colors duration-150 pointer-events-none text-slate-200" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292z"/>
                                     </svg>
                                 </button>
                             @endfor
                             <input type="hidden" name="trainer_ratings[{{ $operator->id }}][user_id]" value="{{ $operator->id }}">
-                            <input type="hidden" class="rating-value" name="trainer_ratings[{{ $operator->id }}][rating]" value="{{ $logbook->trainer_ratings[$operator->id]['rating'] ?? 0 }}">
+                            <input type="hidden" class="rating-value" name="trainer_ratings[{{ $operator->id }}][rating]" value="0">
                         </div>
                     </div>
                 @endforeach
-                @if($assignedOperators->isEmpty())
+                @if($user->assignedOperatorPendamping->isEmpty())
                     <p class="text-[10px] text-slate-400 py-2">Belum ada operator pendamping yang ditugaskan.</p>
                 @endif
             </div>
@@ -1507,7 +1507,39 @@
     </div>
 
     <script>
+        function syncTrainerRatingsVisibility() {
+            const trainerId = document.querySelector('select[name="trainer_id"]')?.value;
+            const selectedPengawas = Array.from(document.querySelectorAll('input[name="selected_pengawas_ids[]"]:checked')).map(cb => parseInt(cb.value));
+            const selectedOperators = Array.from(document.querySelectorAll('input[name="selected_operator_pendamping_ids[]"]:checked')).map(cb => parseInt(cb.value));
+
+            document.querySelectorAll('.trainer-rating-row').forEach(function(row) {
+                const type = row.dataset.type;
+                const userId = parseInt(row.dataset.userId);
+
+                if (type === 'instruktur') {
+                    row.style.display = (trainerId && userId === parseInt(trainerId)) ? '' : 'none';
+                } else if (type === 'pengawas') {
+                    row.style.display = selectedPengawas.includes(userId) ? '' : 'none';
+                } else if (type === 'operator') {
+                    row.style.display = selectedOperators.includes(userId) ? '' : 'none';
+                }
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            syncTrainerRatingsVisibility();
+
+            const trainerSelect = document.querySelector('select[name="trainer_id"]');
+            if (trainerSelect) trainerSelect.addEventListener('change', syncTrainerRatingsVisibility);
+
+            document.querySelectorAll('input[name="selected_pengawas_ids[]"]').forEach(function(cb) {
+                cb.addEventListener('change', syncTrainerRatingsVisibility);
+            });
+
+            document.querySelectorAll('input[name="selected_operator_pendamping_ids[]"]').forEach(function(cb) {
+                cb.addEventListener('change', syncTrainerRatingsVisibility);
+            });
+
             document.querySelectorAll('.trainer-rating').forEach(function(container) {
                 const stars = container.querySelectorAll('.rating-star');
                 const ratingValue = container.querySelector('.rating-value');
