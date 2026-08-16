@@ -115,14 +115,6 @@
                 </div>
             </div>
 
-            @php
-                $assignedPengawas = collect($logbook->selected_pengawas_ids ?? [])
-                    ->map(fn($id) => \App\Models\User::find($id))
-                    ->filter();
-                $assignedOperators = collect($logbook->selected_operator_pendamping_ids ?? [])
-                    ->map(fn($id) => \App\Models\User::find($id))
-                    ->filter();
-            @endphp
             @if($assignedPengawas->count() > 0 || $assignedOperators->count() > 0)
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                     <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
@@ -178,18 +170,6 @@
                     <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Jam Operasional</span>
                         <span class="text-xs font-bold text-slate-800 mt-2 block">{{ $logbook->start_time }} - {{ $logbook->finish_time }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section B: Daily Activities -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
-                    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Catatan Activities & P2H Harian</h2>
-                </div>
-                <div class="p-6">
-                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 text-xs font-mono whitespace-pre-line leading-relaxed text-slate-800">
-                        {{ $logbook->daily_activity }}
                     </div>
                 </div>
             </div>

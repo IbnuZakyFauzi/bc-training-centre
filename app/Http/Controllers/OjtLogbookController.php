@@ -160,8 +160,10 @@ class OjtLogbookController extends Controller
     public function show($id)
     {
         $logbook = OjtLogbook::with(['trainee', 'trainer', 'supervisor', 'department', 'equipmentCategory', 'equipment', 'histories.user'])->findOrFail($id);
+        $assignedPengawas = collect($logbook->selected_pengawas_ids ?? [])->map(fn ($id) => User::find($id))->filter();
+        $assignedOperators = collect($logbook->selected_operator_pendamping_ids ?? [])->map(fn ($id) => User::find($id))->filter();
 
-        return view('ojt.logbooks.show', compact('logbook'));
+        return view('ojt.logbooks.show', compact('logbook', 'assignedPengawas', 'assignedOperators'));
     }
 
     public function edit($id)

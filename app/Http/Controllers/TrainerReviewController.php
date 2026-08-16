@@ -22,7 +22,10 @@ class TrainerReviewController extends Controller
         abort_unless($trainer && $trainer->isTrainer(), 403);
 
         $query = OjtLogbook::with(['trainee.department', 'equipment', 'department', 'evaluation'])
-            ->where('trainer_id', $trainer->id);
+            ->whereHas('assignments', function ($q) use ($trainer) {
+                $q->where('user_id', $trainer->id)
+                  ->where('status', 'pending');
+            });
 
         if ($request->filled('status') && $request->status !== 'all') {
             $query->where('status', $request->status);
@@ -50,8 +53,9 @@ class TrainerReviewController extends Controller
         $logbook = OjtLogbook::with(['trainee.department', 'trainer', 'department', 'equipment', 'equipmentCategory', 'histories.user', 'evaluation', 'assignedPjo', 'assignedTc'])->findOrFail($id);
         $trainer = auth()->user();
         abort_unless($logbook->status !== 'draft', 403);
+        abort_unless($logbook->assignments()->where('user_id', $trainer->id)->where('status', 'pending')->exists(), 403);
 
-        return view('ojt.logbooks.show', ['logbook' => $logbook, 'trainerReview' => true]);
+        return view('ojt.logbooks.show', ['logbook' => $logbook, 'trainerReview' => true, 'assignedPengawas' => collect($logbook->selected_pengawas_ids ?? [])->map(fn ($id) => User::find($id))->filter(), 'assignedOperators' => collect($logbook->selected_operator_pendamping_ids ?? [])->map(fn ($id) => User::find($id))->filter()]);
     }
 
     public function edit($id)
@@ -60,6 +64,7 @@ class TrainerReviewController extends Controller
         abort_unless($trainer && $trainer->isTrainer(), 403);
         $logbook = OjtLogbook::with(['equipmentCategory'])->findOrFail($id);
         abort_unless($logbook->status === 'submitted', 403);
+        abort_unless($logbook->assignments()->where('user_id', $trainer->id)->where('status', 'pending')->exists(), 403);
 
         $user = $logbook->trainee;
         $departments = Department::whereIn('code', ['CHCPP', 'RIM', 'PLANT'])->get();
@@ -82,6 +87,7 @@ class TrainerReviewController extends Controller
         abort_unless($trainer && $trainer->isTrainer(), 403);
         $logbook = OjtLogbook::findOrFail($id);
         abort_unless($logbook->status === 'submitted', 403);
+        abort_unless($logbook->assignments()->where('user_id', $trainer->id)->where('status', 'pending')->exists(), 403);
 
         $data = $request->validate([
             'date' => ['required', 'date'], 'shift' => ['required', 'in:day,night'],
@@ -110,6 +116,7 @@ class TrainerReviewController extends Controller
         abort_unless($trainer && $trainer->isTrainer(), 403);
         $logbook = OjtLogbook::findOrFail($id);
         abort_unless($logbook->status === 'submitted', 403);
+        abort_unless($logbook->assignments()->where('user_id', $trainer->id)->where('status', 'pending')->exists(), 403);
         $data = $request->validate(['checklist' => ['required', 'array']]);
 
         $payload = $logbook->sop_payload ?? [];
@@ -136,7 +143,7 @@ class TrainerReviewController extends Controller
         $trainer = auth()->user();
         abort_unless($trainer && $trainer->isTrainer(), 403);
         $logbook = OjtLogbook::findOrFail($id);
-        abort_unless($logbook->trainer_id === $trainer->id, 403);
+        abort_unless($logbook->assignments()->where('user_id', $trainer->id)->where('status', 'pending')->exists(), 403);
         abort_unless($logbook->status === 'submitted', 422, 'Logbook ini sudah selesai diproses.');
 
         $data = $request->validate([

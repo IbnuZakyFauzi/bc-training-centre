@@ -75,7 +75,9 @@ class TrainingCentreApprovalController extends Controller
         $isPending = $logbook->status === 'verified' && !$logbook->training_centre_decided_at;
         abort_unless($isPending || $logbook->training_centre_decided_at, 403);
         abort_unless($reviewer->isSuperAdmin() || $logbook->assigned_tc_id === $reviewer->id, 403);
-        return view('ojt.logbooks.show', ['logbook' => $logbook, 'trainerReview' => false, 'trainingCentreApproval' => true, 'isPending' => $isPending]);
+        $assignedPengawas = collect($logbook->selected_pengawas_ids ?? [])->map(fn ($id) => User::find($id))->filter();
+        $assignedOperators = collect($logbook->selected_operator_pendamping_ids ?? [])->map(fn ($id) => User::find($id))->filter();
+        return view('ojt.logbooks.show', ['logbook' => $logbook, 'trainerReview' => false, 'trainingCentreApproval' => true, 'isPending' => $isPending, 'assignedPengawas' => $assignedPengawas, 'assignedOperators' => $assignedOperators]);
     }
 
     public function decide(Request $request, $id)

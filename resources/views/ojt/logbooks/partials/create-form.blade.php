@@ -1406,6 +1406,7 @@
     </div>
     </div>
 
+    @if(!$isTrainerEditing)
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -1505,6 +1506,7 @@
             <p class="text-[10px] text-slate-500">Rating akan disimpan bersama logbook saat submit.</p>
         </div>
     </div>
+    @endif
 
     <script>
         function syncTrainerRatingsVisibility() {

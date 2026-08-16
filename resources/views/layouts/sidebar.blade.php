@@ -8,7 +8,11 @@
     ];
 
     $role = $user?->role;
-    $roleLabel = $roleLabels[$role] ?? 'User';
+    $roleLabel = match (true) {
+        $role === 'trainer' && $user?->trainer_type === 'pengawas' => 'Pengawas',
+        $role === 'trainer' && $user?->trainer_type === 'operator_pendamping' => 'Operator Pendamping',
+        default => $roleLabels[$role] ?? 'User',
+    };
     $initials = collect(explode(' ', $user?->name ?? 'U'))
         ->filter()
         ->take(2)
@@ -41,6 +45,23 @@
                 ['label' => 'Approval Pengawas', 'route' => 'supervisor.approvals.index', 'match' => 'supervisor.approvals.*'],
             ],
         ],
+        'pengawas' => [
+            'label' => 'Pengawas Workspace',
+            'tag' => 'PENGAWAS',
+            'items' => [
+                ['label' => 'Dashboard', 'route' => 'trainer.dashboard', 'match' => 'trainer.dashboard'],
+                ['label' => 'Review Logbook', 'route' => 'trainer.reviews.index', 'match' => 'trainer.reviews.*'],
+                ['label' => 'Approval Saya', 'route' => 'supervisor.approvals.index', 'match' => 'supervisor.approvals.*'],
+            ],
+        ],
+        'operator_pendamping' => [
+            'label' => 'Operator Pendamping',
+            'tag' => 'OPERATOR',
+            'items' => [
+                ['label' => 'Dashboard', 'route' => 'trainer.dashboard', 'match' => 'trainer.dashboard'],
+                ['label' => 'Review Logbook', 'route' => 'trainer.reviews.index', 'match' => 'trainer.reviews.*'],
+            ],
+        ],
         'admin' => [
             'label' => 'Admin Training Centre',
             'tag' => 'ADMIN',
@@ -52,7 +73,13 @@
         ],
     ];
 
-    $currentSection = $menuSections[$role] ?? null;
+    $currentSection = match (true) {
+        $role === 'trainee' => $menuSections['trainee'],
+        $role === 'admin' => $menuSections['admin'],
+        $role === 'trainer' && $user?->trainer_type === 'pengawas' => $menuSections['pengawas'],
+        $role === 'trainer' && $user?->trainer_type === 'operator_pendamping' => $menuSections['operator_pendamping'],
+        default => $menuSections['trainer'],
+    };
 @endphp
 
 <aside x-show="sidebarOpen" class="w-64 bg-[#003829] text-white flex flex-col flex-shrink-0 transition-all duration-300 shadow-xl z-20">
