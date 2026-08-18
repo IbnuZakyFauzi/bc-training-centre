@@ -54,6 +54,8 @@ class OjtLogbook extends Model
         'hm_start' => 'decimal:1',
         'hm_end' => 'decimal:1',
         'total_hm' => 'decimal:1',
+        'hm_day' => 'decimal:1',
+        'hm_night' => 'decimal:1',
         'sop_payload' => 'array',
         'trainer_ratings' => 'array',
         'selected_pengawas_ids' => 'array',

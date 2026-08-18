@@ -1,7 +1,9 @@
 <x-app-layout>
     <x-slot name="title">{{ ($trainingCentreApproval ?? false) ? 'Final Approval Training Centre' : 'Detail Logbook' }} - {{ $logbook->logbook_number }}</x-slot>
-    @php($trainerReview = $trainerReview ?? false)
-    @php($trainingCentreApproval = $trainingCentreApproval ?? false)
+    @php
+        $trainerReview = $trainerReview ?? false;
+        $trainingCentreApproval = $trainingCentreApproval ?? false;
+    @endphp
 
     <!-- Page Header & Action Bar -->
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -147,11 +149,10 @@
 
             <!-- Hour Meter Summary Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+                <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
                     <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Hour Meter & Jam Pengoperasian</h2>
-                    <span class="text-xs font-bold text-[#00A859]">Rincian HM Valid</span>
                 </div>
-                <div class="p-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+                <div class="p-6 grid grid-cols-2 sm:grid-cols-3 gap-6 text-center">
                     <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">HM Awal</span>
                         <span class="text-xl font-extrabold text-slate-800 mt-1 block">{{ number_format($logbook->hm_start, 1) }}</span>
@@ -165,11 +166,6 @@
                     <div class="p-4 bg-[#003829] text-white rounded-xl border border-emerald-900 shadow-sm">
                         <span class="text-[10px] font-bold text-emerald-300 uppercase tracking-wider block">Total HM</span>
                         <span class="text-2xl font-black text-[#F5A623] mt-1 block">{{ number_format($logbook->total_hm, 1) }} <span class="text-xs text-white">Jam</span></span>
-                    </div>
-
-                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Jam Operasional</span>
-                        <span class="text-xs font-bold text-slate-800 mt-2 block">{{ $logbook->start_time }} - {{ $logbook->finish_time }}</span>
                     </div>
                 </div>
             </div>
@@ -220,8 +216,24 @@
                 <!-- Trainer -->
                 <div class="flex-1 p-5 {{ in_array($logbook->status, ['verified', 'approved', 'supervisor_approved', 'final_approved']) ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200' }} rounded-xl border flex items-center justify-between">
                     <div>
-                        <span class="text-xs text-slate-500 font-bold uppercase block">Trainer Evaluator</span>
-                        <span class="text-sm font-bold text-slate-800 mt-1 block">{{ $logbook->trainer->name ?? 'Bambang Hermawan' }}</span>
+                        @php
+                            $trainerApproverTitle = 'Instruktur/ Pengawas/ Operator Pendamping';
+                            $trainerApproverName = $logbook->trainer->name ?? 'Bambang Hermawan';
+                            $trainerApproverSid = $logbook->trainer->sid ?? '-';
+
+                            if ($logbook->evaluation?->trainer_signature_path && $logbook->evaluation->trainer) {
+                                $trainerApprover = $logbook->evaluation->trainer;
+                                $trainerApproverTitle = match($trainerApprover->trainer_type) {
+                                    'pengawas' => 'Pengawas',
+                                    'operator_pendamping' => 'Operator Pendamping',
+                                    default => 'Instruktur',
+                                };
+                                $trainerApproverName = $trainerApprover->name;
+                                $trainerApproverSid = $trainerApprover->sid;
+                            }
+                        @endphp
+                        <span class="text-xs text-slate-500 font-bold uppercase block">{{ $trainerApproverTitle }}</span>
+                        <span class="text-sm font-bold text-slate-800 mt-1 block">{{ $trainerApproverName }}</span>
                         @if($logbook->evaluation?->trainer_signature_path)
                             <img src="{{ asset('storage/'.$logbook->evaluation->trainer_signature_path) }}" alt="Trainer signature" class="mt-2 max-h-12 w-auto object-contain bg-white rounded-lg border border-emerald-200 p-1">
                         @endif
@@ -258,11 +270,90 @@
 
             </div>
 
+            </div>
+
+            @if($trainingCentreApproval && !empty($logbook->trainer_ratings))
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
+                        <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Penilaian Trainer oleh Trainee</h2>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        @php
+                            $ratings = is_array($logbook->trainer_ratings) ? $logbook->trainer_ratings : [];
+                            $instrukturRatings = array_filter($ratings, fn($r) => ($r['role_type'] ?? '') === 'instruktur');
+                            $pengawasRatings = array_filter($ratings, fn($r) => ($r['role_type'] ?? '') === 'pengawas');
+                            $operatorRatings = array_filter($ratings, fn($r) => ($r['role_type'] ?? '') === 'operator_pendamping');
+                        @endphp
+
+                        @if(!empty($instrukturRatings))
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Instruktur</p>
+                                <div class="space-y-2">
+                                    @foreach($instrukturRatings as $rating)
+                                        @php $user = \App\Models\User::find($rating['user_id'] ?? null); @endphp
+                                        @if($user)
+                                            <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+                                                <span class="text-xs font-semibold text-slate-700">{{ $user->name }}</span>
+                                                <div class="flex items-center gap-0.5">
+                                                    @for($i = 1; $i <= 5; $i++)
+                                                        <svg class="w-4 h-4 {{ ($rating['rating'] ?? 0) >= $i ? 'text-amber-400' : 'text-slate-200' }}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                                    @endfor
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
+                        @if(!empty($pengawasRatings))
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Pengawas</p>
+                                <div class="space-y-2">
+                                    @foreach($pengawasRatings as $rating)
+                                        @php $user = \App\Models\User::find($rating['user_id'] ?? null); @endphp
+                                        @if($user)
+                                            <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+                                                <span class="text-xs font-semibold text-slate-700">{{ $user->name }}</span>
+                                                <div class="flex items-center gap-0.5">
+                                                    @for($i = 1; $i <= 5; $i++)
+                                                        <svg class="w-4 h-4 {{ ($rating['rating'] ?? 0) >= $i ? 'text-amber-400' : 'text-slate-200' }}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                                    @endfor
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
+                        @if(!empty($operatorRatings))
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Operator Pendamping</p>
+                                <div class="space-y-2">
+                                    @foreach($operatorRatings as $rating)
+                                        @php $user = \App\Models\User::find($rating['user_id'] ?? null); @endphp
+                                        @if($user)
+                                            <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+                                                <span class="text-xs font-semibold text-slate-700">{{ $user->name }}</span>
+                                                <div class="flex items-center gap-0.5">
+                                                    @for($i = 1; $i <= 5; $i++)
+                                                        <svg class="w-4 h-4 {{ ($rating['rating'] ?? 0) >= $i ? 'text-amber-400' : 'text-slate-200' }}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                                    @endfor
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
         </div>
 
-    </div>
-
-    @if($trainerReview)
+    @if($trainerReview && $logbook->status === 'submitted')
         @include('trainer.reviews.partials.decision-form')
     @endif
 

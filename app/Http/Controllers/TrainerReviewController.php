@@ -27,11 +27,17 @@ class TrainerReviewController extends Controller
                   ->where('status', 'pending');
             });
 
-        if ($request->filled('status') && $request->status !== 'all') {
-            $query->where('status', $request->status);
+        $activeStatus = $request->get('status', 'submitted');
+
+        if ($activeStatus === 'verified') {
+            $query->whereIn('status', ['verified', 'final_approved']);
+        } elseif ($activeStatus === 'revision') {
+            $query->where('status', 'revision');
         } else {
+            $activeStatus = 'submitted';
             $query->whereIn('status', ['submitted']);
         }
+
         if ($request->filled('search')) {
             $term = $request->search;
             $query->where(fn ($q) => $q->where('logbook_number', 'like', "%{$term}%")
@@ -40,12 +46,17 @@ class TrainerReviewController extends Controller
 
         $logbooks = $query->latest('submitted_at')->paginate(10)->withQueryString();
 
+        $baseQuery = OjtLogbook::whereHas('assignments', function ($q) use ($trainer) {
+            $q->where('user_id', $trainer->id)->where('status', 'pending');
+        });
+
         $counts = [
-            'submitted' => OjtLogbook::where('status', 'submitted')->count(),
-            'revision' => 0,
-            'verified' => 0,
+            'submitted' => (clone $baseQuery)->whereIn('status', ['submitted'])->count(),
+            'verified' => (clone $baseQuery)->whereIn('status', ['verified', 'final_approved'])->count(),
+            'revision' => (clone $baseQuery)->where('status', 'revision')->count(),
         ];
-        return view('trainer.reviews.index', compact('trainer', 'logbooks', 'counts'));
+
+        return view('trainer.reviews.index', compact('trainer', 'logbooks', 'counts', 'activeStatus'));
     }
 
     public function show($id)

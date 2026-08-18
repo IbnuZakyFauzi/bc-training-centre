@@ -545,7 +545,7 @@
                 <div class="font-semibold mb-2">Keterangan:</div>
                 <ol class="space-y-1 pl-4 list-decimal">
                     <li>Beri tanda "&#10003;" pada kolom yang sesuai</li>
-                    <li>Kolom "Catatan Penguji" memuat penjelasan item evaluasi terkait</li>
+                    <li>Kolom "Trainee Feedback" memuat penjelasan item evaluasi terkait</li>
                     <li>(K) Kompeten, (BK) Belum Kompeten</li>
                     <li>Knw: Knowledge, Skl: Skill, Atd: Attitude</li>
                 </ol>
@@ -660,7 +660,7 @@
                     <div>
                         <div class="flex items-center gap-2 text-[11px] font-semibold text-[#00A859] uppercase tracking-wider"><span>Unit Track</span><span>•</span><span>Buldozer / Motor Grader</span></div>
                         <h2 class="mt-1 text-base font-bold text-slate-800">Checklist SOP Harian</h2>
-                        <p class="text-[11px] text-slate-500 mt-1">Isi K / BK dan catatan penguji pada setiap item evaluasi.</p>
+                        <p class="text-[11px] text-slate-500 mt-1">Isi K / BK dan trainee feedback pada setiap item evaluasi.</p>
                     </div>
                     <div class="rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2 text-[11px] font-bold text-emerald-700">DZ / MG</div>
                 </div>
@@ -703,7 +703,7 @@
                                             <th class="px-3 py-2 text-left">Item Evaluasi</th>
                                             <th class="px-3 py-2 text-center w-14">K</th>
                                             <th class="px-3 py-2 text-center w-14">BK</th>
-                                            <th class="px-3 py-2 text-left w-56">Catatan Penguji</th>
+                                            <th class="px-3 py-2 text-left w-56">C</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100">
@@ -714,7 +714,7 @@
                                                 <td class="px-3 py-3 text-slate-700 leading-relaxed break-words">{{ $item['label'] }}</td>
                                                 <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.track.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
                                                 <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.track.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
-                                                <td class="px-3 py-3"><textarea name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis catatan penguji">{{ old('sop_payload.track.groups.'.$groupIndex.'.items.'.$itemIndex.'.note') }}</textarea></td>
+                                                <td class="px-3 py-3"><textarea name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis trainee feedback">{{ old('sop_payload.track.groups.'.$groupIndex.'.items.'.$itemIndex.'.note') }}</textarea></td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -745,7 +745,7 @@
                                         <th class="px-3 py-2 text-left">Item Evaluasi</th>
                                         <th class="px-3 py-2 text-center w-14">K</th>
                                         <th class="px-3 py-2 text-center w-14">BK</th>
-                                        <th class="px-3 py-2 text-left w-56">Catatan Penguji</th>
+                                        <th class="px-3 py-2 text-left w-56">Trainee Feedback</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
@@ -756,7 +756,7 @@
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
                                             <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[track][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[track][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[track][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[track][compliance][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.track.compliance.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
                                             <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[track][compliance][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.track.compliance.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
-                                            <td class="px-3 py-3"><textarea name="sop_payload[track][compliance][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.track.compliance.'.$itemIndex.'.note') }}</textarea></td>
+                                            <td class="px-3 py-3"><textarea name="sop_payload[track][compliance][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.track.compliance.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -786,7 +786,7 @@
                                         <th class="px-3 py-2 text-left">Item Evaluasi</th>
                                         <th class="px-3 py-2 text-center w-14">K</th>
                                         <th class="px-3 py-2 text-center w-14">BK</th>
-                                        <th class="px-3 py-2 text-left w-56">Catatan Penguji</th>
+                                        <th class="px-3 py-2 text-left w-56">Trainee Feedback</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
@@ -797,7 +797,7 @@
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
                                             <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[track][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[track][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[track][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[track][behavior][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.track.behavior.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
                                             <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[track][behavior][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.track.behavior.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
-                                            <td class="px-3 py-3"><textarea name="sop_payload[track][behavior][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.track.behavior.'.$itemIndex.'.note') }}</textarea></td>
+                                            <td class="px-3 py-3"><textarea name="sop_payload[track][behavior][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.track.behavior.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -858,7 +858,7 @@
                                                 <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
                                                 <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.excavator.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
                                                 <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.excavator.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
-                                            <td class="px-3 py-3"><textarea name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis catatan penguji">{{ old('sop_payload.excavator.groups.'.$groupIndex.'.items.'.$itemIndex.'.note') }}</textarea></td>
+                                            <td class="px-3 py-3"><textarea name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis Trainee feedback">{{ old('sop_payload.excavator.groups.'.$groupIndex.'.items.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -889,7 +889,7 @@
                                             <th class="px-3 py-2 text-left">Item Evaluasi</th>
                                             <th class="px-3 py-2 text-center w-14">K</th>
                                             <th class="px-3 py-2 text-center w-14">BK</th>
-                                            <th class="px-3 py-2 text-left w-56">Catatan Penguji</th>
+                                            <th class="px-3 py-2 text-left w-56">Trainee Feedback</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100">
@@ -900,7 +900,7 @@
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
                                             <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[excavator][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[excavator][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[excavator][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[excavator][compliance][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.excavator.compliance.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
                                             <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[excavator][compliance][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.excavator.compliance.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
-                                            <td class="px-3 py-3"><textarea name="sop_payload[excavator][compliance][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.excavator.compliance.'.$itemIndex.'.note') }}</textarea></td>
+                                            <td class="px-3 py-3"><textarea name="sop_payload[excavator][compliance][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.excavator.compliance.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -930,7 +930,7 @@
                                         <th class="px-3 py-2 text-left">Item Evaluasi</th>
                                         <th class="px-3 py-2 text-center w-14">K</th>
                                         <th class="px-3 py-2 text-center w-14">BK</th>
-                                        <th class="px-3 py-2 text-left w-56">Catatan Penguji</th>
+                                        <th class="px-3 py-2 text-left w-56">Trainee Feedback</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
@@ -941,7 +941,7 @@
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
                                             <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[excavator][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[excavator][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[excavator][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[excavator][behavior][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.excavator.behavior.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
                                             <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[excavator][behavior][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.excavator.behavior.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
-                                            <td class="px-3 py-3"><textarea name="sop_payload[excavator][behavior][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.excavator.behavior.'.$itemIndex.'.note') }}</textarea></td>
+                                            <td class="px-3 py-3"><textarea name="sop_payload[excavator][behavior][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.excavator.behavior.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -1001,7 +1001,7 @@
                                             <th class="px-3 py-2 text-left">Item Evaluasi</th>
                                             <th class="px-3 py-2 text-center w-14">K</th>
                                             <th class="px-3 py-2 text-center w-14">BK</th>
-                                            <th class="px-3 py-2 text-left w-56">Catatan Penguji</th>
+                                            <th class="px-3 py-2 text-left w-56">Trainee feedback</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100">
@@ -1012,7 +1012,7 @@
                                                 <td class="px-3 py-3 text-slate-700 leading-relaxed break-words">{{ $item['label'] }}</td>
 <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
 <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
-<td class="px-3 py-3"><textarea name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis catatan penguji">{{ old('sop_payload.dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex.'.note') }}</textarea></td>
+<td class="px-3 py-3"><textarea name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis Trainee feedback">{{ old('sop_payload.dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex.'.note') }}</textarea></td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -1043,7 +1043,7 @@
                                         <th class="px-3 py-2 text-left">Item Evaluasi</th>
                                         <th class="px-3 py-2 text-center w-14">K</th>
                                         <th class="px-3 py-2 text-center w-14">BK</th>
-                                        <th class="px-3 py-2 text-left w-56">Catatan Penguji</th>
+                                        <th class="px-3 py-2 text-left w-56">Trainee Feedback</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
@@ -1054,7 +1054,7 @@
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
 <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.dumptruck.compliance.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
 <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.dumptruck.compliance.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
-<td class="px-3 py-3"><textarea name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.dumptruck.compliance.'.$itemIndex.'.note') }}</textarea></td>
+<td class="px-3 py-3"><textarea name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.dumptruck.compliance.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -1084,7 +1084,7 @@
                                         <th class="px-3 py-2 text-left">Item Evaluasi</th>
                                         <th class="px-3 py-2 text-center w-14">K</th>
                                         <th class="px-3 py-2 text-center w-14">BK</th>
-                                        <th class="px-3 py-2 text-left w-56">Catatan Penguji</th>
+                                        <th class="px-3 py-2 text-left w-56">Trainee Feedback</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
@@ -1095,7 +1095,7 @@
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
 <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.dumptruck.behavior.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
 <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.dumptruck.behavior.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
-<td class="px-3 py-3"><textarea name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.dumptruck.behavior.'.$itemIndex.'.note') }}</textarea></td>
+<td class="px-3 py-3"><textarea name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.dumptruck.behavior.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -1155,7 +1155,7 @@
                                             <th class="px-3 py-2 text-left">Item Evaluasi</th>
                                             <th class="px-3 py-2 text-center w-14">K</th>
                                             <th class="px-3 py-2 text-center w-14">BK</th>
-                                            <th class="px-3 py-2 text-left w-56">Catatan Penguji</th>
+                                            <th class="px-3 py-2 text-left w-56">Trainee feedback</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100">@foreach($group['items'] as $itemIndex => $item)
@@ -1165,7 +1165,7 @@
         <td class="px-3 py-3 text-slate-700 leading-relaxed break-words">{{ $item['label'] }}</td>
 <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.semidump.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
 <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.semidump.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
-<td class="px-3 py-3"><textarea name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis catatan penguji">{{ old('sop_payload.semidump.groups.'.$groupIndex.'.items.'.$itemIndex.'.note') }}</textarea></td>
+<td class="px-3 py-3"><textarea name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis Trainee feedback">{{ old('sop_payload.semidump.groups.'.$groupIndex.'.items.'.$itemIndex.'.note') }}</textarea></td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -1196,7 +1196,7 @@
                                         <th class="px-3 py-2 text-left">Item Evaluasi</th>
                                         <th class="px-3 py-2 text-center w-14">K</th>
                                         <th class="px-3 py-2 text-center w-14">BK</th>
-                                        <th class="px-3 py-2 text-left w-56">Catatan Penguji</th>
+                                        <th class="px-3 py-2 text-left w-56">Trainee Feedback</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">@foreach($semidumpComplianceItems as $itemIndex => $item)
@@ -1206,7 +1206,7 @@
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
 <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[semidump][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[semidump][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[semidump][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[semidump][compliance][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.semidump.compliance.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
 <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[semidump][compliance][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.semidump.compliance.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
-<td class="px-3 py-3"><textarea name="sop_payload[semidump][compliance][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.semidump.compliance.'.$itemIndex.'.note') }}</textarea></td>
+<td class="px-3 py-3"><textarea name="sop_payload[semidump][compliance][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.semidump.compliance.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -1236,7 +1236,7 @@
                                         <th class="px-3 py-2 text-left">Item Evaluasi</th>
                                         <th class="px-3 py-2 text-center w-14">K</th>
                                         <th class="px-3 py-2 text-center w-14">BK</th>
-                                        <th class="px-3 py-2 text-left w-56">Catatan Penguji</th>
+                                        <th class="px-3 py-2 text-left w-56">Trainee Feedback</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
@@ -1247,7 +1247,7 @@
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
 <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[semidump][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[semidump][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[semidump][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[semidump][behavior][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.semidump.behavior.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
 <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[semidump][behavior][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.semidump.behavior.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
-<td class="px-3 py-3"><textarea name="sop_payload[semidump][behavior][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.semidump.behavior.'.$itemIndex.'.note') }}</textarea></td>
+<td class="px-3 py-3"><textarea name="sop_payload[semidump][behavior][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.semidump.behavior.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -1297,7 +1297,7 @@
                                             <th class="px-3 py-2 text-left">Item Evaluasi</th>
                                             <th class="px-3 py-2 text-center w-14">K</th>
                                             <th class="px-3 py-2 text-center w-14">BK</th>
-                                            <th class="px-3 py-2 text-left w-56">Catatan Penguji</th>
+                                            <th class="px-3 py-2 text-left w-56">Trainee feedback</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100">@foreach($group['items'] as $itemIndex => $item)
@@ -1307,7 +1307,7 @@
         <td class="px-3 py-3 text-slate-700 leading-relaxed break-words">{{ $item['label'] }}</td>
 <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
 <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
-<td class="px-3 py-3"><textarea name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis catatan penguji">{{ old('sop_payload.wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex.'.note') }}</textarea></td>
+<td class="px-3 py-3"><textarea name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis Trainee feedback">{{ old('sop_payload.wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex.'.note') }}</textarea></td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -1338,7 +1338,7 @@
                                         <th class="px-3 py-2 text-left">Item Evaluasi</th>
                                         <th class="px-3 py-2 text-center w-14">K</th>
                                         <th class="px-3 py-2 text-center w-14">BK</th>
-                                        <th class="px-3 py-2 text-left w-56">Catatan Penguji</th>
+                                        <th class="px-3 py-2 text-left w-56">Trainee Feedback</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">@foreach($wlComplianceItems as $itemIndex => $item)
@@ -1348,7 +1348,7 @@
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
 <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.wheelloader.compliance.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
 <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.wheelloader.compliance.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
-<td class="px-3 py-3"><textarea name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.wheelloader.compliance.'.$itemIndex.'.note') }}</textarea></td>
+<td class="px-3 py-3"><textarea name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.wheelloader.compliance.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -1378,7 +1378,7 @@
                                         <th class="px-3 py-2 text-left">Item Evaluasi</th>
                                         <th class="px-3 py-2 text-center w-14">K</th>
                                         <th class="px-3 py-2 text-center w-14">BK</th>
-                                        <th class="px-3 py-2 text-left w-56">Catatan Penguji</th>
+                                        <th class="px-3 py-2 text-left w-56">Trainee Feedback</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
@@ -1389,7 +1389,7 @@
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
 <td class="px-3 py-3 text-center"><input type="hidden" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}"><input type="radio" class="accent-emerald-600 checklist-radio" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][status]" value="K" {{ old('sop_payload.wheelloader.behavior.'.$itemIndex.'.status') == 'K' ? 'checked' : '' }}></td>
 <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600 checklist-radio" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][status]" value="BK" {{ old('sop_payload.wheelloader.behavior.'.$itemIndex.'.status') == 'BK' ? 'checked' : '' }}></td>
-<td class="px-3 py-3"><textarea name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Catatan penguji">{{ old('sop_payload.wheelloader.behavior.'.$itemIndex.'.note') }}</textarea></td>
+<td class="px-3 py-3"><textarea name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][note]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainer feedback">{{ old('sop_payload.wheelloader.behavior.'.$itemIndex.'.note') }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -1436,6 +1436,7 @@
                                 </button>
                             @endfor
                             <input type="hidden" name="trainer_ratings[{{ $instruktur->id }}][user_id]" value="{{ $instruktur->id }}">
+                            <input type="hidden" name="trainer_ratings[{{ $instruktur->id }}][role_type]" value="instruktur">
                             <input type="hidden" class="rating-value" name="trainer_ratings[{{ $instruktur->id }}][rating]" value="0">
                         </div>
                     </div>
@@ -1464,6 +1465,7 @@
                                 </button>
                             @endfor
                             <input type="hidden" name="trainer_ratings[{{ $pengawas->id }}][user_id]" value="{{ $pengawas->id }}">
+                            <input type="hidden" name="trainer_ratings[{{ $pengawas->id }}][role_type]" value="pengawas">
                             <input type="hidden" class="rating-value" name="trainer_ratings[{{ $pengawas->id }}][rating]" value="0">
                         </div>
                     </div>
@@ -1492,6 +1494,7 @@
                                 </button>
                             @endfor
                             <input type="hidden" name="trainer_ratings[{{ $operator->id }}][user_id]" value="{{ $operator->id }}">
+                            <input type="hidden" name="trainer_ratings[{{ $operator->id }}][role_type]" value="operator_pendamping">
                             <input type="hidden" class="rating-value" name="trainer_ratings[{{ $operator->id }}][rating]" value="0">
                         </div>
                     </div>
@@ -1602,7 +1605,7 @@
             <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Kirim Logbook</h2>
         </div>
         <div class="p-6 space-y-4">
-            <p class="text-[11px] text-slate-500">Checklist K / BK dan catatan penguji harus sesuai SOP unit yang dipilih sebelum submit.</p>
+            <p class="text-[11px] text-slate-500">Checklist K / BK dan trainee feedback harus sesuai SOP unit yang dipilih sebelum submit.</p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 @unless($isTrainerEditing)
                     <button type="submit" value="draft" formnovalidate onclick="document.getElementById('action_type').value='draft'" class="group flex items-start gap-4 rounded-xl border border-slate-200 bg-slate-50 p-5 text-left hover:border-slate-300 hover:bg-slate-100 transition">

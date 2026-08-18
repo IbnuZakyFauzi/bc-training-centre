@@ -115,13 +115,12 @@
             </div>
             <div class="mt-3">
                 <div class="flex items-baseline justify-between">
-                    <span class="text-2xl font-extrabold text-slate-800">{{ number_format($kpi['total_hm'], 1) }} <span class="text-xs text-slate-500 font-normal">HM</span></span>
-                    <span class="text-xs font-bold text-[#00A859]">{{ $kpi['progress_percentage'] }}%</span>
+                    <span class="text-2xl font-extrabold text-slate-800">{{ number_format($kpi['total_hm'], 1) }} <span class="text-xs text-slate-500 font-normal">HM Total</span></span>
                 </div>
-                <div class="w-full bg-slate-100 rounded-full h-2 mt-2 overflow-hidden">
-                    <div class="bg-[#00A859] h-2 rounded-full transition-all duration-500" style="width: {{ $kpi['progress_percentage'] }}%"></div>
+                <div class="mt-2 flex items-center gap-4 text-[11px] text-slate-500">
+                    <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Siang: {{ number_format($kpi['hm_day'], 1) }} HM</span>
+                    <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-indigo-500"></span> Malam: {{ number_format($kpi['hm_night'], 1) }} HM</span>
                 </div>
-                <span class="text-[10px] text-slate-400 mt-1 block">Target OJT: {{ $kpi['target_hm'] }} HM</span>
             </div>
         </div>
 

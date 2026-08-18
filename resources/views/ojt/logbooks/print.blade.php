@@ -489,8 +489,8 @@
                          <tr><td class="meta-label">UNIT TYPE</td><td>: {{ $unitTypeLabel }}</td></tr>
                          @endif
                         <tr><td class="meta-label">NO ALAT</td><td>: {{ $logbook->unit_code }}</td></tr>
-                        <tr><td class="meta-label">HM/ KM AWAL</td><td>: {{ number_format($logbook->hm_start, 1) }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>HM/ KM AKHIR:</b> {{ number_format($logbook->hm_end, 1) }}</td></tr>
-                        <tr><td class="meta-label">EXPIRED DATE STIKER (SKO)</td><td>: {{ $stickerExp ? \Carbon\Carbon::parse($stickerExp)->format('d/m/Y') : '......................20....' }}</td></tr>
+                         <tr><td class="meta-label">HM/ KM AWAL</td><td>: {{ number_format($logbook->hm_start, 1) }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>HM/ KM AKHIR:</b> {{ number_format($logbook->hm_end, 1) }}</td></tr>
+                         <tr><td class="meta-label">EXPIRED DATE STIKER (SKO)</td><td>: {{ $stickerExp ? \Carbon\Carbon::parse($stickerExp)->format('d/m/Y') : '......................20....' }}</td></tr>
                     </table>
                 </td>
             </tr>
@@ -569,13 +569,14 @@
                     @foreach($group['items'] ?? [] as $itemIndex => $item)
                         @php
                             $status = $item['status'] ?? 'K';
+                            $note = trim((string)($item['note'] ?? ''));
                         @endphp
                         <tr>
                             <td class="col-no">{{ $item['code'] ?? ($groupIndex + 1).'.'.($itemIndex + 1) }}</td>
                             <td class="col-aspek">{{ $item['kind'] ?? 'Skl' }}</td>
                             <td class="col-item">{{ $item['label'] ?? '' }}</td>
-                            <td class="col-kbk">{!! $status === 'K' ? '✓' : '' !!}</td>
-                            <td class="col-kbk">{!! $status === 'BK' ? '✓' : '' !!}</td>
+                            <td class="col-kbk">{!! (!in_array($note, ['N/A', 'n/a', '-']) && $status === 'K') ? '✓' : '' !!}</td>
+                            <td class="col-kbk">{!! (!in_array($note, ['N/A', 'n/a', '-']) && $status === 'BK') ? '✓' : '' !!}</td>
                             <td class="col-catatan">{{ $item['note'] ?? '' }}</td>
                         </tr>
                     @endforeach
@@ -589,13 +590,14 @@
                 @foreach($complianceItems as $itemIndex => $item)
                     @php
                         $status = $item['status'] ?? 'K';
+                        $note = trim((string)($item['note'] ?? ''));
                     @endphp
                     <tr>
                         <td class="col-no">{{ $item['code'] }}</td>
                         <td class="col-aspek">{{ $item['kind'] }}</td>
                         <td class="col-item">{{ $item['label'] }}</td>
-                        <td class="col-kbk">{!! $status === 'K' ? '✓' : '' !!}</td>
-                        <td class="col-kbk">{!! $status === 'BK' ? '✓' : '' !!}</td>
+                        <td class="col-kbk">{!! (!in_array($note, ['N/A', 'n/a', '-']) && $status === 'K') ? '✓' : '' !!}</td>
+                        <td class="col-kbk">{!! (!in_array($note, ['N/A', 'n/a', '-']) && $status === 'BK') ? '✓' : '' !!}</td>
                         <td class="col-catatan">{{ $item['note'] ?? '' }}</td>
                     </tr>
                 @endforeach
@@ -608,13 +610,14 @@
                 @foreach($disciplineItems as $itemIndex => $item)
                     @php
                         $status = $item['status'] ?? 'K';
+                        $note = trim((string)($item['note'] ?? ''));
                     @endphp
                     <tr>
                         <td class="col-no">{{ $item['code'] }}</td>
                         <td class="col-aspek">{{ $item['kind'] }}</td>
                         <td class="col-item">{{ $item['label'] }}</td>
-                        <td class="col-kbk">{!! $status === 'K' ? '✓' : '' !!}</td>
-                        <td class="col-kbk">{!! $status === 'BK' ? '✓' : '' !!}</td>
+                        <td class="col-kbk">{!! (!in_array($note, ['N/A', 'n/a', '-']) && $status === 'K') ? '✓' : '' !!}</td>
+                        <td class="col-kbk">{!! (!in_array($note, ['N/A', 'n/a', '-']) && $status === 'BK') ? '✓' : '' !!}</td>
                         <td class="col-catatan">{{ $item['note'] ?? '' }}</td>
                     </tr>
                 @endforeach
@@ -696,7 +699,32 @@
             </tr>
             <tr>
                 <td style="width: 33.33%;" class="sig-title">Peserta/ Trainee</td>
-                <td style="width: 33.33%;" class="sig-title">Instruktur/ Pengawas/ Operator Pendamping</td>
+                <td style="width: 33.33%;" class="sig-title">
+                    @php
+                        $approverTitle = 'Instruktur/ Pengawas/ Operator Pendamping';
+                        $approverName = $logbook->trainer->name ?? $logbook->supervisor->name ?? '-';
+                        $approverSid = $logbook->trainer->sid ?? $logbook->supervisor->sid ?? '-';
+                        $approverSig = null;
+
+                        if ($logbook->evaluation?->trainer_signature_path) {
+                            $approver = $logbook->evaluation->trainer;
+                            $approverTitle = match($approver->trainer_type) {
+                                'pengawas' => 'Pengawas',
+                                'operator_pendamping' => 'Operator Pendamping',
+                                default => 'Instruktur',
+                            };
+                            $approverName = $approver->name;
+                            $approverSid = $approver->sid;
+                            $approverSig = $logbook->evaluation->trainer_signature_path;
+                        } elseif ($logbook->pjo_signature_path) {
+                            $approverTitle = 'Pengawas';
+                            $approverName = $logbook->pengawasTrainer->name ?? $approverName;
+                            $approverSid = $logbook->pengawasTrainer->sid ?? $approverSid;
+                            $approverSig = $logbook->pjo_signature_path;
+                        }
+                    @endphp
+                    {{ $approverTitle }}
+                </td>
                 <td style="width: 33.33%;" class="sig-title">Kabag OTDI/ LC</td>
             </tr>
             <tr>
@@ -710,17 +738,13 @@
                     <div class="sig-sid">No. SID : {{ $logbook->trainee->sid ?? '-' }}</div>
                 </td>
                 <td>
-                    @php
-                        $trainerSig = $logbook->evaluation?->trainer_signature_path ?? $logbook->trainer_signature_path ?? $logbook->pjo_signature_path;
-                        $trainerUser = $logbook->trainer ?? $logbook->supervisor;
-                    @endphp
                     <div class="sig-space">
-                        @if($trainerSig)
-                            <img src="{{ asset('storage/'.$trainerSig) }}" alt="Trainer signature" class="sig-img">
+                        @if($approverSig ?? null)
+                            <img src="{{ asset('storage/'.$approverSig) }}" alt="Approver signature" class="sig-img">
                         @endif
                     </div>
-                    <div class="sig-name">{{ $trainerUser->name ?? 'Bambang Hermawan' }}</div>
-                    <div class="sig-sid">No. SID : {{ $trainerUser->sid ?? '-' }}</div>
+                    <div class="sig-name">{{ $approverName }}</div>
+                    <div class="sig-sid">No. SID : {{ $approverSid }}</div>
                 </td>
                 <td>
                     <div class="sig-space">

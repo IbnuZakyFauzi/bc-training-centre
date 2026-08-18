@@ -52,8 +52,8 @@ class TrainingCentreApprovalController extends Controller
         $logbooks = $query->latest('updated_at')->paginate(10)->withQueryString();
         $counts = [
             'pending' => $this->pendingQuery()->count(),
-            'finalized' => OjtLogbook::where('status', 'final_approved')->whereNotNull('training_centre_decided_at')->when(!$reviewer->isSuperAdmin(), fn ($q) => $q->where('assigned_tc_id', $reviewer->id))->count(),
-            'revision' => OjtLogbook::where('status', 'revision')->whereNotNull('training_centre_decided_at')->when(!$reviewer->isSuperAdmin(), fn ($q) => $q->where('assigned_tc_id', $reviewer->id))->count(),
+            'finalized' => OjtLogbook::where('status', 'final_approved')->whereNotNull('training_centre_decided_at')->count(),
+            'revision' => OjtLogbook::where('status', 'revision')->whereNotNull('training_centre_decided_at')->count(),
         ];
         return view('training-centre.approvals.index', compact('reviewer', 'logbooks', 'counts', 'activeStatus'));
     }

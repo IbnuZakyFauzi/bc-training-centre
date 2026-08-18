@@ -34,6 +34,7 @@ class StoreLogbookRequest extends FormRequest
             'trainer_ratings' => ['nullable', 'array'],
             'trainer_ratings.*.user_id' => ['required_with:trainer_ratings', 'exists:users,id'],
             'trainer_ratings.*.rating' => ['required_with:trainer_ratings', 'integer', 'min:1', 'max:5'],
+            'trainer_ratings.*.role_type' => ['nullable', 'string', 'in:instruktur,pengawas,operator_pendamping'],
             'sop_payload' => [$isDraft ? 'nullable' : 'required', 'array'],
             'action_type' => ['required', 'in:draft,submit'],
         ];

@@ -67,7 +67,6 @@
             'tag' => 'ADMIN',
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'training-centre.dashboard', 'match' => 'training-centre.dashboard'],
-                ['label' => 'Final Approval', 'route' => 'training-centre.approvals.index', 'match' => 'training-centre.approvals.*'],
                 ['label' => 'Manajemen Pengguna', 'route' => 'training-centre.users.index', 'match' => 'training-centre.users.*'],
             ],
         ],

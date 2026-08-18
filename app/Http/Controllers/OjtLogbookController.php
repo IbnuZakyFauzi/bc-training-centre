@@ -100,7 +100,9 @@ class OjtLogbookController extends Controller
         $traineeId = $user ? $user->id : 1;
 
         $status = $request->action_type === 'submit' ? 'submitted' : 'draft';
-        $totalHm = floatval($request->hm_end) - floatval($request->hm_start);
+        $totalHm = max(0, floatval($request->hm_end) - floatval($request->hm_start));
+        $hmDay = $request->shift === 'day' ? $totalHm : 0;
+        $hmNight = $request->shift === 'night' ? $totalHm : 0;
 
         $logbookNumber = 'LOG-' . date('Ym') . '-' . str_pad(OjtLogbook::count() + 1, 4, '0', STR_PAD_LEFT);
 
@@ -118,7 +120,9 @@ class OjtLogbookController extends Controller
             'selected_operator_pendamping_ids' => $request->input('selected_operator_pendamping_ids', []),
             'hm_start' => $request->hm_start,
             'hm_end' => $request->hm_end,
-            'total_hm' => max(0, $totalHm),
+            'total_hm' => $totalHm,
+            'hm_day' => $hmDay,
+            'hm_night' => $hmNight,
             'daily_activity' => $request->input('daily_activity', $request->input('daily_activity_backup', '')),
             'trainer_ratings' => $request->input('trainer_ratings', []),
             'sop_payload' => $request->input('sop_payload', []),
@@ -198,7 +202,9 @@ class OjtLogbookController extends Controller
         $user = Auth::user() ?? User::where('role', 'trainee')->first();
         $oldStatus = $logbook->status;
         $newStatus = $request->action_type === 'submit' ? 'submitted' : 'draft';
-        $totalHm = floatval($request->hm_end) - floatval($request->hm_start);
+        $totalHm = max(0, floatval($request->hm_end) - floatval($request->hm_start));
+        $hmDay = $request->shift === 'day' ? $totalHm : 0;
+        $hmNight = $request->shift === 'night' ? $totalHm : 0;
 
         $logbook->update([
             'equipment_category_id' => $request->equipment_category_id,
@@ -212,7 +218,9 @@ class OjtLogbookController extends Controller
             'selected_operator_pendamping_ids' => $request->input('selected_operator_pendamping_ids', []),
             'hm_start' => $request->hm_start,
             'hm_end' => $request->hm_end,
-            'total_hm' => max(0, $totalHm),
+            'total_hm' => $totalHm,
+            'hm_day' => $hmDay,
+            'hm_night' => $hmNight,
             'daily_activity' => $request->input('daily_activity', $request->input('daily_activity_backup', $logbook->daily_activity)),
             'trainer_ratings' => $request->input('trainer_ratings', $logbook->trainer_ratings ?? []),
             'sop_payload' => $request->input('sop_payload', $logbook->sop_payload ?? []),

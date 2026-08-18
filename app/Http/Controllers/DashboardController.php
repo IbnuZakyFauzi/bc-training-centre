@@ -16,17 +16,20 @@ class DashboardController extends Controller
         $traineeId = $user ? $user->id : 1;
 
         // KPI Counts
+        $approvedLogbooks = OjtLogbook::where('trainee_id', $traineeId)
+            ->whereIn('status', ['verified', 'final_approved'])
+            ->get();
+
         $kpi = [
             'draft' => OjtLogbook::where('trainee_id', $traineeId)->where('status', 'draft')->count(),
             'submitted' => OjtLogbook::where('trainee_id', $traineeId)->where('status', 'submitted')->count(),
             'revision' => OjtLogbook::where('trainee_id', $traineeId)->where('status', 'revision')->count(),
-            'approved' => OjtLogbook::where('trainee_id', $traineeId)->whereIn('status', ['verified', 'final_approved'])->count(),
+            'approved' => $approvedLogbooks->count(),
             'total_logbooks' => OjtLogbook::where('trainee_id', $traineeId)->count(),
-            'total_hm' => OjtLogbook::where('trainee_id', $traineeId)->whereIn('status', ['verified', 'final_approved'])->sum('total_hm'),
-            'target_hm' => 200.0, // 200 HM Hours required for OJT completion
+            'total_hm' => $approvedLogbooks->sum('total_hm'),
+            'hm_day' => $approvedLogbooks->where('shift', 'day')->sum('total_hm'),
+            'hm_night' => $approvedLogbooks->where('shift', 'night')->sum('total_hm'),
         ];
-
-        $kpi['progress_percentage'] = min(100, round(($kpi['total_hm'] / $kpi['target_hm']) * 100, 1));
 
         // Recent Activity
         $recentLogbooks = OjtLogbook::where('trainee_id', $traineeId)
