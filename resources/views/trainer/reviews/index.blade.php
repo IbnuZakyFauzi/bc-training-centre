@@ -42,7 +42,16 @@
         </div>
         <div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500"><tr><th class="px-5 py-3">Logbook / Trainee</th><th class="px-5 py-3">Unit & Shift</th><th class="px-5 py-3">Dikirim</th><th class="px-5 py-3">Status</th><th class="px-5 py-3"></th></tr></thead><tbody class="divide-y divide-slate-100">
         @forelse($logbooks as $logbook)
-                        <tr class="hover:bg-emerald-50/30"><td class="px-5 py-4"><p class="text-xs font-bold text-slate-800">{{ $logbook->logbook_number }}</p><p class="text-[11px] text-slate-500 mt-1">{{ $logbook->trainee->name }} · {{ $logbook->trainee->sid }}</p></td><td class="px-5 py-4 text-xs"><p class="font-semibold text-slate-700">{{ $logbook->unit_code }}</p><p class="text-[11px] text-slate-500 mt-1">{{ ucfirst($logbook->shift) }} · {{ $logbook->total_hm }} HM</p></td><td class="px-5 py-4 text-xs text-slate-600">{{ optional($logbook->submitted_at)->format('d M Y, H:i') ?? '-' }}</td><td class="px-5 py-4"><x-badge :status="$logbook->status" /></td>                    <td class="px-5 py-4 text-right"><a href="{{ route('trainer.reviews.show', $logbook->id) }}" class="inline-flex px-3 py-2 rounded-lg bg-emerald-50 text-[#00593E] hover:bg-emerald-100 text-xs font-bold">{{ in_array($logbook->status, ['verified', 'final_approved']) ? 'Lihat Evaluasi' : ( $logbook->status === 'revision' ? 'Lihat Revisi' : 'Review' ) }}</a></td></tr>
+                        <tr class="hover:bg-emerald-50/30"><td class="px-5 py-4"><p class="text-xs font-bold text-slate-800">{{ $logbook->logbook_number }}</p><p class="text-[11px] text-slate-500 mt-1">{{ $logbook->trainee->name }} · {{ $logbook->trainee->sid }}</p></td><td class="px-5 py-4 text-xs"><p class="font-semibold text-slate-700">{{ $logbook->unit_code }}</p><p class="text-[11px] text-slate-500 mt-1">{{ ucfirst($logbook->shift) }} · {{ $logbook->total_hm }} HM</p></td><td class="px-5 py-4 text-xs text-slate-600">{{ optional($logbook->submitted_at)->format('d M Y, H:i') ?? '-' }}</td><td class="px-5 py-4"><x-badge :status="$logbook->status" /></td>                    <td class="px-5 py-4 text-right">
+                        <div class="inline-flex items-center space-x-2">
+                            @if($logbook->status === 'revision')
+                                <a href="{{ route('trainer.reviews.edit', $logbook->id) }}" class="inline-flex px-3 py-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs font-bold">
+                                    Edit Revisi
+                                </a>
+                            @endif
+                            <a href="{{ route('trainer.reviews.show', $logbook->id) }}" class="inline-flex px-3 py-2 rounded-lg bg-emerald-50 text-[#00593E] hover:bg-emerald-100 text-xs font-bold">{{ in_array($logbook->status, ['verified', 'final_approved']) ? 'Lihat Evaluasi' : ( $logbook->status === 'revision' ? 'Lihat Detail' : 'Review' ) }}</a>
+                        </div>
+                    </td></tr>
         @empty                         <tr><td colspan="5" class="px-5 py-12 text-center text-sm text-slate-400">Tidak ada logbook ditemukan pada kategori ini.</td></tr>@endforelse
         </tbody></table></div><div class="p-5 border-t border-slate-100">{{ $logbooks->links() }}</div>
     </div>

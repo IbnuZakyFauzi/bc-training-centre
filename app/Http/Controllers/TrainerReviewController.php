@@ -74,7 +74,7 @@ class TrainerReviewController extends Controller
         $trainer = auth()->user();
         abort_unless($trainer && $trainer->isTrainer(), 403);
         $logbook = OjtLogbook::with(['equipmentCategory'])->findOrFail($id);
-        abort_unless($logbook->status === 'submitted', 403);
+        abort_unless(in_array($logbook->status, ['submitted', 'revision']), 403);
         abort_unless($logbook->assignments()->where('user_id', $trainer->id)->where('status', 'pending')->exists(), 403);
 
         $user = $logbook->trainee;
@@ -97,7 +97,7 @@ class TrainerReviewController extends Controller
         $trainer = auth()->user();
         abort_unless($trainer && $trainer->isTrainer(), 403);
         $logbook = OjtLogbook::findOrFail($id);
-        abort_unless($logbook->status === 'submitted', 403);
+        abort_unless(in_array($logbook->status, ['submitted', 'revision']), 403);
         abort_unless($logbook->assignments()->where('user_id', $trainer->id)->where('status', 'pending')->exists(), 403);
 
         $data = $request->validate([
@@ -114,11 +114,18 @@ class TrainerReviewController extends Controller
         $data['daily_activity'] = $activity !== '' ? $activity : $backup;
 
         $data['total_hm'] = max(0, (float) $data['hm_end'] - (float) $data['hm_start']);
+        $previousStatus = $logbook->status;
         $logbook->update($data);
 
-        LogbookHistory::create(['ojt_logbook_id' => $logbook->id, 'user_id' => $trainer->id, 'action' => 'Logbook Edited by Trainer', 'from_status' => 'submitted', 'to_status' => 'submitted', 'comment' => 'Data logbook diperbarui oleh trainer sebelum approval.']);
+        $newStatus = $previousStatus === 'revision' ? 'verified' : $logbook->status;
+        if ($newStatus !== $previousStatus) {
+            $logbook->update(['status' => $newStatus, 'verified_at' => now(), 'training_centre_decided_at' => null]);
+            LogbookHistory::create(['ojt_logbook_id' => $logbook->id, 'user_id' => $trainer->id, 'action' => 'Revision Resubmitted by Trainer', 'from_status' => $previousStatus, 'to_status' => $newStatus, 'comment' => 'Logbook telah diperbaiki dan dikirim kembali ke Admin TC.']);
+        } else {
+            LogbookHistory::create(['ojt_logbook_id' => $logbook->id, 'user_id' => $trainer->id, 'action' => 'Logbook Edited by Trainer', 'from_status' => $previousStatus, 'to_status' => $previousStatus, 'comment' => 'Data logbook diperbarui oleh trainer sebelum approval.']);
+        }
 
-        return redirect()->route('trainer.reviews.show', $logbook->id)->with('success', 'Perubahan logbook oleh trainer berhasil disimpan.');
+        return redirect()->route('trainer.reviews.show', $logbook->id)->with('success', $previousStatus === 'revision' ? 'Revisi logbook berhasil disimpan dan dikirim ke Admin TC.' : 'Perubahan logbook oleh trainer berhasil disimpan.');
     }
 
     public function updateChecklist(Request $request, $id)
@@ -126,7 +133,7 @@ class TrainerReviewController extends Controller
         $trainer = auth()->user();
         abort_unless($trainer && $trainer->isTrainer(), 403);
         $logbook = OjtLogbook::findOrFail($id);
-        abort_unless($logbook->status === 'submitted', 403);
+        abort_unless(in_array($logbook->status, ['submitted', 'revision']), 403);
         abort_unless($logbook->assignments()->where('user_id', $trainer->id)->where('status', 'pending')->exists(), 403);
         $data = $request->validate(['checklist' => ['required', 'array']]);
 
@@ -144,9 +151,16 @@ class TrainerReviewController extends Controller
             }
         }
         $logbook->update(['sop_payload' => $payload]);
-        LogbookHistory::create(['ojt_logbook_id' => $logbook->id, 'user_id' => $trainer->id, 'action' => 'Checklist K/BK Edited by Trainer', 'from_status' => 'submitted', 'to_status' => 'submitted', 'comment' => 'Checklist SOP diperbarui oleh trainer.']);
 
-        return redirect()->route('trainer.reviews.show', $logbook->id)->with('success', 'Checklist K/BK berhasil diperbarui.');
+        $previousStatus = $logbook->status;
+        if ($previousStatus === 'revision') {
+            $logbook->update(['status' => 'verified', 'verified_at' => now(), 'training_centre_decided_at' => null]);
+            LogbookHistory::create(['ojt_logbook_id' => $logbook->id, 'user_id' => $trainer->id, 'action' => 'Revision Resubmitted by Trainer', 'from_status' => $previousStatus, 'to_status' => 'verified', 'comment' => 'Checklist SOP revisi telah diperbarui dan dikirim kembali ke Admin TC.']);
+        } else {
+            LogbookHistory::create(['ojt_logbook_id' => $logbook->id, 'user_id' => $trainer->id, 'action' => 'Checklist K/BK Edited by Trainer', 'from_status' => $previousStatus, 'to_status' => $previousStatus, 'comment' => 'Checklist SOP diperbarui oleh trainer.']);
+        }
+
+        return redirect()->route('trainer.reviews.show', $logbook->id)->with('success', $previousStatus === 'revision' ? 'Checklist revisi berhasil disimpan dan dikirim ke Admin TC.' : 'Checklist K/BK berhasil diperbarui.');
     }
 
     public function evaluate(Request $request, $id)

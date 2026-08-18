@@ -54,7 +54,7 @@
             <?php if($trainerReview && $logbook->status === 'verified'): ?>
                 <a href="<?php echo e(route('trainer.reviews.index')); ?>" class="inline-flex items-center px-4 py-2 bg-[#00A859] hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-xs transition">Approval Pengawas</a>
             <?php endif; ?>
-            <?php if(!$trainerReview && !$trainingCentreApproval && in_array($logbook->status, ['draft', 'revision'])): ?>
+            <?php if(!$trainerReview && !$trainingCentreApproval && in_array($logbook->status, ['draft']) || (!$trainerReview && !$trainingCentreApproval && $logbook->status === 'revision' && empty($logbook->training_centre_decided_at))): ?>
                 <a href="<?php echo e(route('ojt.logbooks.edit', $logbook->id)); ?>" class="inline-flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold text-xs rounded-xl shadow-xs transition">
                     <svg class="w-4 h-4 mr-2 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                     Edit Logbook
@@ -72,20 +72,32 @@
 
     <!-- Trainer Revision Callout (If Revision status) -->
     <?php if($logbook->status === 'revision' && $logbook->revision_notes): ?>
+        <?php
+            $revisionFromTc = !empty($logbook->training_centre_decided_at);
+        ?>
         <div class="mb-8 bg-amber-50 border-l-4 border-amber-500 p-6 rounded-2xl shadow-sm">
             <div class="flex items-start space-x-3">
                 <div class="p-2 bg-amber-100 rounded-xl text-amber-800 flex-shrink-0">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                 </div>
                 <div>
-                    <h3 class="text-sm font-bold text-amber-900">Catatan Revisi dari Trainer Evaluator</h3>
+                    <h3 class="text-sm font-bold text-amber-900">
+                        <?php if($revisionFromTc): ?>
+                            Catatan Revisi dari Admin Training Centre
+                        <?php else: ?>
+                            Catatan Revisi dari Trainer Evaluator
+                        <?php endif; ?>
+                    </h3>
                     <p class="text-xs text-amber-800 mt-1 leading-relaxed"><?php echo e($logbook->revision_notes); ?></p>
-                    <?php if(!$trainerReview): ?><div class="mt-3">
+                    <?php if(!$trainerReview && !$revisionFromTc): ?><div class="mt-3">
                         <a href="<?php echo e(route('ojt.logbooks.edit', $logbook->id)); ?>" class="inline-flex items-center text-xs font-extrabold text-amber-900 bg-amber-200 hover:bg-amber-300 px-3 py-1.5 rounded-lg transition">
                             Perbaiki Logbook Sekarang
                             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                         </a>
                     </div><?php endif; ?>
+                    <?php if($revisionFromTc && !$trainerReview): ?>
+                        <p class="text-[10px] text-amber-700 mt-2 font-medium">Revisi ini akan ditangani oleh Trainer. Silakan tunggu hingga logbook dikirim kembali.</p>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -384,6 +396,15 @@
 
     <?php if($trainerReview && $logbook->status === 'submitted'): ?>
         <?php echo $__env->make('trainer.reviews.partials.decision-form', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php endif; ?>
+
+    <?php if($trainerReview && $logbook->status === 'revision'): ?>
+        <div class="mt-6">
+            <a href="<?php echo e(route('trainer.reviews.edit', $logbook->id)); ?>" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-[#003829] text-white hover:bg-[#00241A] text-xs font-bold shadow-sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                Edit & Revisi Logbook
+            </a>
+        </div>
     <?php endif; ?>
 
     <?php if($trainingCentreApproval && ($isPending ?? false)): ?>

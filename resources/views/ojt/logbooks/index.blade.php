@@ -178,7 +178,7 @@
                             {{ $log->updated_at->diffForHumans() }}
                         </td>
                         <td class="py-4 px-4 text-right">
-                            @if(in_array($log->status, ['draft', 'revision']))
+                            @if(in_array($log->status, ['draft']))
                                 <a href="{{ route('ojt.logbooks.edit', $log->id) }}" class="inline-flex items-center px-3 py-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs font-bold transition">
                                     <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                     Edit

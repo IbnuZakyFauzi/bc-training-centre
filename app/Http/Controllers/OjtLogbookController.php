@@ -43,6 +43,8 @@ class OjtLogbookController extends Controller
         if ($request->filled('status') && $request->status !== 'all') {
             if ($request->status === 'approved') {
                 $query->whereIn('status', ['verified', 'final_approved']);
+            } elseif ($request->status === 'revision') {
+                $query->where('status', 'revision')->whereNull('training_centre_decided_at');
             } else {
                 $query->where('status', $request->status);
             }
@@ -73,7 +75,7 @@ class OjtLogbookController extends Controller
             'all' => OjtLogbook::where('trainee_id', $traineeId)->count(),
             'draft' => OjtLogbook::where('trainee_id', $traineeId)->where('status', 'draft')->count(),
             'submitted' => OjtLogbook::where('trainee_id', $traineeId)->where('status', 'submitted')->count(),
-            'revision' => OjtLogbook::where('trainee_id', $traineeId)->where('status', 'revision')->count(),
+            'revision' => OjtLogbook::where('trainee_id', $traineeId)->where('status', 'revision')->whereNull('training_centre_decided_at')->count(),
             'approved' => OjtLogbook::where('trainee_id', $traineeId)->whereIn('status', ['verified', 'final_approved'])->count(),
         ];
 
@@ -175,7 +177,7 @@ class OjtLogbookController extends Controller
         $logbook = OjtLogbook::findOrFail($id);
 
         // Check editable
-        if (!in_array($logbook->status, ['draft', 'revision'])) {
+        if (!in_array($logbook->status, ['draft'])) {
             return redirect()->route('ojt.logbooks.show', $logbook->id)
                 ->with('error', 'Logbook yang sudah dikirim atau diverifikasi tidak dapat diubah.');
         }
@@ -195,7 +197,7 @@ class OjtLogbookController extends Controller
     {
         $logbook = OjtLogbook::findOrFail($id);
 
-        if (!in_array($logbook->status, ['draft', 'revision'])) {
+        if (!in_array($logbook->status, ['draft'])) {
             return redirect()->route('ojt.logbooks.show', $logbook->id)->with('error', 'Logbook tidak dapat diubah.');
         }
 
@@ -318,7 +320,7 @@ class OjtLogbookController extends Controller
         $traineeId = $user ? $user->id : 1;
 
         $logbook = OjtLogbook::where('trainee_id', $traineeId)->findOrFail($id);
-        abort_unless(in_array($logbook->status, ['draft', 'revision']), 403, 'Checklist hanya dapat diubah untuk logbook draft atau revisi.');
+        abort_unless(in_array($logbook->status, ['draft']), 403, 'Checklist hanya dapat diubah untuk logbook draft.');
 
         $data = $request->validate(['checklist' => ['required', 'array']]);
 
