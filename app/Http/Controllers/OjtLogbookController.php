@@ -364,4 +364,23 @@ class OjtLogbookController extends Controller
 
         return view('ojt.logbooks.print', compact('logbook'));
     }
+
+    public function printTrainee($traineeId)
+    {
+        $user = Auth::user();
+        abort_unless($user && $user->isTrainingCentre(), 403, 'Hanya Admin Training Centre yang dapat mencetak atau mengunduh logbook.');
+
+        $trainee = User::where('role', 'trainee')->findOrFail($traineeId);
+
+        $logbooks = OjtLogbook::where('trainee_id', $traineeId)
+            ->where('status', 'final_approved')
+            ->whereNotNull('training_centre_decided_at')
+            ->with(['trainee', 'trainer', 'supervisor', 'department', 'equipmentCategory', 'equipment', 'histories.user', 'trainingCentre', 'pengawasTrainer'])
+            ->orderBy('training_centre_decided_at', 'asc')
+            ->get();
+
+        abort_if($logbooks->isEmpty(), 404, 'Tidak ada logbook final approved untuk trainee ini.');
+
+        return view('ojt.logbooks.print-trainee', compact('trainee', 'logbooks'));
+    }
 }

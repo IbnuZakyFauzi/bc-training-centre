@@ -56,6 +56,7 @@ Route::middleware(['auth', 'must.change.password', 'role:admin'])->prefix('train
 
 // Final Logbook Print Route (Restricted to Admin Training Centre only)
 Route::middleware(['auth', 'must.change.password', 'role:admin'])->get('/ojt/logbooks/{id}/print', [OjtLogbookController::class, 'print'])->name('ojt.logbooks.print');
+Route::middleware(['auth', 'must.change.password', 'role:admin'])->get('/ojt/logbooks/trainee/{traineeId}/print', [OjtLogbookController::class, 'printTrainee'])->name('ojt.logbooks.print-trainee');
 
 Route::middleware(['auth', 'must.change.password', 'role:trainer'])->prefix('trainer')->name('trainer.')->group(function () {
     Route::get('/dashboard', [TrainerReviewController::class, 'index'])->name('dashboard');

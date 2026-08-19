@@ -48,48 +48,89 @@
             <table class="w-full text-left">
                 <thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500">
                     <tr>
-                        <th class="px-5 py-3">Logbook / Trainee</th>
-                        <th class="px-5 py-3">Trainer</th>
-                        <th class="px-5 py-3">Status / Tanggal</th>
-                        <th class="px-5 py-3 text-right">Aksi</th>
+                        @if($activeStatus === 'finalized')
+                            <th class="px-5 py-3">Trainee</th>
+                            <th class="px-5 py-3">Trainer</th>
+                            <th class="px-5 py-3">Total Logbook</th>
+                            <th class="px-5 py-3 text-right">Aksi</th>
+                        @else
+                            <th class="px-5 py-3">Logbook / Trainee</th>
+                            <th class="px-5 py-3">Trainer</th>
+                            <th class="px-5 py-3">Status / Tanggal</th>
+                            <th class="px-5 py-3 text-right">Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    @forelse($logbooks as $logbook)
-                        <tr class="hover:bg-emerald-50/30">
-                            <td class="px-5 py-4">
-                                <p class="text-xs font-bold text-slate-800">{{ $logbook->logbook_number }}</p>
-                                <p class="text-[11px] text-slate-500 mt-1">{{ $logbook->trainee->name }} · {{ $logbook->trainee->sid }}</p>
-                            </td>
-                            <td class="px-5 py-4 text-xs text-slate-600">{{ $logbook->trainer->name ?? '-' }}                            </td>
-                            <td class="px-5 py-4 text-xs text-slate-600">
-                                <x-badge :status="$logbook->status" />
-                                <span class="block text-[10px] text-slate-400 mt-1">
-                                    {{ optional($logbook->training_centre_decided_at ?? $logbook->verified_at)->format('d M Y, H:i') }}
-                                </span>
-                            </td>
-                            <td class="px-5 py-4 text-right">
-                                <div class="inline-flex items-center space-x-2">
-                                    <a href="{{ route('training-centre.approvals.show', $logbook->id) }}" class="inline-flex px-3 py-2 rounded-lg bg-emerald-50 text-[#00593E] hover:bg-emerald-100 text-xs font-bold">
-                                        Detail
+                    @if($activeStatus === 'finalized' && isset($groupedFinalized))
+                        @forelse($groupedFinalized as $traineeId => $group)
+                            <tr class="hover:bg-emerald-50/30">
+                                <td class="px-5 py-4">
+                                    <p class="text-xs font-bold text-slate-800">{{ $group['trainee']->name ?? '-' }}</p>
+                                    <p class="text-[11px] text-slate-500 mt-1">{{ $group['trainee']->sid ?? '-' }}</p>
+                                </td>
+                                <td class="px-5 py-4 text-xs text-slate-600">
+                                    {{ $group['trainer']->name ?? '-' }}
+                                </td>
+                                <td class="px-5 py-4 text-xs text-slate-600">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
+                                        {{ $group['count'] }} Logbook
+                                    </span>
+                                    <span class="block text-[10px] text-slate-400 mt-1">
+                                        Terakhir diperbarui: {{ $group['latest_date']->format('d M Y, H:i') }}
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4 text-right">
+                                    <a href="{{ route('ojt.logbooks.print-trainee', $traineeId) }}" target="_blank" class="inline-flex items-center px-4 py-2 rounded-lg bg-[#003829] text-white hover:bg-[#00241A] text-xs font-bold" title="Cetak Semua Logbook Final Approved untuk Trainee Ini">
+                                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                        Cetak Semua
                                     </a>
-                                    @if($logbook->status === 'final_approved')
-                                        <a href="{{ route('ojt.logbooks.print', $logbook->id) }}" target="_blank" class="inline-flex items-center px-3 py-2 rounded-lg bg-[#003829] text-white hover:bg-[#00241A] text-xs font-bold" title="Cetak / Download PDF Logbook">
-                                            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                                            Cetak
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="px-5 py-12 text-center text-sm text-slate-400">Tidak ada dokumen final disahkan.</td>
+                            </tr>
+                        @endforelse
+                    @else
+                        @forelse($logbooks as $logbook)
+                            <tr class="hover:bg-emerald-50/30">
+                                <td class="px-5 py-4">
+                                    <p class="text-xs font-bold text-slate-800">{{ $logbook->logbook_number }}</p>
+                                    <p class="text-[11px] text-slate-500 mt-1">{{ $logbook->trainee->name }} · {{ $logbook->trainee->sid }}</p>
+                                </td>
+                                <td class="px-5 py-4 text-xs text-slate-600">{{ $logbook->trainer->name ?? '-' }}                            </td>
+                                <td class="px-5 py-4 text-xs text-slate-600">
+                                    <x-badge :status="$logbook->status" />
+                                    <span class="block text-[10px] text-slate-400 mt-1">
+                                        {{ optional($logbook->training_centre_decided_at ?? $logbook->verified_at)->format('d M Y, H:i') }}
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4 text-right">
+                                    <div class="inline-flex items-center space-x-2">
+                                        <a href="{{ route('training-centre.approvals.show', $logbook->id) }}" class="inline-flex px-3 py-2 rounded-lg bg-emerald-50 text-[#00593E] hover:bg-emerald-100 text-xs font-bold">
+                                            Detail
                                         </a>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="px-5 py-12 text-center text-sm text-slate-400">Tidak ada logbook ditemukan pada kategori ini.</td>
-                        </tr>
-                    @endforelse
+                                        @if($logbook->status === 'final_approved')
+                                            <a href="{{ route('ojt.logbooks.print', $logbook->id) }}" target="_blank" class="inline-flex items-center px-3 py-2 rounded-lg bg-[#003829] text-white hover:bg-[#00241A] text-xs font-bold" title="Cetak / Download PDF Logbook">
+                                                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                                Cetak
+                                            </a>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="px-5 py-12 text-center text-sm text-slate-400">Tidak ada logbook ditemukan pada kategori ini.</td>
+                            </tr>
+                        @endforelse
+                    @endif
                 </tbody>
             </table>
         </div>
-        <div class="p-5 border-t border-slate-100">{{ $logbooks->links() }}</div>
+        @if($activeStatus !== 'finalized')
+            <div class="p-5 border-t border-slate-100">{{ $logbooks->links() }}</div>
+        @endif
     </div>
 </x-app-layout>

@@ -59,22 +59,62 @@
             <table class="w-full text-left">
                 <thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500">
                     <tr>
-                        <th class="px-5 py-3">Logbook / Trainee</th>
-                        <th class="px-5 py-3">Trainer</th>
-                        <th class="px-5 py-3">Status / Tanggal</th>
-                        <th class="px-5 py-3 text-right">Aksi</th>
+                        <?php if($activeStatus === 'finalized'): ?>
+                            <th class="px-5 py-3">Trainee</th>
+                            <th class="px-5 py-3">Trainer</th>
+                            <th class="px-5 py-3">Total Logbook</th>
+                            <th class="px-5 py-3 text-right">Aksi</th>
+                        <?php else: ?>
+                            <th class="px-5 py-3">Logbook / Trainee</th>
+                            <th class="px-5 py-3">Trainer</th>
+                            <th class="px-5 py-3">Status / Tanggal</th>
+                            <th class="px-5 py-3 text-right">Aksi</th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    <?php $__empty_1 = true; $__currentLoopData = $logbooks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $logbook): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                        <tr class="hover:bg-emerald-50/30">
-                            <td class="px-5 py-4">
-                                <p class="text-xs font-bold text-slate-800"><?php echo e($logbook->logbook_number); ?></p>
-                                <p class="text-[11px] text-slate-500 mt-1"><?php echo e($logbook->trainee->name); ?> · <?php echo e($logbook->trainee->sid); ?></p>
-                            </td>
-                            <td class="px-5 py-4 text-xs text-slate-600"><?php echo e($logbook->trainer->name ?? '-'); ?>                            </td>
-                            <td class="px-5 py-4 text-xs text-slate-600">
-                                <?php if (isset($component)) { $__componentOriginal2ddbc40e602c342e508ac696e52f8719 = $component; } ?>
+                    <?php if($activeStatus === 'finalized' && isset($groupedFinalized)): ?>
+                        <?php $__empty_1 = true; $__currentLoopData = $groupedFinalized; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $traineeId => $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                            <tr class="hover:bg-emerald-50/30">
+                                <td class="px-5 py-4">
+                                    <p class="text-xs font-bold text-slate-800"><?php echo e($group['trainee']->name ?? '-'); ?></p>
+                                    <p class="text-[11px] text-slate-500 mt-1"><?php echo e($group['trainee']->sid ?? '-'); ?></p>
+                                </td>
+                                <td class="px-5 py-4 text-xs text-slate-600">
+                                    <?php echo e($group['trainer']->name ?? '-'); ?>
+
+                                </td>
+                                <td class="px-5 py-4 text-xs text-slate-600">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
+                                        <?php echo e($group['count']); ?> Logbook
+                                    </span>
+                                    <span class="block text-[10px] text-slate-400 mt-1">
+                                        Terakhir diperbarui: <?php echo e($group['latest_date']->format('d M Y, H:i')); ?>
+
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4 text-right">
+                                    <a href="<?php echo e(route('ojt.logbooks.print-trainee', $traineeId)); ?>" target="_blank" class="inline-flex items-center px-4 py-2 rounded-lg bg-[#003829] text-white hover:bg-[#00241A] text-xs font-bold" title="Cetak Semua Logbook Final Approved untuk Trainee Ini">
+                                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                        Cetak Semua
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                            <tr>
+                                <td colspan="4" class="px-5 py-12 text-center text-sm text-slate-400">Tidak ada dokumen final disahkan.</td>
+                            </tr>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <?php $__empty_1 = true; $__currentLoopData = $logbooks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $logbook): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                            <tr class="hover:bg-emerald-50/30">
+                                <td class="px-5 py-4">
+                                    <p class="text-xs font-bold text-slate-800"><?php echo e($logbook->logbook_number); ?></p>
+                                    <p class="text-[11px] text-slate-500 mt-1"><?php echo e($logbook->trainee->name); ?> · <?php echo e($logbook->trainee->sid); ?></p>
+                                </td>
+                                <td class="px-5 py-4 text-xs text-slate-600"><?php echo e($logbook->trainer->name ?? '-'); ?>                            </td>
+                                <td class="px-5 py-4 text-xs text-slate-600">
+                                    <?php if (isset($component)) { $__componentOriginal2ddbc40e602c342e508ac696e52f8719 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal2ddbc40e602c342e508ac696e52f8719 = $attributes; } ?>
 <?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.badge','data' => ['status' => $logbook->status]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('badge'); ?>
@@ -94,34 +134,37 @@
 <?php $component = $__componentOriginal2ddbc40e602c342e508ac696e52f8719; ?>
 <?php unset($__componentOriginal2ddbc40e602c342e508ac696e52f8719); ?>
 <?php endif; ?>
-                                <span class="block text-[10px] text-slate-400 mt-1">
-                                    <?php echo e(optional($logbook->training_centre_decided_at ?? $logbook->verified_at)->format('d M Y, H:i')); ?>
+                                    <span class="block text-[10px] text-slate-400 mt-1">
+                                        <?php echo e(optional($logbook->training_centre_decided_at ?? $logbook->verified_at)->format('d M Y, H:i')); ?>
 
-                                </span>
-                            </td>
-                            <td class="px-5 py-4 text-right">
-                                <div class="inline-flex items-center space-x-2">
-                                    <a href="<?php echo e(route('training-centre.approvals.show', $logbook->id)); ?>" class="inline-flex px-3 py-2 rounded-lg bg-emerald-50 text-[#00593E] hover:bg-emerald-100 text-xs font-bold">
-                                        Detail
-                                    </a>
-                                    <?php if($logbook->status === 'final_approved'): ?>
-                                        <a href="<?php echo e(route('ojt.logbooks.print', $logbook->id)); ?>" target="_blank" class="inline-flex items-center px-3 py-2 rounded-lg bg-[#003829] text-white hover:bg-[#00241A] text-xs font-bold" title="Cetak / Download PDF Logbook">
-                                            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                                            Cetak
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4 text-right">
+                                    <div class="inline-flex items-center space-x-2">
+                                        <a href="<?php echo e(route('training-centre.approvals.show', $logbook->id)); ?>" class="inline-flex px-3 py-2 rounded-lg bg-emerald-50 text-[#00593E] hover:bg-emerald-100 text-xs font-bold">
+                                            Detail
                                         </a>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                        <tr>
-                            <td colspan="5" class="px-5 py-12 text-center text-sm text-slate-400">Tidak ada logbook ditemukan pada kategori ini.</td>
-                        </tr>
+                                        <?php if($logbook->status === 'final_approved'): ?>
+                                            <a href="<?php echo e(route('ojt.logbooks.print', $logbook->id)); ?>" target="_blank" class="inline-flex items-center px-3 py-2 rounded-lg bg-[#003829] text-white hover:bg-[#00241A] text-xs font-bold" title="Cetak / Download PDF Logbook">
+                                                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                                Cetak
+                                            </a>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                            <tr>
+                                <td colspan="5" class="px-5 py-12 text-center text-sm text-slate-400">Tidak ada logbook ditemukan pada kategori ini.</td>
+                            </tr>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
-        <div class="p-5 border-t border-slate-100"><?php echo e($logbooks->links()); ?></div>
+        <?php if($activeStatus !== 'finalized'): ?>
+            <div class="p-5 border-t border-slate-100"><?php echo e($logbooks->links()); ?></div>
+        <?php endif; ?>
     </div>
  <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>

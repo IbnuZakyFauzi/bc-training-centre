@@ -50,12 +50,29 @@ class TrainingCentreApprovalController extends Controller
                 ->orWhereHas('trainee', fn ($u) => $u->where('name', 'like', "%{$term}%")->orWhere('sid', 'like', "%{$term}%")));
         }
         $logbooks = $query->latest('updated_at')->paginate(10)->withQueryString();
+
+        $groupedFinalized = collect();
+        if ($activeStatus === 'finalized') {
+            $groupedFinalized = OjtLogbook::with(['trainee', 'trainer'])
+                ->where('status', 'final_approved')
+                ->whereNotNull('training_centre_decided_at')
+                ->latest('updated_at')
+                ->get()
+                ->groupBy('trainee_id')
+                ->map(fn ($items) => [
+                    'trainee' => $items->first()->trainee,
+                    'trainer' => $items->first()->trainer,
+                    'count' => $items->count(),
+                    'latest_date' => $items->max('updated_at'),
+                ]);
+        }
+
         $counts = [
             'pending' => $this->pendingQuery()->count(),
-            'finalized' => OjtLogbook::where('status', 'final_approved')->whereNotNull('training_centre_decided_at')->count(),
+            'finalized' => OjtLogbook::where('status', 'final_approved')->whereNotNull('training_centre_decided_at')->distinct('trainee_id')->count('trainee_id'),
             'revision' => OjtLogbook::where('status', 'revision')->whereNotNull('training_centre_decided_at')->count(),
         ];
-        return view('training-centre.approvals.index', compact('reviewer', 'logbooks', 'counts', 'activeStatus'));
+        return view('training-centre.approvals.index', compact('reviewer', 'logbooks', 'counts', 'activeStatus', 'groupedFinalized'));
     }
 
     public function show($id)
