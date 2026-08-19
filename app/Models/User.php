@@ -51,6 +51,11 @@ class User extends Authenticatable
         return $this->belongsTo(Department::class);
     }
 
+    public function equipmentCategory(): BelongsTo
+    {
+        return $this->belongsTo(EquipmentCategory::class);
+    }
+
     public function logbooks(): HasMany
     {
         return $this->hasMany(OjtLogbook::class, 'trainee_id');

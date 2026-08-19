@@ -66,6 +66,13 @@ Route::middleware(['auth', 'must.change.password', 'role:trainer'])->prefix('tra
     Route::put('/reviews/{id}', [TrainerReviewController::class, 'updateLogbook'])->name('reviews.update');
     Route::put('/reviews/{id}/checklist', [TrainerReviewController::class, 'updateChecklist'])->name('reviews.checklist.update');
     Route::post('/reviews/{id}/evaluate', [TrainerReviewController::class, 'evaluate'])->name('reviews.evaluate');
+
+    Route::get('/final-evaluation/create', 'App\Http\Controllers\FinalEvaluationController@createStandalone')->name('final-evaluations.create');
+    Route::get('/final-evaluations', 'App\Http\Controllers\FinalEvaluationController@index')->name('final-evaluations.index');
+    Route::post('/final-evaluation', 'App\Http\Controllers\FinalEvaluationController@storeStandalone')->name('final-evaluations.store');
+    Route::get('/final-evaluations/{id}', 'App\Http\Controllers\FinalEvaluationController@show')->name('final-evaluations.show');
+    Route::get('/final-evaluations/{id}/print', 'App\Http\Controllers\FinalEvaluationController@print')->name('final-evaluations.print');
+    Route::put('/final-evaluations/{id}', 'App\Http\Controllers\FinalEvaluationController@update')->name('final-evaluations.update');
 });
 
 Route::middleware(['auth', 'must.change.password', 'role:trainer'])->prefix('supervisor')->name('supervisor.')->group(function () {

@@ -42,6 +42,7 @@
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'trainer.dashboard', 'match' => 'trainer.dashboard'],
                 ['label' => 'Review Logbook', 'route' => 'trainer.reviews.index', 'match' => 'trainer.reviews.*'],
+                ['label' => 'Evaluasi Akhir A2B', 'route' => 'trainer.final-evaluations.index', 'match' => 'trainer.final-evaluations.*'],
                 ['label' => 'Approval Pengawas', 'route' => 'supervisor.approvals.index', 'match' => 'supervisor.approvals.*'],
             ],
         ],
@@ -51,6 +52,7 @@
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'trainer.dashboard', 'match' => 'trainer.dashboard'],
                 ['label' => 'Review Logbook', 'route' => 'trainer.reviews.index', 'match' => 'trainer.reviews.*'],
+                ['label' => 'Evaluasi Akhir A2B', 'route' => 'trainer.final-evaluations.index', 'match' => 'trainer.final-evaluations.*'],
                 ['label' => 'Approval Saya', 'route' => 'supervisor.approvals.index', 'match' => 'supervisor.approvals.*'],
             ],
         ],
@@ -60,6 +62,7 @@
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'trainer.dashboard', 'match' => 'trainer.dashboard'],
                 ['label' => 'Review Logbook', 'route' => 'trainer.reviews.index', 'match' => 'trainer.reviews.*'],
+                ['label' => 'Evaluasi Akhir A2B', 'route' => 'trainer.final-evaluations.index', 'match' => 'trainer.final-evaluations.*'],
             ],
         ],
         'admin' => [
