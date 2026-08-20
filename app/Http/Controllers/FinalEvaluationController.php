@@ -68,12 +68,17 @@ class FinalEvaluationController extends Controller
                 'equipment_category_name' => $trainee->equipmentCategory->name ?? '',
                 'certification' => $trainee->certification,
                 'operator_pendamping' => $trainee->assignedOperatorPendamping->pluck('name')->join(', '),
+                'current_phase' => $trainee->currentPhaseKey(),
+                'current_phase_label' => $trainee->currentPhaseMeta()['label'] ?? '',
+                'eligible' => $trainee->isPhaseEligible(),
             ])
             ->values();
 
         $locations = ['BMO 1', 'BMO 2', 'BMO 3', 'GMO', 'LMO'];
+        $certifications = \App\Services\PhaseService::CERTIFICATIONS;
+        $selectedTraineeId = $request->query('trainee');
 
-        return view('final-evaluations.create', compact('trainees', 'locations'));
+        return view('final-evaluations.create', compact('trainees', 'locations', 'certifications', 'selectedTraineeId'));
     }
 
     public function storeStandalone(Request $request)
@@ -86,7 +91,7 @@ class FinalEvaluationController extends Controller
             'perusahaan' => ['required', 'string', 'max:255'],
             'lokasi_kerja' => ['required', 'string', 'max:255'],
             'jenis_unit_a2b' => ['required', 'string', 'max:255'],
-            'jenis_sertifikasi' => ['required', 'in:Green,Skill-up,Experience'],
+            'jenis_sertifikasi' => ['required', 'in:Green,Skill-up,Experience_internal,Experience_external'],
             'instruktur' => ['required', 'string', 'max:255'],
             'operator_pendamping' => ['required', 'string', 'max:255'],
             'tanggal_penilaian' => ['required', 'date'],
@@ -101,6 +106,9 @@ class FinalEvaluationController extends Controller
 
         $validated['trainer_id'] = $user->id;
         $validated['ojt_logbook_id'] = null;
+        $trainee = User::where('name', $request->input('nama_operator'))->where('role', 'trainee')->first();
+        $validated['phase'] = $trainee ? $trainee->currentPhaseKey() : \App\Services\PhaseService::firstPhase($request->input('jenis_sertifikasi'));
+        $validated['status'] = 'submitted';
         $validated['kesimpulan'] = in_array($validated['p2h_status'], ['BK']) || in_array($validated['teknik_pengoperasian_status'], ['BK']) || in_array($validated['kepatuhan_status'], ['BK']) || in_array($validated['kedisiplinan_status'], ['BK']) ? 'belum_kompeten' : 'kompeten';
 
         $evaluation = FinalEvaluation::create($validated);
@@ -120,7 +128,7 @@ class FinalEvaluationController extends Controller
             'perusahaan' => ['required', 'string', 'max:255'],
             'lokasi_kerja' => ['required', 'string', 'max:255'],
             'jenis_unit_a2b' => ['required', 'string', 'max:255'],
-            'jenis_sertifikasi' => ['required', 'in:Green,Skill-up,Experience'],
+            'jenis_sertifikasi' => ['required', 'in:Green,Skill-up,Experience_internal,Experience_external'],
             'instruktur' => ['required', 'string', 'max:255'],
             'operator_pendamping' => ['required', 'string', 'max:255'],
             'tanggal_penilaian' => ['required', 'date'],
@@ -144,7 +152,7 @@ class FinalEvaluationController extends Controller
     {
         $evaluation = FinalEvaluation::with(['logbook.trainee', 'logbook.equipmentCategory', 'trainer'])->findOrFail($id);
         $user = Auth::user();
-        abort_unless($user && ($user->isTrainer() || $user->isTrainingCentre() || $user->isSuperAdmin()), 403);
+        abort_unless($user && ($user->isTrainer() || $user->isTrainingCentre() || $user->isPjo() || $user->isHseCt() || $user->isSuperAdmin()), 403);
 
         return view('final-evaluations.show', compact('evaluation'));
     }
@@ -152,7 +160,7 @@ class FinalEvaluationController extends Controller
     public function print($id)
     {
         $user = Auth::user();
-        abort_unless($user && ($user->isTrainer() || $user->isTrainingCentre() || $user->isSuperAdmin()), 403);
+        abort_unless($user && ($user->isTrainer() || $user->isTrainingCentre() || $user->isPjo() || $user->isHseCt() || $user->isSuperAdmin()), 403);
 
         $evaluation = FinalEvaluation::with(['logbook.trainee', 'logbook.equipmentCategory', 'trainer'])->findOrFail($id);
 

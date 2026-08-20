@@ -47,8 +47,8 @@
                                 <select name="nama_operator" id="nama_operator" data-trainees='@json($trainees)' onchange="handleOperatorChange(this)" required class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                                     <option value="">Pilih operator...</option>
                                     @foreach($trainees as $trainee)
-                                        <option value="{{ $trainee['name'] }}" {{ old('nama_operator') == $trainee['name'] ? 'selected' : '' }}>
-                                            {{ $trainee['name'] }}
+                                        <option value="{{ $trainee['name'] }}" {{ (old('nama_operator') == $trainee['name'] || (isset($selectedTraineeId) && $selectedTraineeId == $trainee['id'])) ? 'selected' : '' }}>
+                                            {{ $trainee['name'] }} @if(!$trainee['eligible']) (fase {{ $trainee['current_phase_label'] }}) @endif
                                         </option>
                                     @endforeach
                                 </select>

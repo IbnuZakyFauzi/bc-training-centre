@@ -38,6 +38,8 @@
                         <option value="trainee" {{ old('role', $user->role) === 'trainee' ? 'selected' : '' }}>Trainee (Peserta OJT)</option>
                         <option value="trainer" {{ old('role', $user->role) === 'trainer' ? 'selected' : '' }}>Trainer Evaluator</option>
                         <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Admin Training Centre</option>
+                <option value="pjo" {{ old('role', $user->role) === 'pjo' ? 'selected' : '' }}>PJO (Penanggung Jawab Operasional)</option>
+                <option value="hse_ct" {{ old('role', $user->role) === 'hse_ct' ? 'selected' : '' }}>HSE CT (HSE Training Section)</option>
                     </select>
                     @error('role')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
                 </div>
@@ -85,9 +87,10 @@
                             <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Sertifikasi</label>
                             <select name="certification" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
                                 <option value="">Pilih Sertifikasi</option>
-                                <option value="Green" {{ old('certification', $user->certification) === 'Green' ? 'selected' : '' }}>Green</option>
-                                <option value="Skill-up" {{ old('certification', $user->certification) === 'Skill-up' ? 'selected' : '' }}>Skill-up</option>
-                                <option value="Experience" {{ old('certification', $user->certification) === 'Experience' ? 'selected' : '' }}>Experience</option>
+                <option value="Green" {{ old('certification', $user->certification) === 'Green' ? 'selected' : '' }}>Green</option>
+                <option value="Skill-up" {{ old('certification', $user->certification) === 'Skill-up' ? 'selected' : '' }}>Skill-up</option>
+                <option value="Experience_internal" {{ old('certification', $user->certification) === 'Experience_internal' ? 'selected' : '' }}>Experience Internal</option>
+                <option value="Experience_external" {{ old('certification', $user->certification) === 'Experience_external' ? 'selected' : '' }}>Experience External</option>
                             </select>
                         </div>
                         <div>

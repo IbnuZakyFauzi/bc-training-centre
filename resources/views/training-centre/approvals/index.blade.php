@@ -27,6 +27,52 @@
         @endforeach
     </div>
 
+    <!-- OJT Multi-Phase Monitoring -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-7">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+            <h3 class="text-sm font-bold text-slate-800">Rekap Posisi Fase Evaluasi Trainee</h3>
+            <p class="text-xs text-slate-500 mt-1 mb-3">Distribusi fase saat ini seluruh trainee (real-time).</p>
+            <div class="space-y-2">
+                @forelse($phaseRecap as $label => $count)
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-slate-600">{{ $label }}</span>
+                        <span class="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded">{{ $count }}</span>
+                    </div>
+                @empty
+                    <p class="text-xs text-slate-400">Belum ada trainee.</p>
+                @endforelse
+            </div>
+        </div>
+
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-800">Antrean Persetujuan Evaluasi Akhir (Trainer → TC)</h3>
+                    <p class="text-xs text-slate-500 mt-1">Evaluasi yang menunggu persetujuan Admin TC.</p>
+                </div>
+                <div class="flex space-x-2 text-[11px] font-bold">
+                    <span class="px-2 py-1 rounded bg-blue-100 text-blue-700">TC: {{ $evalCounts['submitted'] }}</span>
+                    <span class="px-2 py-1 rounded bg-purple-100 text-purple-700">PJO: {{ $evalCounts['tc_approved'] }}</span>
+                    <span class="px-2 py-1 rounded bg-amber-100 text-amber-700">HSE: {{ $evalCounts['pjo_approved'] }}</span>
+                    <span class="px-2 py-1 rounded bg-[#00A859]/10 text-[#00A859]">Selesai: {{ $evalCounts['completed'] }}</span>
+                </div>
+            </div>
+            <div class="divide-y divide-slate-100 max-h-80 overflow-y-auto">
+                @forelse($pendingEvaluations as $ev)
+                    <div class="flex items-center justify-between px-5 py-3">
+                        <div>
+                            <p class="text-sm font-bold text-slate-800">{{ $ev->nama_operator }}</p>
+                            <p class="text-[11px] text-slate-500">{{ $ev->phase }} · Trainer: {{ $ev->trainer->name ?? '-' }}</p>
+                        </div>
+                        <a href="{{ route('training-centre.final-evaluations.show', $ev->id) }}" class="px-3 py-1.5 rounded-lg bg-[#003829] text-white text-[11px] font-bold">Review</a>
+                    </div>
+                @empty
+                    <p class="text-xs text-slate-400 px-5 py-4">Tidak ada evaluasi menunggu persetujuan.</p>
+                @endforelse
+            </div>
+        </div>
+    </div>
+
     <!-- Main Data Table -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="p-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">

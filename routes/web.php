@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OjtLogbookController;
 use App\Http\Controllers\SubmissionHistoryController;
 use App\Http\Controllers\TrainerReviewController;
@@ -23,9 +24,12 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware(['auth', 'must.change.password'])->group(function () {
-    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+        Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+        Route::get('/notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
 
     Route::get('/dashboard', function () {
         $user = Auth::user();
@@ -34,6 +38,8 @@ Route::middleware(['auth', 'must.change.password'])->group(function () {
             'trainee' => redirect()->route('ojt.dashboard'),
             'trainer' => redirect()->route('trainer.dashboard'),
             'admin' => redirect()->route('training-centre.dashboard'),
+            'pjo' => redirect()->route('pjo.dashboard'),
+            'hse_ct' => redirect()->route('hse-ct.dashboard'),
             default => abort(403),
         };
     })->name('dashboard');
@@ -52,6 +58,13 @@ Route::middleware(['auth', 'must.change.password', 'role:admin'])->prefix('train
     Route::put('/users/{id}', ['App\Http\Controllers\UserManagementController', 'update'])->name('users.update');
     Route::delete('/users/{id}', ['App\Http\Controllers\UserManagementController', 'destroy'])->name('users.destroy');
     Route::post('/users/{id}/reset-password', ['App\Http\Controllers\UserManagementController', 'resetPassword'])->name('users.reset-password');
+
+    // Final Evaluation approval flow (Admin TC stage)
+    Route::get('/final-evaluations', ['App\Http\Controllers\EvaluationFlowController', 'tcIndex'])->name('final-evaluations.index');
+    Route::get('/final-evaluations/{id}', ['App\Http\Controllers\EvaluationFlowController', 'show'])->name('final-evaluations.show');
+    Route::post('/final-evaluations/{id}/tc-approve', ['App\Http\Controllers\EvaluationFlowController', 'tcApprove'])->name('final-evaluations.tc-approve');
+    Route::post('/final-evaluations/{id}/reject', ['App\Http\Controllers\EvaluationFlowController', 'reject'])->name('final-evaluations.tc-reject');
+    Route::get('/monitoring', ['App\Http\Controllers\EvaluationFlowController', 'monitoring'])->name('monitoring');
 });
 
 // Final Logbook Print Route (Restricted to Admin Training Centre only)
@@ -71,9 +84,10 @@ Route::middleware(['auth', 'must.change.password', 'role:trainer'])->prefix('tra
     Route::get('/final-evaluations', 'App\Http\Controllers\FinalEvaluationController@index')->name('final-evaluations.index');
     Route::post('/final-evaluation', 'App\Http\Controllers\FinalEvaluationController@storeStandalone')->name('final-evaluations.store');
     Route::get('/final-evaluations/{id}', 'App\Http\Controllers\FinalEvaluationController@show')->name('final-evaluations.show');
-    Route::get('/final-evaluations/{id}/print', 'App\Http\Controllers\FinalEvaluationController@print')->name('final-evaluations.print');
-    Route::put('/final-evaluations/{id}', 'App\Http\Controllers\FinalEvaluationController@update')->name('final-evaluations.update');
-});
+        Route::get('/final-evaluations/{id}/print', 'App\Http\Controllers\FinalEvaluationController@print')->name('final-evaluations.print');
+        Route::put('/final-evaluations/{id}', 'App\Http\Controllers\FinalEvaluationController@update')->name('final-evaluations.update');
+        Route::get('/monitoring', ['App\Http\Controllers\EvaluationFlowController', 'monitoring'])->name('monitoring');
+    });
 
 Route::middleware(['auth', 'must.change.password', 'role:trainer'])->prefix('supervisor')->name('supervisor.')->group(function () {
     Route::get('/dashboard', [SupervisorApprovalController::class, 'index'])->name('dashboard');
@@ -99,4 +113,22 @@ Route::middleware(['auth', 'must.change.password', 'role:trainee'])->prefix('ojt
 
     // Page 6: Submission History
     Route::get('/history', [SubmissionHistoryController::class, 'index'])->name('history');
+});
+
+// PJO (Penanggung Jawab Operasional) approval flow
+Route::middleware(['auth', 'must.change.password', 'role:pjo'])->prefix('pjo')->name('pjo.')->group(function () {
+    Route::get('/dashboard', ['App\Http\Controllers\EvaluationFlowController', 'pjoDashboard'])->name('dashboard');
+    Route::get('/final-evaluations', ['App\Http\Controllers\EvaluationFlowController', 'pjoIndex'])->name('final-evaluations.index');
+    Route::get('/final-evaluations/{id}', ['App\Http\Controllers\EvaluationFlowController', 'show'])->name('final-evaluations.show');
+    Route::post('/final-evaluations/{id}/approve', ['App\Http\Controllers\EvaluationFlowController', 'pjoApprove'])->name('final-evaluations.approve');
+    Route::post('/final-evaluations/{id}/reject', ['App\Http\Controllers\EvaluationFlowController', 'reject'])->name('final-evaluations.reject');
+});
+
+// HSE CT (HSE Training Section) approval flow
+Route::middleware(['auth', 'must.change.password', 'role:hse_ct'])->prefix('hse-ct')->name('hse-ct.')->group(function () {
+    Route::get('/dashboard', ['App\Http\Controllers\EvaluationFlowController', 'hseCtDashboard'])->name('dashboard');
+    Route::get('/final-evaluations', ['App\Http\Controllers\EvaluationFlowController', 'hseIndex'])->name('final-evaluations.index');
+    Route::get('/final-evaluations/{id}', ['App\Http\Controllers\EvaluationFlowController', 'show'])->name('final-evaluations.show');
+    Route::post('/final-evaluations/{id}/approve', ['App\Http\Controllers\EvaluationFlowController', 'hseApprove'])->name('final-evaluations.approve');
+    Route::post('/final-evaluations/{id}/reject', ['App\Http\Controllers\EvaluationFlowController', 'reject'])->name('final-evaluations.reject');
 });

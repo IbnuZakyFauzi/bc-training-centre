@@ -30,7 +30,7 @@
             <?php endif; ?>
             <a href="<?php echo e(route('ojt.logbooks.create')); ?>" class="inline-flex items-center px-4 py-2.5 bg-[#00A859] hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all transform hover:-translate-y-0.5">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Create Digital Logbook
+                Create Form OJT
             </a>
         </div>
     </div>
@@ -54,6 +54,77 @@
             </div>
         </div>
     <?php endif; ?>
+
+    <!-- OJT Multi-Phase Progress Tracker -->
+    <div class="mb-8 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+            <div>
+                <h3 class="text-sm font-bold text-slate-800">Progress Evaluasi Multi-Fase (A2B)</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Sertifikasi: <span class="font-semibold text-slate-700"><?php echo e($user->certification ?? '-'); ?></span></p>
+            </div>
+            <?php if($phaseProgress['eligible']): ?>
+                <span class="px-3 py-1.5 rounded-lg font-bold text-xs bg-[#00A859] text-white">Siap Dievaluasi</span>
+            <?php else: ?>
+                <span class="px-3 py-1.5 rounded-lg font-bold text-xs bg-slate-100 text-slate-600">Akumulasi Jam Operasional</span>
+            <?php endif; ?>
+        </div>
+        <div class="p-5 grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Fase Evaluasi Saat Ini</p>
+                <p class="text-lg font-extrabold text-[#003829] mt-1"><?php echo e($phaseMeta['label'] ?? 'Evaluasi 3'); ?></p>
+                <?php if(($phaseMeta['type'] ?? '') === 'evaluasi'): ?>
+                    <div class="mt-4 space-y-3">
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-600 mb-1">
+                                <span>Total HM</span>
+                                <span class="font-bold"><?php echo e(number_format($hmProgress['total'], 1)); ?> / <?php echo e($phaseMeta['total_hm']); ?> jam</span>
+                            </div>
+                            <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-[#00A859]" style="width: <?php echo e($phaseProgress['total']); ?>%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-600 mb-1">
+                                <span>HM Siang</span>
+                                <span class="font-bold"><?php echo e(number_format($hmProgress['day'], 1)); ?> / <?php echo e($phaseMeta['day_hm'] ?? '—'); ?> jam</span>
+                            </div>
+                            <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-amber-400" style="width: <?php echo e($phaseProgress['day']); ?>%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-600 mb-1">
+                                <span>HM Malam</span>
+                                <span class="font-bold"><?php echo e(number_format($hmProgress['night'], 1)); ?> / <?php echo e($phaseMeta['night_hm'] ?? '—'); ?> jam</span>
+                            </div>
+                            <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-indigo-400" style="width: <?php echo e($phaseProgress['night']); ?>%"></div>
+                            </div>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <p class="text-xs text-slate-500 mt-3 leading-relaxed">Fase bulanan: isi form OJT minimal 1× per minggu selama periode berjalan. Evaluasi dilakukan di akhir periode oleh Trainer.</p>
+                <?php endif; ?>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-4">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Status Evaluasi Berjalan</p>
+                <?php if($currentEvaluation): ?>
+                    <p class="text-lg font-extrabold text-slate-800 mt-1"><?php echo e($currentEvaluation->phase ?? '-'); ?></p>
+                    <span class="inline-block mt-2 px-3 py-1 rounded-lg text-xs font-bold
+                        <?php if($currentEvaluation->status === 'submitted'): ?> bg-blue-100 text-blue-700
+                        <?php elseif($currentEvaluation->status === 'tc_approved'): ?> bg-purple-100 text-purple-700
+                        <?php elseif($currentEvaluation->status === 'pjo_approved'): ?> bg-amber-100 text-amber-700
+                        <?php elseif($currentEvaluation->status === 'hse_approved'): ?> bg-[#00A859]/10 text-[#00A859]
+                        <?php else: ?> bg-red-100 text-red-700 <?php endif; ?>">
+                        <?php echo e(\Illuminate\Support\Str::title(str_replace('_', ' ', $currentEvaluation->status))); ?>
+
+                    </span>
+                <?php else: ?>
+                    <p class="text-sm text-slate-500 mt-2">Belum ada evaluasi untuk fase ini.</p>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
 
     <!-- KPI Grid (5 Cards) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-8">
@@ -138,22 +209,9 @@
     <!-- Main Grid Content: Analytics & Recent Activity -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <!-- Left 2 Columns: Hour Meter Trend Chart & Quick Actions -->
+        <!-- Left 2 Columns: Quick Actions -->
         <div class="lg:col-span-2 flex flex-col gap-8">
             
-            <!-- Weekly HM Chart Widget -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h2 class="text-base font-bold text-slate-800">Tren Jam Kerja OJT (Weekly Hour Meter)</h2>
-                        <p class="text-xs text-slate-500">Aktivitas jam pengoperasian alat berat per hari minggu ini</p>
-                    </div>
-                    <span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold">Minggu Ini</span>
-                </div>
-
-                <div id="weeklyHmChart" class="h-64"></div>
-            </div>
-
             <!-- Quick Action Cards Grid -->
             <div class="grid flex-1 grid-cols-1 gap-5 sm:grid-cols-2">
                 <a href="<?php echo e(route('ojt.logbooks.create')); ?>" class="h-full p-7 bg-white rounded-2xl shadow-sm border border-slate-200 hover:shadow-md hover:border-[#00A859] transition group flex flex-col justify-between">
@@ -247,60 +305,6 @@
         </div>
 
     </div>
-
-    <!-- Operational Guidelines Card -->
-    <section class="mt-8 bg-gradient-to-r from-slate-900 to-[#003829] text-white p-7 rounded-2xl shadow-sm border border-slate-800">
-        <div class="flex items-center space-x-2 text-[#F5A623] mb-5 font-bold text-sm">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span>PETUNJUK PENGISIAN OJT</span>
-        </div>
-        <ul class="grid grid-cols-1 gap-3 text-sm text-slate-200 leading-relaxed md:grid-cols-2 xl:grid-cols-4">
-            <li class="rounded-xl border border-white/10 bg-white/5 p-4">Logbook wajib diisi setelah selesai shift kerja harian.</li>
-            <li class="rounded-xl border border-white/10 bg-white/5 p-4">HM Awal dan HM Akhir harus sesuai dengan angka pada display unit.</li>
-            <li class="rounded-xl border border-white/10 bg-white/5 p-4">Pastikan memilih Trainer dan Supervisor sesuai pit lokasi tugas.</li>
-        </ul>
-    </section>
-
-    <?php $__env->startPush('scripts'); ?>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            var options = {
-                chart: {
-                    type: 'bar',
-                    height: 250,
-                    toolbar: { show: false },
-                    fontFamily: 'Inter, sans-serif'
-                },
-                series: [{
-                    name: 'Jam Kerja (HM)',
-                    data: [8.5, 7.0, 8.5, 8.0, 7.5, 0, 8.5]
-                }],
-                colors: ['#00A859'],
-                plotOptions: {
-                    bar: {
-                        borderRadius: 6,
-                        columnWidth: '45%',
-                    }
-                },
-                dataLabels: { enabled: false },
-                xaxis: {
-                    categories: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
-                    axisBorder: { show: false },
-                    axisTicks: { show: false },
-                    labels: { style: { colors: '#64748b', fontSize: '11px' } }
-                },
-                yaxis: {
-                    title: { text: 'Total HM', style: { color: '#64748b', fontSize: '11px' } },
-                    labels: { style: { colors: '#64748b', fontSize: '11px' } }
-                },
-                grid: { borderColor: '#f1f5f9' }
-            };
-
-            var chart = new ApexCharts(document.querySelector("#weeklyHmChart"), options);
-            chart.render();
-        });
-    </script>
-    <?php $__env->stopPush(); ?>
 
  <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>

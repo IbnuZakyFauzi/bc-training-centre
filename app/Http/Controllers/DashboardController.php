@@ -44,17 +44,18 @@ class DashboardController extends Controller
             ->latest()
             ->first();
 
-        // Weekly HM Chart Data (Last 7 days)
-        $weeklyChartData = [
-            'categories' => ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
-            'series' => [
-                [
-                    'name' => 'HM Hours',
-                    'data' => [8.5, 7.0, 8.5, 8.0, 7.5, 0, 8.5],
-                ]
-            ]
-        ];
+        // Phase & HM progress (OJT Multi-Phase)
+        $phaseMeta = $user->currentPhaseMeta();
+        $hmProgress = $user->hmProgress();
+        $phaseProgress = $user->phaseProgressPercent();
+        $currentEvaluation = \App\Models\FinalEvaluation::where('nama_operator', $user->name)
+            ->where('phase', $user->currentPhaseKey())
+            ->latest()
+            ->first();
 
-        return view('ojt.dashboard', compact('user', 'kpi', 'recentLogbooks', 'latestDraft', 'weeklyChartData'));
+        return view('ojt.dashboard', compact(
+            'user', 'kpi', 'recentLogbooks', 'latestDraft',
+            'phaseMeta', 'hmProgress', 'phaseProgress', 'currentEvaluation'
+        ));
     }
 }

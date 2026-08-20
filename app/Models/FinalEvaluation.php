@@ -22,6 +22,8 @@ class FinalEvaluation extends Model
         'tanggal_penilaian',
         'tahap_penilaian',
         'sub_tahap',
+        'phase',
+        'status',
         'p2h_status',
         'teknik_pengoperasian_status',
         'kepatuhan_status',
@@ -34,12 +36,26 @@ class FinalEvaluation extends Model
         'kabag_signature_path',
         'penanggung_jawab_signature_path',
         'hse_signature_path',
+        'tc_approved_by',
+        'tc_approved_at',
+        'tc_notes',
+        'pjo_approved_by',
+        'pjo_approved_at',
+        'pjo_notes',
+        'hse_approved_by',
+        'hse_approved_at',
+        'hse_notes',
+        'completed_at',
     ];
 
     protected function casts(): array
     {
         return [
             'tanggal_penilaian' => 'date',
+            'tc_approved_at' => 'datetime',
+            'pjo_approved_at' => 'datetime',
+            'hse_approved_at' => 'datetime',
+            'completed_at' => 'datetime',
         ];
     }
 
@@ -51,5 +67,60 @@ class FinalEvaluation extends Model
     public function trainer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'trainer_id');
+    }
+
+    public function trainee(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'nama_operator', 'name');
+    }
+
+    public function tcApprover(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'tc_approved_by');
+    }
+
+    public function pjoApprover(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'pjo_approved_by');
+    }
+
+    public function hseApprover(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'hse_approved_by');
+    }
+
+    public function histories()
+    {
+        return $this->hasMany(TraineePhaseHistory::class, 'evaluation_id');
+    }
+
+    public function isPendingTc(): bool
+    {
+        return $this->status === 'submitted';
+    }
+
+    public function isPendingPjo(): bool
+    {
+        return $this->status === 'tc_approved';
+    }
+
+    public function isPendingHse(): bool
+    {
+        return $this->status === 'pjo_approved';
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->status === 'rejected';
+    }
+
+    public function isCompleted(): bool
+    {
+        return $this->status === 'hse_approved';
+    }
+
+    public function isEditableByTrainer(): bool
+    {
+        return in_array($this->status, ['submitted', 'rejected'], true);
     }
 }

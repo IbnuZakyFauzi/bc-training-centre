@@ -37,6 +37,8 @@
                         <option value="trainee" {{ old('role') === 'trainee' ? 'selected' : '' }}>Trainee</option>
                         <option value="trainer" {{ old('role') === 'trainer' ? 'selected' : '' }}>Trainer</option>
                         <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin Training Centre</option>
+                <option value="pjo" {{ old('role') === 'pjo' ? 'selected' : '' }}>PJO (Penanggung Jawab Operasional)</option>
+                <option value="hse_ct" {{ old('role') === 'hse_ct' ? 'selected' : '' }}>HSE CT (HSE Training Section)</option>
                     </select>
                     @error('role')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
                 </div>
@@ -84,9 +86,10 @@
                             <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Sertifikasi</label>
                             <select name="certification" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
                                 <option value="">Pilih Sertifikasi</option>
-                                <option value="Green" {{ old('certification') === 'Green' ? 'selected' : '' }}>Green</option>
-                                <option value="Skill-up" {{ old('certification') === 'Skill-up' ? 'selected' : '' }}>Skill-up</option>
-                                <option value="Experience" {{ old('certification') === 'Experience' ? 'selected' : '' }}>Experience</option>
+                <option value="Green" {{ old('certification') === 'Green' ? 'selected' : '' }}>Green</option>
+                <option value="Skill-up" {{ old('certification') === 'Skill-up' ? 'selected' : '' }}>Skill-up</option>
+                <option value="Experience_internal" {{ old('certification') === 'Experience_internal' ? 'selected' : '' }}>Experience Internal</option>
+                <option value="Experience_external" {{ old('certification') === 'Experience_external' ? 'selected' : '' }}>Experience External</option>
                             </select>
                             @error('certification')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
                         </div>

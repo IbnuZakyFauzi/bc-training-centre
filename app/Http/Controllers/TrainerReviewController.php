@@ -56,7 +56,31 @@ class TrainerReviewController extends Controller
             'revision' => (clone $baseQuery)->where('status', 'revision')->count(),
         ];
 
-        return view('trainer.reviews.index', compact('trainer', 'logbooks', 'counts', 'activeStatus'));
+        $eligibleTrainees = User::where('role', 'trainee')
+            ->whereHas('assignedTrainers', fn ($q) => $q->where('trainer_id', $trainer->id))
+            ->with('equipmentCategory')
+            ->get()
+            ->map(function ($trainee) {
+                $phase = $trainee->currentPhaseKey();
+                $hasOpenEval = \App\Models\FinalEvaluation::where('nama_operator', $trainee->name)
+                    ->where('phase', $phase)
+                    ->whereIn('status', ['submitted', 'tc_approved', 'pjo_approved'])
+                    ->exists();
+
+                return [
+                    'id' => $trainee->id,
+                    'name' => $trainee->name,
+                    'certification' => $trainee->certification,
+                    'phase' => $phase,
+                    'phase_label' => $trainee->currentPhaseMeta()['label'] ?? '',
+                    'eligible' => $trainee->isPhaseEligible() && ! $hasOpenEval,
+                    'progress' => $trainee->phaseProgressPercent(),
+                ];
+            })
+            ->where('eligible', true)
+            ->values();
+
+        return view('trainer.reviews.index', compact('trainer', 'logbooks', 'counts', 'activeStatus', 'eligibleTrainees'));
     }
 
     public function show($id)

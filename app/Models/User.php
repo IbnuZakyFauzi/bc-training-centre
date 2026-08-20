@@ -26,6 +26,7 @@ class User extends Authenticatable
         'avatar',
         'signature_path',
         'certification',
+        'current_phase',
         'company',
         'equipment_category_id',
         'equipment_number',
@@ -125,6 +126,16 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+    public function isPjo(): bool
+    {
+        return $this->role === 'pjo';
+    }
+
+    public function isHseCt(): bool
+    {
+        return $this->role === 'hse_ct';
+    }
+
     public function isSuperAdmin(): bool
     {
         return $this->is_super_admin || $this->email === 'training.centre@beraucoal.co.id';
@@ -133,5 +144,35 @@ class User extends Authenticatable
     public function usesStoredSignature(): bool
     {
         return in_array($this->role, ['trainer', 'admin'], true);
+    }
+
+    public function phaseHistories()
+    {
+        return $this->hasMany(\App\Models\TraineePhaseHistory::class)->orderBy('created_at', 'desc');
+    }
+
+    public function currentPhaseKey(): string
+    {
+        return \App\Services\PhaseService::currentPhaseKey($this);
+    }
+
+    public function currentPhaseMeta(): ?array
+    {
+        return \App\Services\PhaseService::currentPhaseMeta($this);
+    }
+
+    public function hmProgress(): array
+    {
+        return \App\Services\PhaseService::hmProgress($this);
+    }
+
+    public function isPhaseEligible(?string $phase = null): bool
+    {
+        return \App\Services\PhaseService::isEligible($this, $phase);
+    }
+
+    public function phaseProgressPercent(?string $phase = null): array
+    {
+        return \App\Services\PhaseService::progressPercent($this, $phase);
     }
 }

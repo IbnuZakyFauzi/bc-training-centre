@@ -72,7 +72,26 @@ class TrainingCentreApprovalController extends Controller
             'finalized' => OjtLogbook::where('status', 'final_approved')->whereNotNull('training_centre_decided_at')->distinct('trainee_id')->count('trainee_id'),
             'revision' => OjtLogbook::where('status', 'revision')->whereNotNull('training_centre_decided_at')->count(),
         ];
-        return view('training-centre.approvals.index', compact('reviewer', 'logbooks', 'counts', 'activeStatus', 'groupedFinalized'));
+
+        $pendingEvaluations = \App\Models\FinalEvaluation::with(['trainer', 'trainee'])
+            ->where('status', 'submitted')
+            ->latest()
+            ->get();
+
+        $evalCounts = [
+            'submitted' => \App\Models\FinalEvaluation::where('status', 'submitted')->count(),
+            'tc_approved' => \App\Models\FinalEvaluation::where('status', 'tc_approved')->count(),
+            'pjo_approved' => \App\Models\FinalEvaluation::where('status', 'pjo_approved')->count(),
+            'completed' => \App\Models\FinalEvaluation::where('status', 'hse_approved')->count(),
+        ];
+
+        $phaseRecap = User::where('role', 'trainee')
+            ->get()
+            ->groupBy(fn ($u) => ($u->certification ?? '-') . ' · ' . ($u->currentPhaseMeta()['label'] ?? $u->current_phase))
+            ->map(fn ($g) => $g->count())
+            ->sortKeys();
+
+        return view('training-centre.approvals.index', compact('reviewer', 'logbooks', 'counts', 'activeStatus', 'groupedFinalized', 'pendingEvaluations', 'evalCounts', 'phaseRecap'));
     }
 
     public function show($id)

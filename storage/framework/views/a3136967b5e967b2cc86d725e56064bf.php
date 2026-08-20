@@ -5,6 +5,8 @@
         'trainee' => 'Trainee',
         'trainer' => 'Trainer',
         'admin' => 'Admin TC',
+        'pjo' => 'PJO',
+        'hse_ct' => 'HSE CT',
     ];
 
     $role = $user?->role;
@@ -23,6 +25,8 @@
         'trainee' => 'ojt.dashboard',
         'trainer' => 'trainer.dashboard',
         'admin' => 'training-centre.dashboard',
+        'pjo' => 'pjo.dashboard',
+        'hse_ct' => 'hse-ct.dashboard',
         default => 'dashboard',
     };
 
@@ -71,6 +75,23 @@
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'training-centre.dashboard', 'match' => 'training-centre.dashboard'],
                 ['label' => 'Manajemen Pengguna', 'route' => 'training-centre.users.index', 'match' => 'training-centre.users.*'],
+                ['label' => 'Monitoring Evaluasi', 'route' => 'training-centre.monitoring', 'match' => 'training-centre.monitoring'],
+            ],
+        ],
+        'pjo' => [
+            'label' => 'PJO Workspace',
+            'tag' => 'PJO',
+            'items' => [
+                ['label' => 'Dashboard', 'route' => 'pjo.dashboard', 'match' => 'pjo.dashboard'],
+                ['label' => 'Persetujuan Evaluasi', 'route' => 'pjo.final-evaluations.index', 'match' => 'pjo.final-evaluations.*'],
+            ],
+        ],
+        'hse_ct' => [
+            'label' => 'HSE CT Workspace',
+            'tag' => 'HSE CT',
+            'items' => [
+                ['label' => 'Dashboard', 'route' => 'hse-ct.dashboard', 'match' => 'hse-ct.dashboard'],
+                ['label' => 'Persetujuan Evaluasi', 'route' => 'hse-ct.final-evaluations.index', 'match' => 'hse-ct.final-evaluations.*'],
             ],
         ],
     ];
@@ -78,6 +99,8 @@
     $currentSection = match (true) {
         $role === 'trainee' => $menuSections['trainee'],
         $role === 'admin' => $menuSections['admin'],
+        $role === 'pjo' => $menuSections['pjo'],
+        $role === 'hse_ct' => $menuSections['hse_ct'],
         $role === 'trainer' && $user?->trainer_type === 'pengawas' => $menuSections['pengawas'],
         $role === 'trainer' && $user?->trainer_type === 'operator_pendamping' => $menuSections['operator_pendamping'],
         default => $menuSections['trainer'],
@@ -131,29 +154,5 @@
                 </nav>
             </div>
         <?php endif; ?>
-
-        <div class="bg-[#00261C] p-3.5 rounded-xl border border-emerald-800/40 text-xs">
-            <div class="flex items-center space-x-2 text-[#F5A623] font-bold mb-1">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                <span>OJT TARGET</span>
-            </div>
-            <p class="text-emerald-200 text-[11px] leading-relaxed">
-                Min. 200 HM Hours required for Excavator & Heavy Unit Certification.
-            </p>
-        </div>
-    </div>
-
-    <div class="p-4 border-t border-emerald-900/60 bg-[#002319] flex items-center justify-between">
-        <div class="flex items-center space-x-3 min-w-0">
-            <div class="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center font-bold text-xs text-white border border-emerald-400">
-                <?php echo e($initials ?: 'U'); ?>
-
-            </div>
-            <div class="overflow-hidden text-ellipsis whitespace-nowrap">
-                <p class="text-xs font-bold text-white truncate"><?php echo e($user->name ?? 'User'); ?></p>
-                <p class="text-[10px] text-emerald-300 font-mono truncate"><?php echo e($user->sid ?? '-'); ?> (<?php echo e($roleLabel); ?>)</p>
-            </div>
-        </div>
-    </div>
 </aside>
 <?php /**PATH D:\KULIAH\BERAU COAL INTERN\logbook\resources\views/layouts/sidebar.blade.php ENDPATH**/ ?>

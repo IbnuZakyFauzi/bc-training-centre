@@ -15,8 +15,14 @@
             <h1 class="text-2xl font-bold">Review & Evaluasi Kompetensi</h1>
             <p class="text-emerald-100 text-xs mt-1">Verifikasi Digital Logbook, isi penilaian SOP, dan teruskan hasil ke Final Approval.</p>
         </div>
-        <div class="rounded-xl bg-white/10 border border-white/15 px-4 py-3 text-xs">
-            <p class="text-emerald-200">Trainer aktif</p><p class="font-bold mt-0.5"><?php echo e($trainer->name); ?> · <?php echo e($trainer->sid); ?></p>
+        <div class="flex items-center gap-3">
+            <div class="rounded-xl bg-white/10 border border-white/15 px-4 py-3 text-xs">
+                <p class="text-emerald-200">Trainer aktif</p><p class="font-bold mt-0.5"><?php echo e($trainer->name); ?> · <?php echo e($trainer->sid); ?></p>
+            </div>
+            <a href="<?php echo e(route('trainer.monitoring')); ?>" class="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-[#F5A623] hover:bg-amber-500 text-gray-900 text-xs font-bold shadow-sm transition-all transform hover:-translate-y-0.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                Monitoring Evaluasi
+            </a>
         </div>
     </div>
 
@@ -32,6 +38,33 @@
             </a>
         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
     </div>
+
+    <!-- Eligible Trainees for Final Evaluation (HM requirement met) -->
+    <?php if(isset($eligibleTrainees) && $eligibleTrainees->isNotEmpty()): ?>
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-7">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                    <h2 class="font-bold text-slate-800">Trainee Eligible Evaluasi Akhir A2B</h2>
+                    <p class="text-xs text-slate-500 mt-1">Syarat jam operasional fase saat ini sudah terpenuhi. Silakan isi form evaluasi.</p>
+                </div>
+                <a href="<?php echo e(route('trainer.final-evaluations.create')); ?>" class="px-4 py-2 rounded-xl bg-[#00A859] text-white text-xs font-bold">Isi Evaluasi</a>
+            </div>
+            <div class="divide-y divide-slate-100">
+                <?php $__currentLoopData = $eligibleTrainees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $t): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <div class="flex items-center justify-between px-5 py-3">
+                        <div>
+                            <p class="text-sm font-bold text-slate-800"><?php echo e($t['name']); ?></p>
+                            <p class="text-[11px] text-slate-500"><?php echo e($t['certification']); ?> · <?php echo e($t['phase_label']); ?></p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-[11px] font-semibold text-[#00A859]"><?php echo e($t['progress']['total']); ?>% HM</span>
+                            <a href="<?php echo e(route('trainer.final-evaluations.create', ['trainee' => $t['id']])); ?>" class="px-3 py-1.5 rounded-lg bg-[#003829] text-white text-[11px] font-bold">Evaluasi</a>
+                        </div>
+                    </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </div>
+        </div>
+    <?php endif; ?>
 
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="p-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">

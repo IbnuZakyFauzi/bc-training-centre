@@ -44,6 +44,8 @@
                     <option value="trainee" {{ request('role') === 'trainee' ? 'selected' : '' }}>Trainee</option>
                     <option value="trainer" {{ request('role') === 'trainer' ? 'selected' : '' }}>Trainer</option>
                     <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin TC</option>
+                <option value="pjo" {{ request('role') === 'pjo' ? 'selected' : '' }}>PJO</option>
+                <option value="hse_ct" {{ request('role') === 'hse_ct' ? 'selected' : '' }}>HSE CT</option>
                 </select>
                 <button class="px-4 rounded-xl bg-[#003829] text-white text-xs font-bold">Filter</button>
             </form>
