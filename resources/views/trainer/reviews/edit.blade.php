@@ -4,3 +4,4 @@
     @php($isTrainerEditing = true)
     @include('ojt.logbooks.partials.create-form')
 </x-app-layout>
+

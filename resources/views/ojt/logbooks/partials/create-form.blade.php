@@ -315,17 +315,17 @@
     ];
 @endphp
 
-<div class="mb-6 flex items-center justify-between">
+<div class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
     <div>
-        <div class="flex items-center space-x-2 text-xs font-semibold text-[#00A859] mb-1">
+        <div class="flex items-center space-x-2 text-xs font-semibold text-[#2563eb] mb-1">
             <a href="{{ route('ojt.logbooks.index') }}" class="hover:underline">My Logbook</a>
             <span>/</span>
             <span class="text-slate-500">{{ $isTrainerEditing ? 'Edit Logbook Trainer' : ($isEditing ? 'Edit Draft Logbook' : 'Create Digital Logbook') }}</span>
         </div>
-        <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">Formulir Logbook Harian Trainee OJT</h1>
-        <p class="text-xs text-slate-500 mt-1">Form ini menampilkan checklist harian per unit: track unit (DZ/GR), excavator (EXC), dump truck (HDT/LDT), dan semi dump (SDT/ADT).</p>
+        <h1 class="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">Formulir Logbook Harian Trainee OJT</h1>
+        <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Form ini menampilkan checklist harian per unit: track unit (DZ/GR), excavator (EXC), dump truck (HDT/LDT), dan semi dump (SDT/ADT).</p>
     </div>
-    <a href="{{ route('ojt.logbooks.index') }}" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition">Kembali</a>
+    <a href="{{ route('ojt.logbooks.index') }}" class="px-3.5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition text-center min-h-[44px] inline-flex items-center justify-center">Kembali</a>
     </div>
 
     <script>
@@ -426,7 +426,7 @@
     <form action="{{ $isTrainerEditing ? route('trainer.reviews.update', $logbook->id) : ($isEditing ? route('ojt.logbooks.update', $logbook->id) : route('ojt.logbooks.store')) }}" method="POST"
       x-data="logbookFormData()"
        x-init="$nextTick(() => { fillExistingChecklist(); initTrainerRatings(); initSelectedTrainers(); })"
-       class="space-y-3 pb-10">
+        class="space-y-3 sm:space-y-3 pb-6 sm:pb-10">
     @csrf
     @if($isEditing)
         @method('PUT')
@@ -547,8 +547,8 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 border-t border-slate-900">
-            <div class="border-b border-slate-900 lg:border-b-0 lg:border-r p-3 text-[11px]">
-                <div class="font-semibold mb-2">Keterangan:</div>
+            <div class="border-b border-slate-900 lg:border-b-0 lg:border-r p-2 sm:p-3 text-[10px] sm:text-[11px] text-slate-900">
+                <div class="font-semibold mb-1 sm:mb-2">Keterangan:</div>
                 <ol class="space-y-1 pl-4 list-decimal">
                     <li>Pilih salah satu angka 1 - 4 pada kolom "Penilaian" yang sesuai</li>
                     <li>Kolom "Trainee Feedback" memuat penjelasan item evaluasi terkait</li>
@@ -556,16 +556,16 @@
                     <li>Knw: Knowledge, Skl: Skill, Atd: Attitude</li>
                 </ol>
             </div>
-            <div class="p-3 text-[11px]">
+            <div class="p-2 sm:p-3 text-[10px] sm:text-[11px]">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <div class="font-semibold mb-2">Tahap Penilaian OJT</div>
                         <label class="flex items-center gap-2 mb-2 cursor-pointer">
-                            <input type="radio" name="sop_payload[meta][assessment_mode]" value="pendampingan" x-model="assessmentMode" class="h-3.5 w-3.5 border-slate-400 text-[#003829] focus:ring-[#00A859]">
+                            <input type="radio" name="sop_payload[meta][assessment_mode]" value="pendampingan" x-model="assessmentMode" class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
                             <span>Pendampingan</span>
                         </label>
                         <label class="flex items-center gap-2 mb-2 cursor-pointer">
-                            <input type="radio" name="sop_payload[meta][assessment_mode]" value="tanpa_pendampingan" x-model="assessmentMode" class="h-3.5 w-3.5 border-slate-400 text-[#003829] focus:ring-[#00A859]">
+                            <input type="radio" name="sop_payload[meta][assessment_mode]" value="tanpa_pendampingan" x-model="assessmentMode" class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
                             <span>Tanpa Pendampingan</span>
                         </label>
                     </div>
@@ -573,15 +573,15 @@
                         <div class="font-semibold mb-2">Tahap Tanpa Pendampingan Lanjutan</div>
                         <div class="flex flex-col gap-2">
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="sop_payload[meta][assessment_stage]" value="bulanan" x-model="assessmentStage" class="h-3.5 w-3.5 border-slate-400 text-[#003829] focus:ring-[#00A859]">
+                                <input type="radio" name="sop_payload[meta][assessment_stage]" value="bulanan" x-model="assessmentStage" class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
                                 <span>Bulanan</span>
                             </label>
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="sop_payload[meta][assessment_stage]" value="3_bulan_pertama" x-model="assessmentStage" class="h-3.5 w-3.5 border-slate-400 text-[#003829] focus:ring-[#00A859]">
+                                <input type="radio" name="sop_payload[meta][assessment_stage]" value="3_bulan_pertama" x-model="assessmentStage" class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
                                 <span>3 Bulan Pertama</span>
                             </label>
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="sop_payload[meta][assessment_stage]" value="3_bulan_kedua" x-model="assessmentStage" class="h-3.5 w-3.5 border-slate-400 text-[#003829] focus:ring-[#00A859]">
+                                <input type="radio" name="sop_payload[meta][assessment_stage]" value="3_bulan_kedua" x-model="assessmentStage" class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
                                 <span>3 Bulan Kedua</span>
                             </label>
                         </div>
@@ -605,14 +605,14 @@
     </div>
 
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center gap-2">
-            <svg class="w-5 h-5 text-[#003829]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Penugasan Personil</h2>
+        <div class="bg-slate-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 flex items-center gap-2">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-[#1e3a8a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <h2 class="text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wide">Penugasan Personil</h2>
         </div>
-        <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div>
-                <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Instruktur <span class="text-rose-500">*</span></label>
-                <select name="trainer_id" x-model="selectedTrainerId" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+        <div class="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Instruktur <span class="text-rose-500">*</span></label>
+                    <select name="trainer_id" x-model="selectedTrainerId" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition min-h-[44px]">
                     <option value="">Pilih instruktur</option>
                     @foreach($user->assignedInstruktur as $instruktur)
                         <option value="{{ $instruktur->id }}" {{ old('trainer_id', $isEditing ? $logbook->trainer_id : '') == $instruktur->id ? 'selected' : '' }}>{{ $instruktur->name }}</option>
@@ -627,7 +627,7 @@
                 <div class="space-y-2">
                     @foreach($assignedPengawas as $pengawas)
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" name="selected_pengawas_ids[]" value="{{ $pengawas->id }}" {{ in_array($pengawas->id, old('selected_pengawas_ids', $isEditing ? ($logbook->selected_pengawas_ids ?? []) : [])) ? 'checked' : '' }} x-model="selectedPengawasIds" class="accent-emerald-600">
+                            <input type="checkbox" name="selected_pengawas_ids[]" value="{{ $pengawas->id }}" {{ in_array($pengawas->id, old('selected_pengawas_ids', $isEditing ? ($logbook->selected_pengawas_ids ?? []) : [])) ? 'checked' : '' }} x-model="selectedPengawasIds" class="accent-blue-600">
                             <span class="text-xs">{{ $pengawas->name }}</span>
                         </label>
                     @endforeach
@@ -644,7 +644,7 @@
                 <div class="space-y-2">
                     @foreach($assignedOperators as $operator)
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" name="selected_operator_pendamping_ids[]" value="{{ $operator->id }}" {{ in_array($operator->id, old('selected_operator_pendamping_ids', $isEditing ? ($logbook->selected_operator_pendamping_ids ?? []) : [])) ? 'checked' : '' }} @click="toggleOperator({{ $operator->id }}, $event)" class="accent-emerald-600">
+                            <input type="checkbox" name="selected_operator_pendamping_ids[]" value="{{ $operator->id }}" {{ in_array($operator->id, old('selected_operator_pendamping_ids', $isEditing ? ($logbook->selected_operator_pendamping_ids ?? []) : [])) ? 'checked' : '' }} @click="toggleOperator({{ $operator->id }}, $event)" class="accent-blue-600">
                             <span class="text-xs">{{ $operator->name }}</span>
                         </label>
                     @endforeach
@@ -659,25 +659,25 @@
         </div>
     </div>
 
-    <div class="space-y-3">
+    <div class="space-y-3 sm:space-y-3">
         <div x-show="unitFamily === 'track'" x-cloak class="w-full space-y-3">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-start justify-between gap-4">
+                <div class="bg-slate-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                     <div>
-                        <div class="flex items-center gap-2 text-[11px] font-semibold text-[#00A859] uppercase tracking-wider"><span>Unit Track</span><span>•</span><span>Buldozer / Motor Grader</span></div>
-                        <h2 class="mt-1 text-base font-bold text-slate-800">Checklist SOP Harian</h2>
-                        <p class="text-[11px] text-slate-500 mt-1">Isi penilaian skala 1-4 dan trainee feedback pada setiap item evaluasi.</p>
+                        <div class="flex items-center gap-2 text-[10px] sm:text-[11px] font-semibold text-[#2563eb] uppercase tracking-wider"><span>Unit Track</span><span class="hidden sm:inline">•</span><span>Buldozer / Motor Grader</span></div>
+                        <h2 class="mt-1 text-sm sm:text-base font-bold text-slate-800">Checklist SOP Harian</h2>
+                        <p class="text-[10px] sm:text-[11px] text-slate-500 mt-1">Isi penilaian skala 1-4 dan trainee feedback pada setiap item evaluasi.</p>
                     </div>
-                    <div class="rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2 text-[11px] font-bold text-emerald-700">DZ / MG</div>
+                    <div class="rounded-xl bg-blue-50 border border-blue-200 px-3 py-2 text-[10px] sm:text-[11px] font-bold text-blue-700">DZ / MG</div>
                 </div>
 
-<div class="p-4 space-y-3">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-2 text-xs font-bold text-[#00A859] uppercase tracking-wider">
-                            <span class="w-6 h-6 rounded-full bg-[#00A859] text-white flex items-center justify-center text-[10px]">A</span>
+<div class="p-3 sm:p-4 space-y-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-3">
+                        <div class="flex items-center gap-2 text-xs font-bold text-[#2563eb] uppercase tracking-wider">
+                            <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#2563eb] text-white flex items-center justify-center text-[9px] sm:text-[10px]">A</span>
                             <span>BAGIAN A: TEKNIK PENGOPERASIAN (DOZING &amp; DIGGING, SPREADING &amp; LEVELING, RIPPING, FINISHING)</span>
                         </div>
-                        <div class="flex gap-4" x-show="unitFamily === 'track'" x-cloak>
+                        <div class="flex gap-3 sm:gap-4" x-show="unitFamily === 'track'" x-cloak>
                             <label class="flex items-center gap-2 text-xs font-medium text-slate-600 cursor-pointer">
                                 <input type="radio" name="sop_payload[meta][unit_type]" value="DZ" x-model="unitType" class="accent-slate-800"> DZ (Bulldozer)
                             </label>
@@ -688,9 +688,9 @@
                     </div>
                     @foreach($trackGroups as $groupIndex => $group)
                         <div class="rounded-2xl border border-slate-200 overflow-hidden">
-                            <div class="bg-[#003829] px-4 py-3 text-white">
+                            <div class="bg-[#1e3a8a] px-4 py-3 text-white">
                                 <div class="text-xs font-bold uppercase tracking-wide">{{ $group['title'] }}</div>
-                                <div class="text-[11px] text-emerald-100 mt-1">{{ $group['subtitle'] }}</div>
+                                <div class="text-[11px] text-blue-100 mt-1">{{ $group['subtitle'] }}</div>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -717,7 +717,7 @@
                                                 <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                                 <td class="px-3 py-3 text-slate-700 leading-relaxed break-words">{{ $item['label'] }}</td>
                                                 <td class="px-2 py-3"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'track.groups.'.$groupIndex.'.items.'.$itemIndex])</td>
-                                                <td class="px-3 py-3"><textarea name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis trainee feedback">{{ old('sop_payload.track.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'track.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+                                                <td class="px-3 py-3"><textarea name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Tulis trainee feedback">{{ old('sop_payload.track.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'track.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -727,9 +727,9 @@
                     @endforeach
 
                     <div class="rounded-2xl border border-slate-200 overflow-hidden">
-                        <div class="bg-[#003829] px-4 py-3 text-white">
+                        <div class="bg-[#1e3a8a] px-4 py-3 text-white">
                             <div class="text-xs font-bold uppercase tracking-wide">BAGIAN B: Kepatuhan Terhadap Peraturan Kerja</div>
-                            <div class="text-[11px] text-emerald-100 mt-1">Penggunaan APD, keamanan operasional, dan ketentuan parkir unit</div>
+                            <div class="text-[11px] text-blue-100 mt-1">Penggunaan APD, keamanan operasional, dan ketentuan parkir unit</div>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -756,7 +756,7 @@
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
                                             <td class="px-2 py-3"><input type="hidden" name="sop_payload[track][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[track][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[track][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'track.compliance.'.$itemIndex])</td>
-                                            <td class="px-3 py-3"><textarea name="sop_payload[track][compliance][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.track.compliance.'.$itemIndex.'.note', data_get($formPayload, 'track.compliance.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+                                            <td class="px-3 py-3"><textarea name="sop_payload[track][compliance][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.track.compliance.'.$itemIndex.'.note', data_get($formPayload, 'track.compliance.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -765,9 +765,9 @@
                     </div>
 
                     <div class="rounded-2xl border border-slate-200 overflow-hidden">
-                        <div class="bg-[#003829] px-4 py-3 text-white">
+                        <div class="bg-[#1e3a8a] px-4 py-3 text-white">
                             <div class="text-xs font-bold uppercase tracking-wide">BAGIAN C: Kedisiplinan dan Komunikasi</div>
-                            <div class="text-[11px] text-emerald-100 mt-1">Evaluasi perilaku kerja, komunikasi, dan kepatuhan SOP lapangan</div>
+                            <div class="text-[11px] text-blue-100 mt-1">Evaluasi perilaku kerja, komunikasi, dan kepatuhan SOP lapangan</div>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -794,7 +794,7 @@
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
                                             <td class="px-2 py-3"><input type="hidden" name="sop_payload[track][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[track][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[track][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'track.behavior.'.$itemIndex])</td>
-                                            <td class="px-3 py-3"><textarea name="sop_payload[track][behavior][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.track.behavior.'.$itemIndex.'.note', data_get($formPayload, 'track.behavior.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+                                            <td class="px-3 py-3"><textarea name="sop_payload[track][behavior][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.track.behavior.'.$itemIndex.'.note', data_get($formPayload, 'track.behavior.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -809,23 +809,23 @@
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-start justify-between gap-4">
                     <div>
-                        <div class="flex items-center gap-2 text-[11px] font-semibold text-[#00A859] uppercase tracking-wider"><span>Unit Excavator</span><span>•</span><span>Digging & Loading</span></div>
+                        <div class="flex items-center gap-2 text-[11px] font-semibold text-[#2563eb] uppercase tracking-wider"><span>Unit Excavator</span><span>•</span><span>Digging & Loading</span></div>
                         <h2 class="mt-1 text-base font-bold text-slate-800">Checklist SOP Harian</h2>
                         <p class="text-[11px] text-slate-500 mt-1">Isi evaluasi penguji untuk item positioning, loading, digging, dan sloping.</p>
                     </div>
-                    <div class="rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2 text-[11px] font-bold text-emerald-700">EXC</div>
+                    <div class="rounded-xl bg-blue-50 border border-blue-200 px-3 py-2 text-[11px] font-bold text-blue-700">EXC</div>
                 </div>
 
 <div class="p-4 space-y-3">
-                    <div class="flex items-center gap-2 text-xs font-bold text-[#00A859] uppercase tracking-wider mb-3">
-                        <span class="w-6 h-6 rounded-full bg-[#00A859] text-white flex items-center justify-center text-[10px]">A</span>
+                    <div class="flex items-center gap-2 text-xs font-bold text-[#2563eb] uppercase tracking-wider mb-3">
+                        <span class="w-6 h-6 rounded-full bg-[#2563eb] text-white flex items-center justify-center text-[10px]">A</span>
                         <span>BAGIAN A: TEKNIK PENGOPERASIAN</span>
                     </div>
                     @foreach($excavatorGroups as $groupIndex => $group)
                         <div class="rounded-2xl border border-slate-200 overflow-hidden">
-                            <div class="bg-[#003829] px-4 py-3 text-white">
+                            <div class="bg-[#1e3a8a] px-4 py-3 text-white">
                                 <div class="text-xs font-bold uppercase tracking-wide">{{ $group['title'] }}</div>
-                                <div class="text-[11px] text-emerald-100 mt-1">{{ $group['subtitle'] }}</div>
+                                <div class="text-[11px] text-blue-100 mt-1">{{ $group['subtitle'] }}</div>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -852,7 +852,7 @@
                                                 <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                                 <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
                                                 <td class="px-2 py-3"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'excavator.groups.'.$groupIndex.'.items.'.$itemIndex])</td>
-                                            <td class="px-3 py-3"><textarea name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis Trainee feedback">{{ old('sop_payload.excavator.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'excavator.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+                                            <td class="px-3 py-3"><textarea name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Tulis Trainee feedback">{{ old('sop_payload.excavator.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'excavator.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -862,9 +862,9 @@
                     @endforeach
 
                     <div class="rounded-2xl border border-slate-200 overflow-hidden">
-                        <div class="bg-[#003829] px-4 py-3 text-white">
+                        <div class="bg-[#1e3a8a] px-4 py-3 text-white">
                             <div class="text-xs font-bold uppercase tracking-wide">BAGIAN B: Kepatuhan Terhadap Peraturan Kerja</div>
-                            <div class="text-[11px] text-emerald-100 mt-1">Penggunaan APD, keamanan operasional, dan ketentuan parkir unit</div>
+                            <div class="text-[11px] text-blue-100 mt-1">Penggunaan APD, keamanan operasional, dan ketentuan parkir unit</div>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -891,7 +891,7 @@
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
                                             <td class="px-2 py-3"><input type="hidden" name="sop_payload[excavator][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[excavator][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[excavator][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'excavator.compliance.'.$itemIndex])</td>
-                                            <td class="px-3 py-3"><textarea name="sop_payload[excavator][compliance][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.excavator.compliance.'.$itemIndex.'.note', data_get($formPayload, 'excavator.compliance.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+                                            <td class="px-3 py-3"><textarea name="sop_payload[excavator][compliance][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.excavator.compliance.'.$itemIndex.'.note', data_get($formPayload, 'excavator.compliance.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -900,9 +900,9 @@
                     </div>
 
                     <div class="rounded-2xl border border-slate-200 overflow-hidden">
-                        <div class="bg-[#003829] px-4 py-3 text-white">
+                        <div class="bg-[#1e3a8a] px-4 py-3 text-white">
                             <div class="text-xs font-bold uppercase tracking-wide">BAGIAN C: Kedisiplinan dan Komunikasi</div>
-                            <div class="text-[11px] text-emerald-100 mt-1">Evaluasi perilaku kerja, komunikasi, dan kepatuhan SOP lapangan</div>
+                            <div class="text-[11px] text-blue-100 mt-1">Evaluasi perilaku kerja, komunikasi, dan kepatuhan SOP lapangan</div>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -929,7 +929,7 @@
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
                                             <td class="px-2 py-3"><input type="hidden" name="sop_payload[excavator][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[excavator][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[excavator][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'excavator.behavior.'.$itemIndex])</td>
-                                            <td class="px-3 py-3"><textarea name="sop_payload[excavator][behavior][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.excavator.behavior.'.$itemIndex.'.note', data_get($formPayload, 'excavator.behavior.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+                                            <td class="px-3 py-3"><textarea name="sop_payload[excavator][behavior][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.excavator.behavior.'.$itemIndex.'.note', data_get($formPayload, 'excavator.behavior.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -944,17 +944,17 @@
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-start justify-between gap-4">
                     <div>
-                        <div class="flex items-center gap-2 text-[11px] font-semibold text-[#00A859] uppercase tracking-wider"><span>Unit Heavy Dump Truck</span><span>•</span><span>Light Dump Truck</span></div>
+                        <div class="flex items-center gap-2 text-[11px] font-semibold text-[#2563eb] uppercase tracking-wider"><span>Unit Heavy Dump Truck</span><span>•</span><span>Light Dump Truck</span></div>
                         <h2 class="mt-1 text-base font-bold text-slate-800">Checklist SOP Harian</h2>
                         <p class="text-[11px] text-slate-500 mt-1">Isi evaluasi penguji untuk item Loading, Hauling, dan Dumping.</p>
                     </div>
-                    <div class="rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2 text-[11px] font-bold text-emerald-700">HDT / LDT</div>
+                    <div class="rounded-xl bg-blue-50 border border-blue-200 px-3 py-2 text-[11px] font-bold text-blue-700">HDT / LDT</div>
                 </div>
 
 <div class="p-4 space-y-3">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-2 text-xs font-bold text-[#00A859] uppercase tracking-wider">
-                            <span class="w-6 h-6 rounded-full bg-[#00A859] text-white flex items-center justify-center text-[10px]">A</span>
+                        <div class="flex items-center gap-2 text-xs font-bold text-[#2563eb] uppercase tracking-wider">
+                            <span class="w-6 h-6 rounded-full bg-[#2563eb] text-white flex items-center justify-center text-[10px]">A</span>
                             <span>BAGIAN A: TEKNIK PENGOPERASIAN (LOADING, HAULING &amp; DUMPING)</span>
                         </div>
                         <div class="flex gap-4" x-show="unitFamily === 'dumptruck'" x-cloak>
@@ -968,9 +968,9 @@
                     </div>
                     @foreach($dumptruckGroups as $groupIndex => $group)
                         <div class="rounded-2xl border border-slate-200 overflow-hidden">
-                            <div class="bg-[#003829] px-4 py-3 text-white">
+                            <div class="bg-[#1e3a8a] px-4 py-3 text-white">
                                 <div class="text-xs font-bold uppercase tracking-wide">{{ $group['title'] }}</div>
-                                <div class="text-[11px] text-emerald-100 mt-1">{{ $group['subtitle'] }}</div>
+                                <div class="text-[11px] text-blue-100 mt-1">{{ $group['subtitle'] }}</div>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -997,7 +997,7 @@
                                                 <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                                 <td class="px-3 py-3 text-slate-700 leading-relaxed break-words">{{ $item['label'] }}</td>
 <td class="px-2 py-3"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex])</td>
-<td class="px-3 py-3"><textarea name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis Trainee feedback">{{ old('sop_payload.dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+<td class="px-3 py-3"><textarea name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Tulis Trainee feedback">{{ old('sop_payload.dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -1007,9 +1007,9 @@
                     @endforeach
 
                     <div class="rounded-2xl border border-slate-200 overflow-hidden">
-                        <div class="bg-[#003829] px-4 py-3 text-white">
+                        <div class="bg-[#1e3a8a] px-4 py-3 text-white">
                             <div class="text-xs font-bold uppercase tracking-wide">BAGIAN B: Kepatuhan Terhadap Peraturan Kerja</div>
-                            <div class="text-[11px] text-emerald-100 mt-1">Penggunaan APD, keamanan operasional, dan ketentuan parkir unit</div>
+                            <div class="text-[11px] text-blue-100 mt-1">Penggunaan APD, keamanan operasional, dan ketentuan parkir unit</div>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -1036,7 +1036,7 @@
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
 <td class="px-2 py-3"><input type="hidden" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'dumptruck.compliance.'.$itemIndex])</td>
-<td class="px-3 py-3"><textarea name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.dumptruck.compliance.'.$itemIndex.'.note', data_get($formPayload, 'dumptruck.compliance.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+<td class="px-3 py-3"><textarea name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.dumptruck.compliance.'.$itemIndex.'.note', data_get($formPayload, 'dumptruck.compliance.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -1045,9 +1045,9 @@
                     </div>
 
                     <div class="rounded-2xl border border-slate-200 overflow-hidden">
-                        <div class="bg-[#003829] px-4 py-3 text-white">
+                        <div class="bg-[#1e3a8a] px-4 py-3 text-white">
                             <div class="text-xs font-bold uppercase tracking-wide">BAGIAN C: Kedisiplinan dan Komunikasi</div>
-                            <div class="text-[11px] text-emerald-100 mt-1">Evaluasi perilaku kerja, komunikasi, dan kepatuhan SOP lapangan</div>
+                            <div class="text-[11px] text-blue-100 mt-1">Evaluasi perilaku kerja, komunikasi, dan kepatuhan SOP lapangan</div>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -1074,7 +1074,7 @@
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
 <td class="px-2 py-3"><input type="hidden" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'dumptruck.behavior.'.$itemIndex])</td>
-<td class="px-3 py-3"><textarea name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.dumptruck.behavior.'.$itemIndex.'.note', data_get($formPayload, 'dumptruck.behavior.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+<td class="px-3 py-3"><textarea name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.dumptruck.behavior.'.$itemIndex.'.note', data_get($formPayload, 'dumptruck.behavior.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -1089,17 +1089,17 @@
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-start justify-between gap-4">
                     <div>
-                        <div class="flex items-center gap-2 text-[11px] font-semibold text-[#00A859] uppercase tracking-wider"><span>Unit Semi Dump Trailer</span><span>•</span><span>Articulated Dump Truck</span></div>
+                        <div class="flex items-center gap-2 text-[11px] font-semibold text-[#2563eb] uppercase tracking-wider"><span>Unit Semi Dump Trailer</span><span>•</span><span>Articulated Dump Truck</span></div>
                         <h2 class="mt-1 text-base font-bold text-slate-800">Checklist SOP Harian</h2>
                         <p class="text-[11px] text-slate-500 mt-1">Isi evaluasi pengawas untuk item Loading, Hauling, dan Dumping.</p>
                     </div>
-                    <div class="rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2 text-[11px] font-bold text-emerald-700">SDT / ADT</div>
+                    <div class="rounded-xl bg-blue-50 border border-blue-200 px-3 py-2 text-[11px] font-bold text-blue-700">SDT / ADT</div>
                 </div>
 
 <div class="p-4 space-y-3">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-2 text-xs font-bold text-[#00A859] uppercase tracking-wider">
-                            <span class="w-6 h-6 rounded-full bg-[#00A859] text-white flex items-center justify-center text-[10px]">A</span>
+                        <div class="flex items-center gap-2 text-xs font-bold text-[#2563eb] uppercase tracking-wider">
+                            <span class="w-6 h-6 rounded-full bg-[#2563eb] text-white flex items-center justify-center text-[10px]">A</span>
                             <span>BAGIAN A: TEKNIK PENGOPERASIAN (LOADING, HAULING &amp; DUMPING)</span>
                         </div>
                         <div class="flex gap-4" x-show="unitFamily === 'semidump'" x-cloak>
@@ -1113,9 +1113,9 @@
                     </div>
                     @foreach($semidumpGroups as $groupIndex => $group)
                         <div class="rounded-2xl border border-slate-200 overflow-hidden">
-                            <div class="bg-[#003829] px-4 py-3 text-white">
+                            <div class="bg-[#1e3a8a] px-4 py-3 text-white">
                                 <div class="text-xs font-bold uppercase tracking-wide">{{ $group['title'] }}</div>
-                                <div class="text-[11px] text-emerald-100 mt-1">{{ $group['subtitle'] }}</div>
+                                <div class="text-[11px] text-blue-100 mt-1">{{ $group['subtitle'] }}</div>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -1141,7 +1141,7 @@
         <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
         <td class="px-3 py-3 text-slate-700 leading-relaxed break-words">{{ $item['label'] }}</td>
 <td class="px-2 py-3"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'semidump.groups.'.$groupIndex.'.items.'.$itemIndex])</td>
-<td class="px-3 py-3"><textarea name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis Trainee feedback">{{ old('sop_payload.semidump.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'semidump.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+<td class="px-3 py-3"><textarea name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Tulis Trainee feedback">{{ old('sop_payload.semidump.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'semidump.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -1151,9 +1151,9 @@
                     @endforeach
 
                     <div class="rounded-2xl border border-slate-200 overflow-hidden">
-                        <div class="bg-[#003829] px-4 py-3 text-white">
+                        <div class="bg-[#1e3a8a] px-4 py-3 text-white">
                             <div class="text-xs font-bold uppercase tracking-wide">BAGIAN B: Kepatuhan Terhadap Peraturan Kerja</div>
-                            <div class="text-[11px] text-emerald-100 mt-1">Penggunaan APD, keamanan operasional, dan ketentuan parkir unit</div>
+                            <div class="text-[11px] text-blue-100 mt-1">Penggunaan APD, keamanan operasional, dan ketentuan parkir unit</div>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -1179,7 +1179,7 @@
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
 <td class="px-2 py-3"><input type="hidden" name="sop_payload[semidump][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[semidump][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[semidump][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'semidump.compliance.'.$itemIndex])</td>
-<td class="px-3 py-3"><textarea name="sop_payload[semidump][compliance][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.semidump.compliance.'.$itemIndex.'.note', data_get($formPayload, 'semidump.compliance.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+<td class="px-3 py-3"><textarea name="sop_payload[semidump][compliance][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.semidump.compliance.'.$itemIndex.'.note', data_get($formPayload, 'semidump.compliance.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -1188,9 +1188,9 @@
                     </div>
 
                     <div class="rounded-2xl border border-slate-200 overflow-hidden">
-                        <div class="bg-[#003829] px-4 py-3 text-white">
+                        <div class="bg-[#1e3a8a] px-4 py-3 text-white">
                             <div class="text-xs font-bold uppercase tracking-wide">BAGIAN C: Kedisiplinan dan Komunikasi</div>
-                            <div class="text-[11px] text-emerald-100 mt-1">Evaluasi perilaku kerja, komunikasi, dan kepatuhan SOP lapangan</div>
+                            <div class="text-[11px] text-blue-100 mt-1">Evaluasi perilaku kerja, komunikasi, dan kepatuhan SOP lapangan</div>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -1217,7 +1217,7 @@
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
 <td class="px-2 py-3"><input type="hidden" name="sop_payload[semidump][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[semidump][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[semidump][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'semidump.behavior.'.$itemIndex])</td>
-<td class="px-3 py-3"><textarea name="sop_payload[semidump][behavior][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.semidump.behavior.'.$itemIndex.'.note', data_get($formPayload, 'semidump.behavior.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+<td class="px-3 py-3"><textarea name="sop_payload[semidump][behavior][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.semidump.behavior.'.$itemIndex.'.note', data_get($formPayload, 'semidump.behavior.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -1232,23 +1232,23 @@
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-start justify-between gap-4">
                     <div>
-                        <div class="flex items-center gap-2 text-[11px] font-semibold text-[#00A859] uppercase tracking-wider"><span>Unit Wheel Loader</span><span>•</span><span>Scoping, Loading, Digging &amp; Leveling</span></div>
+                        <div class="flex items-center gap-2 text-[11px] font-semibold text-[#2563eb] uppercase tracking-wider"><span>Unit Wheel Loader</span><span>•</span><span>Scoping, Loading, Digging &amp; Leveling</span></div>
                         <h2 class="mt-1 text-base font-bold text-slate-800">Checklist SOP Harian</h2>
                         <p class="text-[11px] text-slate-500 mt-1">Isi evaluasi pengawas untuk item Traveling, Scoping & Loading, Digging, dan Leveling.</p>
                     </div>
-                    <div class="rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2 text-[11px] font-bold text-emerald-700">WL</div>
+                    <div class="rounded-xl bg-blue-50 border border-blue-200 px-3 py-2 text-[11px] font-bold text-blue-700">WL</div>
                 </div>
 
 <div class="p-4 space-y-3">
-                    <div class="flex items-center gap-2 text-xs font-bold text-[#00A859] uppercase tracking-wider mb-3">
-                        <span class="w-6 h-6 rounded-full bg-[#00A859] text-white flex items-center justify-center text-[10px]">A</span>
+                    <div class="flex items-center gap-2 text-xs font-bold text-[#2563eb] uppercase tracking-wider mb-3">
+                        <span class="w-6 h-6 rounded-full bg-[#2563eb] text-white flex items-center justify-center text-[10px]">A</span>
                         <span>BAGIAN A: TEKNIK PENGOPERASIAN (TRAVELING, SCOPING &amp; LOADING, DIGGING, LEVELING)</span>
                     </div>
                     @foreach($wlGroups as $groupIndex => $group)
                         <div class="rounded-2xl border border-slate-200 overflow-hidden">
-                            <div class="bg-[#003829] px-4 py-3 text-white">
+                            <div class="bg-[#1e3a8a] px-4 py-3 text-white">
                                 <div class="text-xs font-bold uppercase tracking-wide">{{ $group['title'] }}</div>
-                                <div class="text-[11px] text-emerald-100 mt-1">{{ $group['subtitle'] }}</div>
+                                <div class="text-[11px] text-blue-100 mt-1">{{ $group['subtitle'] }}</div>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -1274,7 +1274,7 @@
         <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
         <td class="px-3 py-3 text-slate-700 leading-relaxed break-words">{{ $item['label'] }}</td>
 <td class="px-2 py-3"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex])</td>
-<td class="px-3 py-3"><textarea name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Tulis Trainee feedback">{{ old('sop_payload.wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+<td class="px-3 py-3"><textarea name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Tulis Trainee feedback">{{ old('sop_payload.wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -1284,9 +1284,9 @@
                     @endforeach
 
                     <div class="rounded-2xl border border-slate-200 overflow-hidden">
-                        <div class="bg-[#003829] px-4 py-3 text-white">
+                        <div class="bg-[#1e3a8a] px-4 py-3 text-white">
                             <div class="text-xs font-bold uppercase tracking-wide">BAGIAN B: Kepatuhan Terhadap Peraturan Kerja</div>
-                            <div class="text-[11px] text-emerald-100 mt-1">Penggunaan APD, keamanan operasional, dan ketentuan parkir unit</div>
+                            <div class="text-[11px] text-blue-100 mt-1">Penggunaan APD, keamanan operasional, dan ketentuan parkir unit</div>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -1312,7 +1312,7 @@
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
 <td class="px-2 py-3"><input type="hidden" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'wheelloader.compliance.'.$itemIndex])</td>
-<td class="px-3 py-3"><textarea name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.wheelloader.compliance.'.$itemIndex.'.note', data_get($formPayload, 'wheelloader.compliance.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+<td class="px-3 py-3"><textarea name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.wheelloader.compliance.'.$itemIndex.'.note', data_get($formPayload, 'wheelloader.compliance.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -1321,9 +1321,9 @@
                     </div>
 
                     <div class="rounded-2xl border border-slate-200 overflow-hidden">
-                        <div class="bg-[#003829] px-4 py-3 text-white">
+                        <div class="bg-[#1e3a8a] px-4 py-3 text-white">
                             <div class="text-xs font-bold uppercase tracking-wide">BAGIAN C: Kedisiplinan dan Komunikasi</div>
-                            <div class="text-[11px] text-emerald-100 mt-1">Evaluasi perilaku kerja, komunikasi, dan kepatuhan SOP lapangan</div>
+                            <div class="text-[11px] text-blue-100 mt-1">Evaluasi perilaku kerja, komunikasi, dan kepatuhan SOP lapangan</div>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -1350,7 +1350,7 @@
                                             <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
                                             <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
 <td class="px-2 py-3"><input type="hidden" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'wheelloader.behavior.'.$itemIndex])</td>
-<td class="px-3 py-3"><textarea name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Trainer feedback">{{ old('sop_payload.wheelloader.behavior.'.$itemIndex.'.note', data_get($formPayload, 'wheelloader.behavior.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+<td class="px-3 py-3"><textarea name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainer feedback">{{ old('sop_payload.wheelloader.behavior.'.$itemIndex.'.note', data_get($formPayload, 'wheelloader.behavior.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -1371,7 +1371,7 @@
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <span class="w-7 h-7 rounded-lg bg-[#003829] text-white font-bold text-xs flex items-center justify-center">B</span>
+                <span class="w-7 h-7 rounded-lg bg-[#1e3a8a] text-white font-bold text-xs flex items-center justify-center">B</span>
                 <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Penilaian Trainer</h2>
             </div>
             <span class="text-[11px] text-slate-400 font-medium">Klik bintang untuk memberikan rating</span>
@@ -1383,7 +1383,7 @@
                 @foreach($user->assignedInstruktur as $instruktur)
                     <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0 trainer-rating-row" data-type="instruktur" data-user-id="{{ $instruktur->id }}" style="display: none;">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">
                                 {{ substr($instruktur->name, 0, 1) }}
                             </div>
                             <span class="text-xs font-semibold text-slate-700">{{ $instruktur->name }}</span>
@@ -1534,10 +1534,10 @@
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <span class="w-7 h-7 rounded-lg bg-[#003829] text-white font-bold text-xs flex items-center justify-center">C</span>
+                <span class="w-7 h-7 rounded-lg bg-[#1e3a8a] text-white font-bold text-xs flex items-center justify-center">C</span>
                 <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Ringkasan HM</h2>
             </div>
-            <span class="text-xs font-bold text-[#00A859] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">Auto Calculate</span>
+            <span class="text-xs font-bold text-[#2563eb] bg-blue-50 px-3 py-1 rounded-full border border-blue-200">Auto Calculate</span>
         </div>
 
         <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
@@ -1549,11 +1549,11 @@
                 <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">HM End</span>
                 <span class="text-lg font-black text-slate-800" id="section-c-hm-end">-</span>
             </div>
-            <div class="bg-[#003829] text-white p-3 rounded-xl border border-emerald-900 shadow-sm flex flex-col justify-center">
-                <span class="text-[10px] text-emerald-300 font-bold uppercase tracking-wider">Total HM</span>
+            <div class="bg-[#1e3a8a] text-white p-3 rounded-xl border border-blue-900 shadow-sm flex flex-col justify-center">
+                <span class="text-[10px] text-blue-300 font-bold uppercase tracking-wider">Total HM</span>
                 <div id="section-c-total-hm-wrapper" class="flex items-baseline space-x-1 mt-1">
-                    <span class="text-2xl font-black text-[#F5A623]" id="section-c-total-hm">0.0</span>
-                    <span class="text-xs text-emerald-200 font-bold">Hours</span>
+                    <span class="text-2xl font-black text-[#f59e0b]" id="section-c-total-hm">0.0</span>
+                    <span class="text-xs text-blue-200 font-bold">Hours</span>
                 </div>
                 <div id="section-c-hm-error" class="text-xs text-rose-300 font-medium mt-1" style="display: none;"></div>
             </div>
@@ -1562,7 +1562,7 @@
 
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center gap-2">
-            <svg class="w-5 h-5 text-[#003829]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            <svg class="w-5 h-5 text-[#1e3a8a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
             <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Kirim Logbook</h2>
         </div>
         <div class="p-6 space-y-4">
@@ -1579,13 +1579,13 @@
                         </div>
                     </button>
                 @endunless
-                <button type="submit" value="submit" onclick="document.getElementById('action_type').value='submit'" class="group flex items-start gap-4 rounded-xl border border-emerald-200 bg-emerald-50 p-5 text-left hover:border-emerald-300 hover:bg-emerald-100 transition">
-                    <div class="rounded-lg bg-emerald-200 p-2 group-hover:bg-emerald-300 transition">
-                        <svg class="w-5 h-5 text-emerald-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                <button type="submit" value="submit" onclick="document.getElementById('action_type').value='submit'" class="group flex items-start gap-4 rounded-xl border border-blue-200 bg-blue-50 p-5 text-left hover:border-blue-300 hover:bg-blue-100 transition">
+                    <div class="rounded-lg bg-blue-200 p-2 group-hover:bg-blue-300 transition">
+                        <svg class="w-5 h-5 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                     </div>
                     <div>
-                        <span class="text-xs font-bold text-emerald-800">{{ $isTrainerEditing ? 'Simpan Perubahan' : ($isEditing ? 'Kirim Ulang ke Trainer' : 'Submit Logbook') }}</span>
-                        <p class="mt-1 text-[11px] text-emerald-700 leading-relaxed">Kirim logbook untuk dievaluasi trainer. Pastikan semua checklist dan HM sudah terisi dengan benar.</p>
+                        <span class="text-xs font-bold text-blue-800">{{ $isTrainerEditing ? 'Simpan Perubahan' : ($isEditing ? 'Kirim Ulang ke Trainer' : 'Submit Logbook') }}</span>
+                        <p class="mt-1 text-[11px] text-blue-700 leading-relaxed">Kirim logbook untuk dievaluasi trainer. Pastikan semua checklist dan HM sudah terisi dengan benar.</p>
                     </div>
                 </button>
             </div>
@@ -1668,4 +1668,6 @@
     }
 })();
 </script>
+
+
 

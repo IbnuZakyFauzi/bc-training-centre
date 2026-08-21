@@ -22,7 +22,7 @@
     Interaksi:
       - Klik salah satu angka untuk memilih; klik lagi angka yang sama
         untuk membatalkan pilihan (toggle off).
-      - Opsi terpilih selalu berwarna hijau (emerald), Baik 1/2 maupun 3/4.
+      - Opsi terpilih selalu berwarna biru (blue), Baik 1/2 maupun 3/4.
       - Input radio disembunyikan dengan overlay transparan (bukan `sr-only`)
         agar fokus tidak memicu scroll pada kontainer utama `overflow-y-auto`.
 --}}
@@ -47,10 +47,12 @@
             <input type="radio" name="{{ $scaleName }}" value="{{ $scaleValue }}" @required($scaleIsRequired)
                    :value="{{ $scaleValue }}" :checked="value == {{ $scaleValue }}" @click="toggle({{ $scaleValue }})"
                    class="peer absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0">
-            <span class="pointer-events-none flex h-9 w-full flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition group-hover:border-slate-300 group-hover:bg-slate-50 peer-checked:border-transparent peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:shadow-sm peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-300 peer-focus-visible:ring-offset-1">
+            <span class="pointer-events-none flex h-9 sm:h-10 w-full flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition group-hover:border-slate-300 group-hover:bg-slate-50 peer-checked:border-transparent peer-checked:bg-blue-600 peer-checked:text-white peer-checked:shadow-sm peer-focus-visible:ring-2 peer-focus-visible:ring-blue-300 peer-focus-visible:ring-offset-1">
                 <span class="text-[11px] font-black leading-none">{{ $scaleValue }}</span>
                 <span class="mt-0.5 text-[8px] font-bold uppercase leading-none tracking-tight">{{ $scaleLabel }}</span>
             </span>
         </label>
     @endforeach
 </div>
+
+

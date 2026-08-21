@@ -2,7 +2,7 @@
     <x-slot name="title">Tambah Pengguna</x-slot>
 
     <div class="mb-6">
-        <div class="flex items-center space-x-2 text-xs font-semibold text-[#00A859] mb-1">
+        <div class="flex items-center space-x-2 text-xs font-semibold text-[#2563eb] mb-1">
             <a href="{{ route('training-centre.users.index') }}" class="hover:underline">Manajemen Pengguna</a>
             <span>/</span>
             <span class="text-slate-500">Tambah Pengguna</span>
@@ -13,26 +13,26 @@
 
     <form method="POST" action="{{ route('training-centre.users.store') }}" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         @csrf
-        <div class="p-6 space-y-5">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="p-4 sm:p-6 space-y-4 sm:space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-5">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">SID <span class="text-rose-500">*</span></label>
-                    <input type="text" name="sid" value="{{ old('sid') }}" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Contoh: XXXXX">
+                    <input type="text" name="sid" value="{{ old('sid') }}" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Contoh: XXXXX">
                     @error('sid')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nama Lengkap <span class="text-rose-500">*</span></label>
-                    <input type="text" name="name" value="{{ old('name') }}" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Contoh: Ahmad Rian">
+                    <input type="text" name="name" value="{{ old('name') }}" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Contoh: Ahmad Rian">
                     @error('name')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Email <span class="text-rose-500">*</span></label>
-                    <input type="email" name="email" value="{{ old('email') }}" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="contoh@beraucoal.co.id">
+                    <input type="email" name="email" value="{{ old('email') }}" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="contoh@beraucoal.co.id">
                     @error('email')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Role <span class="text-rose-500">*</span></label>
-                    <select name="role" required id="role-select" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+                    <select name="role" required id="role-select" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
                         <option value="">Pilih Role</option>
                         <option value="trainee" {{ old('role') === 'trainee' ? 'selected' : '' }}>Trainee</option>
                         <option value="trainer" {{ old('role') === 'trainer' ? 'selected' : '' }}>Trainer</option>
@@ -44,7 +44,7 @@
                 </div>
                 <div id="trainer-type-field" class="hidden">
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Tipe Trainer <span class="text-rose-500">*</span></label>
-                    <select name="trainer_type" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+                    <select name="trainer_type" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
                         <option value="">Pilih Tipe Trainer</option>
                         <option value="instruktur" {{ old('trainer_type') === 'instruktur' ? 'selected' : '' }}>Trainer - Instruktur</option>
                         <option value="pengawas" {{ old('trainer_type') === 'pengawas' ? 'selected' : '' }}>Trainer - Pengawas</option>
@@ -62,11 +62,11 @@
                                     <span class="text-[10px] text-slate-400 trainer-count" data-target="{{ $type }}-options">0 terpilih</span>
                                 </div>
                                 <div class="p-2 flex-1 flex flex-col">
-                                    <input type="text" placeholder="Cari {{ strtolower($label) }}..." class="trainer-search mb-2 w-full px-2 py-1 bg-white border border-slate-200 rounded text-xs focus:ring-2 focus:ring-[#00A859] focus:border-transparent" data-target="{{ $type }}-options">
+                                    <input type="text" placeholder="Cari {{ strtolower($label) }}..." class="trainer-search mb-2 w-full px-2 py-1 bg-white border border-slate-200 rounded text-xs focus:ring-2 focus:ring-brand-500 focus:border-transparent" data-target="{{ $type }}-options">
                                     <div class="flex-1 overflow-y-auto space-y-0.5" id="{{ $type }}-options">
                                         @foreach($trainers->get($type, []) as $tr)
                                             <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-slate-50 cursor-pointer transition">
-                                                <input type="checkbox" name="assigned_trainers[{{ $type }}][]" value="{{ $tr->id }}" class="h-3.5 w-3.5 rounded border-slate-300 text-[#003829] focus:ring-[#00A859]">
+                                                <input type="checkbox" name="assigned_trainers[{{ $type }}][]" value="{{ $tr->id }}" class="h-3.5 w-3.5 rounded border-slate-300 text-[#1e3a8a] focus:ring-brand-500">
                                                 <div class="min-w-0 flex-1">
                                                     <p class="text-xs text-slate-700 truncate">{{ $tr->name }}</p>
                                                     <p class="text-[10px] text-slate-400">{{ $tr->sid }}</p>
@@ -84,7 +84,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Sertifikasi</label>
-                            <select name="certification" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+                            <select name="certification" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
                                 <option value="">Pilih Sertifikasi</option>
                 <option value="Green" {{ old('certification') === 'Green' ? 'selected' : '' }}>Green</option>
                 <option value="Skill-up" {{ old('certification') === 'Skill-up' ? 'selected' : '' }}>Skill-up</option>
@@ -95,12 +95,12 @@
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Perusahaan</label>
-                            <input type="text" name="company" value="{{ old('company') }}" placeholder="Contoh: PT Mutiara Tanjung Lestari" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+                            <input type="text" name="company" value="{{ old('company') }}" placeholder="Contoh: PT Mutiara Tanjung Lestari" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
                             @error('company')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Tipe Alat</label>
-                            <select name="equipment_category_id" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+                            <select name="equipment_category_id" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
                                 <option value="">Pilih tipe alat</option>
                                 @php
                                     $groupedOptions = [
@@ -122,7 +122,7 @@
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Expired Date Stiker (SKO)</label>
-                            <input type="date" name="sticker_expired_at" value="{{ old('sticker_expired_at') }}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+                            <input type="date" name="sticker_expired_at" value="{{ old('sticker_expired_at') }}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
                             @error('sticker_expired_at')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
                         </div>
                     </div>
@@ -133,9 +133,9 @@
                 <p class="text-[11px] text-amber-700 mt-1">Pengguna wajib mengganti password sendiri di menu My Profile setelah login pertama kali.</p>
             </div>
         </div>
-        <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end space-x-3">
-            <a href="{{ route('training-centre.users.index') }}" class="px-5 py-2.5 bg-white hover:bg-slate-100 text-slate-600 rounded-xl text-xs font-bold transition border border-slate-200">Batal</a>
-            <button type="submit" class="px-6 py-2.5 bg-[#00A859] hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-md transition">Simpan Pengguna</button>
+        <div class="px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3">
+            <a href="{{ route('training-centre.users.index') }}" class="px-4 sm:px-5 py-2.5 sm:py-3 bg-white hover:bg-slate-100 text-slate-600 rounded-xl text-xs font-bold transition border border-slate-200 text-center min-h-[44px] inline-flex items-center justify-center">Batal</a>
+            <button type="submit" class="px-5 sm:px-6 py-2.5 sm:py-3 bg-[#2563eb] hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow-md transition min-h-[44px]">Simpan Pengguna</button>
         </div>
     </form>
 
@@ -201,3 +201,5 @@
         });
     </script>
 </x-app-layout>
+
+

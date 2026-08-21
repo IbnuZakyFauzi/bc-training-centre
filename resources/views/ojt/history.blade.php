@@ -2,23 +2,23 @@
     <x-slot name="title">Submission History - OJT Evaluation</x-slot>
 
     <!-- Page Header -->
-    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-            <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">Submission History</h1>
-            <p class="text-xs text-slate-500 mt-1">Complete chronological audit trail of all OJT logbook submissions and trainer verification logs.</p>
+            <h1 class="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">Submission History</h1>
+            <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Complete chronological audit trail of all OJT logbook submissions and trainer verification logs.</p>
         </div>
     </div>
 
     <!-- Timeline & Audit Logs Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
         
         <!-- Left 2 Columns: Submissions Table with Revision Counter & Details -->
-        <div class="lg:col-span-2 space-y-6">
+        <div class="lg:col-span-2 space-y-4 sm:space-y-6">
             
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-                    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Daftar Pengajuan Logbook</h2>
-                    <span class="text-xs font-semibold text-slate-500">Chronological Order</span>
+                <div class="bg-slate-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 flex items-center justify-between">
+                    <h2 class="text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wide">Daftar Pengajuan Logbook</h2>
+                    <span class="text-[10px] sm:text-xs font-semibold text-slate-500">Chronological Order</span>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -47,10 +47,10 @@
 
                                     <!-- Equipment & Logbook Number -->
                                     <td class="py-4 px-4">
-                                        <a href="{{ route('ojt.logbooks.show', $log->id) }}" class="font-bold text-slate-900 hover:text-[#00A859] block">
+                                        <a href="{{ route('ojt.logbooks.show', $log->id) }}" class="font-bold text-slate-900 hover:text-[#2563eb] block">
                                             {{ $log->logbook_number }}
                                         </a>
-                                        <span class="text-[10px] text-[#003829] font-semibold block mt-0.5">{{ $log->equipment->unit_code ?? '-' }} ({{ $log->equipment->model_name ?? '-' }})</span>
+                                        <span class="text-[10px] text-[#1e3a8a] font-semibold block mt-0.5">{{ $log->equipment->unit_code ?? '-' }} ({{ $log->equipment->model_name ?? '-' }})</span>
                                     </td>
 
                                     <!-- Trainer -->
@@ -82,7 +82,7 @@
                                     <!-- Actions (View Detail) -->
                                     <td class="py-4 px-5 text-right">
                                         <div class="flex items-center justify-end space-x-2">
-                                            <a href="{{ route('ojt.logbooks.show', $log->id) }}" class="p-1.5 text-slate-600 hover:text-[#00A859] hover:bg-emerald-50 rounded-lg transition" title="View Detail">
+                                            <a href="{{ route('ojt.logbooks.show', $log->id) }}" class="p-1.5 text-slate-600 hover:text-[#2563eb] hover:bg-blue-50 rounded-lg transition" title="View Detail">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                             </a>
                                         </div>
@@ -107,18 +107,18 @@
         </div>
 
         <!-- Right Column: Audit Trail Timeline Visual -->
-        <div class="space-y-6">
+        <div class="space-y-4 sm:space-y-6">
             
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-6">Aktivitas Sistem Real-Time</h2>
+            <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h2 class="text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wide mb-4 sm:mb-6">Aktivitas Sistem Real-Time</h2>
 
                 <div class="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
                     @foreach($timelineHistories as $th)
                         <div class="relative">
-                            <div class="absolute -left-6 top-0.5 w-4 h-4 rounded-full bg-[#00A859] border-2 border-white ring-2 ring-emerald-100"></div>
+                            <div class="absolute -left-6 top-0.5 w-4 h-4 rounded-full bg-[#2563eb] border-2 border-white ring-2 ring-blue-100"></div>
                             <div>
                                 <span class="text-xs font-bold text-slate-800 block">{{ $th->action }}</span>
-                                <span class="text-[10px] text-[#003829] font-mono block mt-0.5">{{ $th->logbook->logbook_number ?? '-' }} ({{ $th->logbook->equipment->unit_code ?? '-' }})</span>
+                                <span class="text-[10px] text-[#1e3a8a] font-mono block mt-0.5">{{ $th->logbook->logbook_number ?? '-' }} ({{ $th->logbook->equipment->unit_code ?? '-' }})</span>
                                 <span class="text-[10px] text-slate-400 block mt-0.5">{{ $th->created_at->diffForHumans() }}</span>
                                 @if($th->comment)
                                     <p class="text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-200 mt-2 italic">
@@ -136,3 +136,4 @@
     </div>
 
 </x-app-layout>
+

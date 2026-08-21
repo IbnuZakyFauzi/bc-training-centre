@@ -2,13 +2,13 @@
     <x-slot name="title">Daftar Submission Saya</x-slot>
 
     <!-- Page Header & Action Bar -->
-    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-            <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">Daftar Submission Saya</h1>
-            <p class="text-xs text-slate-500 mt-1">Kelola, tinjau status verifikasi, dan perbarui submission.</p>
+            <h1 class="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">Daftar Submission Saya</h1>
+            <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Kelola, tinjau status verifikasi, dan perbarui submission.</p>
         </div>
         <div>
-            <a href="{{ route('ojt.logbooks.create') }}" class="inline-flex items-center px-4 py-2.5 bg-[#00A859] hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all transform hover:-translate-y-0.5">
+            <a href="{{ route('ojt.logbooks.create') }}" class="inline-flex items-center justify-center px-4 py-3 bg-[#2563eb] hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all min-h-[44px]">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 Create Form OJT
             </a>
@@ -18,9 +18,9 @@
     <!-- Status Tabs Header -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-2 mb-6 overflow-x-auto">
         <div class="flex items-center space-x-1 min-w-max">
-            <a href="{{ route('ojt.logbooks.index') }}" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 {{ !request('status') || request('status') === 'all' ? 'bg-[#003829] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100' }}">
+            <a href="{{ route('ojt.logbooks.index') }}" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 {{ !request('status') || request('status') === 'all' ? 'bg-[#1e3a8a] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100' }}">
                 <span>Semua</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] {{ !request('status') || request('status') === 'all' ? 'bg-emerald-800 text-emerald-100' : 'bg-slate-100 text-slate-600' }}">{{ $statusCounts['all'] }}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] {{ !request('status') || request('status') === 'all' ? 'bg-blue-800 text-blue-100' : 'bg-slate-100 text-slate-600' }}">{{ $statusCounts['all'] }}</span>
             </a>
             <a href="{{ route('ojt.logbooks.index', ['status' => 'draft']) }}" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 {{ request('status') === 'draft' ? 'bg-slate-800 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100' }}">
                 <span>Draft</span>
@@ -34,16 +34,16 @@
                 <span>Returned for Revision</span>
                 <span class="px-2 py-0.5 rounded-full text-[10px] bg-amber-100 text-amber-900">{{ $statusCounts['revision'] }}</span>
             </a>
-            <a href="{{ route('ojt.logbooks.index', ['status' => 'approved']) }}" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 {{ request('status') === 'approved' ? 'bg-[#00A859] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100' }}">
+            <a href="{{ route('ojt.logbooks.index', ['status' => 'approved']) }}" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 {{ request('status') === 'approved' ? 'bg-[#2563eb] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100' }}">
                 <span>Approved</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] {{ request('status') === 'approved' ? 'bg-emerald-700 text-emerald-100' : 'bg-emerald-50 text-emerald-700' }}">{{ $statusCounts['approved'] }}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] {{ request('status') === 'approved' ? 'bg-blue-700 text-blue-100' : 'bg-amber-50 text-amber-700' }}">{{ $statusCounts['approved'] }}</span>
             </a>
         </div>
     </div>
 
     <!-- Filter & Search Section -->
-    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 mb-6">
-        <form action="{{ route('ojt.logbooks.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-white p-3 sm:p-4 rounded-2xl shadow-sm border border-slate-200 mb-4 sm:mb-6">
+        <form action="{{ route('ojt.logbooks.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             @if(request('status'))
                 <input type="hidden" name="status" value="{{ request('status') }}">
             @endif
@@ -51,7 +51,7 @@
             <!-- Equipment Filter -->
             <div>
                 <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Pilih Unit Alat Berat</label>
-                <select name="equipment_id" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+                <select name="equipment_id" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
                     <option value="">Semua Alat Berat</option>
                     @foreach($equipments as $eq)
                         <option value="{{ $eq->id }}" {{ request('equipment_id') == $eq->id ? 'selected' : '' }}>
@@ -64,20 +64,20 @@
             <!-- Date From -->
             <div>
                 <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Dari Tanggal</label>
-                <input type="date" name="date_from" value="{{ request('date_from') }}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+                <input type="date" name="date_from" value="{{ request('date_from') }}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
             </div>
 
             <!-- Date To / Filter Actions -->
             <div class="flex items-end space-x-2">
                 <div class="flex-1">
                     <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Sampai Tanggal</label>
-                    <input type="date" name="date_to" value="{{ request('date_to') }}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+                    <input type="date" name="date_to" value="{{ request('date_to') }}" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:bg-white transition min-h-[44px]">
                 </div>
-                <button type="submit" class="px-4 py-2 bg-[#003829] hover:bg-[#00241A] text-white font-bold text-xs rounded-xl shadow-xs transition">
+                <button type="submit" class="px-4 py-2.5 bg-[#1e3a8a] hover:bg-[#172554] text-white font-bold text-xs rounded-xl shadow-xs transition min-h-[44px]">
                     Filter
                 </button>
                 @if(request()->hasAny(['search', 'equipment_id', 'date_from', 'date_to']))
-                    <a href="{{ route('ojt.logbooks.index') }}" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition">
+                    <a href="{{ route('ojt.logbooks.index') }}" class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition min-h-[44px] inline-flex items-center justify-center">
                         Reset
                     </a>
                 @endif
@@ -108,7 +108,7 @@
                         <tr class="hover:bg-slate-50/80 transition">
                             <!-- Logbook Number -->
                             <td class="py-4 px-5 font-bold text-slate-900">
-                                <a href="{{ route('ojt.logbooks.show', $log->id) }}" class="hover:text-[#00A859] transition flex items-center space-x-2">
+                                <a href="{{ route('ojt.logbooks.show', $log->id) }}" class="hover:text-[#2563eb] transition flex items-center space-x-2">
                                     <span>{{ $log->logbook_number }}</span>
                                 </a>
                                 <span class="text-[10px] text-slate-400 font-normal block mt-0.5">{{ $log->location }}</span>
@@ -208,3 +208,4 @@
     </div>
 
 </x-app-layout>
+

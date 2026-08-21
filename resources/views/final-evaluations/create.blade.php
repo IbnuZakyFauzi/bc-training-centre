@@ -6,17 +6,17 @@
     @endphp
 
     <!-- Page Header & Action Bar -->
-    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-            <div class="flex items-center space-x-2 text-xs font-semibold text-[#00A859] mb-1">
+            <div class="flex items-center space-x-2 text-xs font-semibold text-[#2563eb] mb-1">
                 <a href="{{ route('trainer.final-evaluations.index') }}" class="hover:underline">Evaluasi Akhir A2B</a>
                 <span>/</span>
                 <span class="text-slate-500">{{ $isEditing ? 'Edit Evaluasi' : 'Create Evaluasi Baru' }}</span>
             </div>
-            <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">Formulir Evaluasi On the Job Training A2B</h1>
-            <p class="text-xs text-slate-500 mt-1">F-HCT-02.02, Revisi 2 · Isi formulir evaluasi pasca pelatihan.</p>
+            <h1 class="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">Formulir Evaluasi On the Job Training A2B</h1>
+            <p class="text-[10px] sm:text-xs text-slate-500 mt-1">F-HCT-02.02, Revisi 2 · Isi formulir evaluasi pasca pelatihan.</p>
         </div>
-        <a href="{{ route('trainer.final-evaluations.index') }}" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition">Kembali</a>
+        <a href="{{ route('trainer.final-evaluations.index') }}" class="px-3.5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition text-center min-h-[44px] inline-flex items-center justify-center">Kembali</a>
     </div>
 
     <form method="POST" action="{{ $isEditing ? route('trainer.final-evaluations.update', $evaluation->id) : route('trainer.final-evaluations.store') }}" class="space-y-3 pb-10">
@@ -108,38 +108,38 @@
         <!-- Section B: Penilaian Pasca Pelatihan -->
         <div class="rounded-2xl border-2 border-slate-900 bg-white overflow-hidden shadow-sm">
             <div class="grid grid-cols-1 lg:grid-cols-2 border-t border-slate-900">
-                <div class="border-b border-slate-900 lg:border-b-0 lg:border-r p-3 text-[11px]">
-                    <div class="font-semibold mb-2">Penilaian Pasca Pelatihan (Beri tanda “√” untuk yang sesuai)</div>
+                <div class="border-b border-slate-900 lg:border-b-0 lg:border-r p-3 sm:p-4 text-[10px] sm:text-[11px]">
+                    <div class="font-semibold mb-2">Penilaian Pasca Pelatihan (Beri tanda "√" untuk yang sesuai)</div>
                     <div class="flex flex-col gap-2">
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="tahap_penilaian" value="pendampingan" {{ old('tahap_penilaian', $isEditing ? $evaluation->tahap_penilaian : '') === 'pendampingan' ? 'checked' : '' }} class="h-3.5 w-3.5 border-slate-400 text-[#003829] focus:ring-[#00A859]">
-                            <span>Tahap Pendampingan</span>
+                            <input type="radio" name="tahap_penilaian" value="pendampingan" {{ old('tahap_penilaian', $isEditing ? $evaluation->tahap_penilaian : '') === 'pendampingan' ? 'checked' : '' }} class="h-4 w-4 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
+                            <span class="text-xs sm:text-sm">Tahap Pendampingan</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="tahap_penilaian" value="tanpa_pendampingan" {{ old('tahap_penilaian', $isEditing ? $evaluation->tahap_penilaian : '') === 'tanpa_pendampingan' ? 'checked' : '' }} class="h-3.5 w-3.5 border-slate-400 text-[#003829] focus:ring-[#00A859]">
-                            <span>Tahap Tanpa Pendampingan</span>
+                            <input type="radio" name="tahap_penilaian" value="tanpa_pendampingan" {{ old('tahap_penilaian', $isEditing ? $evaluation->tahap_penilaian : '') === 'tanpa_pendampingan' ? 'checked' : '' }} class="h-4 w-4 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
+                            <span class="text-xs sm:text-sm">Tahap Tanpa Pendampingan</span>
                         </label>
                     </div>
                 </div>
-                <div class="p-3 text-[11px]">
+                <div class="p-3 sm:p-4 text-[10px] sm:text-[11px]">
                     <div class="font-semibold mb-2">Tahap Tanpa Pendampingan Lanjutan</div>
                     <div class="flex flex-col gap-2">
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="sub_tahap" value="bulanan" {{ old('sub_tahap', $isEditing ? $evaluation->sub_tahap : '') === 'bulanan' ? 'checked' : '' }} class="h-3.5 w-3.5 border-slate-400 text-[#003829] focus:ring-[#00A859]">
+                            <input type="radio" name="sub_tahap" value="bulanan" {{ old('sub_tahap', $isEditing ? $evaluation->sub_tahap : '') === 'bulanan' ? 'checked' : '' }} class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
                             <span>Bulanan</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="sub_tahap" value="3_bulan_pertama" {{ old('sub_tahap', $isEditing ? $evaluation->sub_tahap : '') === '3_bulan_pertama' ? 'checked' : '' }} class="h-3.5 w-3.5 border-slate-400 text-[#003829] focus:ring-[#00A859]">
+                            <input type="radio" name="sub_tahap" value="3_bulan_pertama" {{ old('sub_tahap', $isEditing ? $evaluation->sub_tahap : '') === '3_bulan_pertama' ? 'checked' : '' }} class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
                             <span>3 Bulan Pertama</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="sub_tahap" value="3_bulan_kedua" {{ old('sub_tahap', $isEditing ? $evaluation->sub_tahap : '') === '3_bulan_kedua' ? 'checked' : '' }} class="h-3.5 w-3.5 border-slate-400 text-[#003829] focus:ring-[#00A859]">
+                            <input type="radio" name="sub_tahap" value="3_bulan_kedua" {{ old('sub_tahap', $isEditing ? $evaluation->sub_tahap : '') === '3_bulan_kedua' ? 'checked' : '' }} class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
                             <span>3 Bulan Kedua</span>
                         </label>
                     </div>
                     <div class="mt-3">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan</label>
-                        <select name="sub_tahap_keterangan" class="w-full border border-slate-200 rounded-lg bg-white px-2 py-1.5 text-[11px] font-medium focus:ring-2 focus:ring-[#00A859] focus:bg-white transition">
+                        <select name="sub_tahap_keterangan" class="w-full border border-slate-200 rounded-lg bg-white px-2 py-1.5 text-[11px] font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
                             <option value="">Pilih bulan</option>
                             <option value="-" {{ old('sub_tahap_keterangan', $isEditing ? ($evaluation->sub_tahap ?? '') : '') === '-' ? 'selected' : '' }}>-</option>
                             <option value="bulan_1" {{ old('sub_tahap_keterangan', $isEditing ? ($evaluation->sub_tahap ?? '') : '') === 'bulan_1' ? 'selected' : '' }}>Bulan ke-1</option>
@@ -157,7 +157,7 @@
         <!-- Section C: Tabel Evaluasi -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center gap-2">
-                <svg class="w-5 h-5 text-[#003829]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                <svg class="w-5 h-5 text-[#1e3a8a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
                 <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Rangkuman penilaian pasca pelatihan untuk operator ybs:</h2>
             </div>
             <div class="p-6">
@@ -184,7 +184,7 @@
                                     <div class="font-bold">P2H</div>
                                     <div class="text-[11px] text-slate-500 mt-1">Peserta Melakukan P2H setiap hari secara teratur dan lengkap sesuai dengan standar.</div>
                                 </td>
-                                <td class="px-3 py-3 text-center"><input type="radio" class="accent-emerald-600" name="p2h_status" value="K" {{ old('p2h_status', $isEditing ? $evaluation->p2h_status : '') === 'K' ? 'checked' : '' }}></td>
+                                <td class="px-3 py-3 text-center"><input type="radio" class="accent-blue-600" name="p2h_status" value="K" {{ old('p2h_status', $isEditing ? $evaluation->p2h_status : '') === 'K' ? 'checked' : '' }}></td>
                                 <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600" name="p2h_status" value="BK" {{ old('p2h_status', $isEditing ? $evaluation->p2h_status : '') === 'BK' ? 'checked' : '' }}></td>
                             </tr>
                             <tr class="align-top">
@@ -193,7 +193,7 @@
                                     <div class="font-bold">Teknik Pengoperasian Unit</div>
                                     <div class="text-[11px] text-slate-500 mt-1">Peserta mengoperasikan unit dengan benar dan tidak menimbulkan kerusakan baik minor maupun major serta mencapai target kerja yang diharapkan.</div>
                                 </td>
-                                <td class="px-3 py-3 text-center"><input type="radio" class="accent-emerald-600" name="teknik_pengoperasian_status" value="K" {{ old('teknik_pengoperasian_status', $isEditing ? $evaluation->teknik_pengoperasian_status : '') === 'K' ? 'checked' : '' }}></td>
+                                <td class="px-3 py-3 text-center"><input type="radio" class="accent-blue-600" name="teknik_pengoperasian_status" value="K" {{ old('teknik_pengoperasian_status', $isEditing ? $evaluation->teknik_pengoperasian_status : '') === 'K' ? 'checked' : '' }}></td>
                                 <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600" name="teknik_pengoperasian_status" value="BK" {{ old('teknik_pengoperasian_status', $isEditing ? $evaluation->teknik_pengoperasian_status : '') === 'BK' ? 'checked' : '' }}></td>
                             </tr>
                             <tr class="align-top">
@@ -202,7 +202,7 @@
                                     <div class="font-bold">Kepatuhan Terhadap Peraturan Kerja</div>
                                     <div class="text-[11px] text-slate-500 mt-1">Peserta mematuhi peraturan kerja yang berlaku selama mengoperasikan unit termasuk mematuhi rambu-rambu.</div>
                                 </td>
-                                <td class="px-3 py-3 text-center"><input type="radio" class="accent-emerald-600" name="kepatuhan_status" value="K" {{ old('kepatuhan_status', $isEditing ? $evaluation->kepatuhan_status : '') === 'K' ? 'checked' : '' }}></td>
+                                <td class="px-3 py-3 text-center"><input type="radio" class="accent-blue-600" name="kepatuhan_status" value="K" {{ old('kepatuhan_status', $isEditing ? $evaluation->kepatuhan_status : '') === 'K' ? 'checked' : '' }}></td>
                                 <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600" name="kepatuhan_status" value="BK" {{ old('kepatuhan_status', $isEditing ? $evaluation->kepatuhan_status : '') === 'BK' ? 'checked' : '' }}></td>
                             </tr>
                             <tr class="align-top">
@@ -211,7 +211,7 @@
                                     <div class="font-bold">Kedisiplinan dan Komunikasi</div>
                                     <div class="text-[11px] text-slate-500 mt-1">Peserta bersikap disiplin terhadap aturan-aturan, tidak melakukan pelanggaran, kehadiran tepat waktu, dan dapat bekerjasama dengan pengawas dan rekan kerja sesama operator.</div>
                                 </td>
-                                <td class="px-3 py-3 text-center"><input type="radio" class="accent-emerald-600" name="kedisiplinan_status" value="K" {{ old('kedisiplinan_status', $isEditing ? $evaluation->kedisiplinan_status : '') === 'K' ? 'checked' : '' }}></td>
+                                <td class="px-3 py-3 text-center"><input type="radio" class="accent-blue-600" name="kedisiplinan_status" value="K" {{ old('kedisiplinan_status', $isEditing ? $evaluation->kedisiplinan_status : '') === 'K' ? 'checked' : '' }}></td>
                                 <td class="px-3 py-3 text-center"><input type="radio" class="accent-rose-600" name="kedisiplinan_status" value="BK" {{ old('kedisiplinan_status', $isEditing ? $evaluation->kedisiplinan_status : '') === 'BK' ? 'checked' : '' }}></td>
                             </tr>
                         </tbody>
@@ -236,18 +236,18 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Rekomendasi:</label>
-                    <textarea name="catatan" rows="3" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs leading-relaxed focus:ring-2 focus:ring-[#00A859] focus:bg-white transition" placeholder="Isi rekomendasi untuk operator di kolom berikut">{{ old('catatan', $isEditing ? $evaluation->catatan : '') }}</textarea>
+                    <textarea name="catatan" rows="3" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Isi rekomendasi untuk operator di kolom berikut">{{ old('catatan', $isEditing ? $evaluation->catatan : '') }}</textarea>
                     <p class="text-[10px] text-slate-500 mt-1">Catatan: Lampirkan bukti dari pelaksanaan P2H, Teknik Pengoprasian, Kepatuhan Terhadap Peraturan Kerja, Kedisiplinan dan Komunikasi</p>
                 </div>
             </div>
         </div>
 
         <!-- Actions -->
-        <div class="flex justify-end space-x-3">
-            <a href="{{ route('trainer.final-evaluations.index') }}" class="px-6 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-600 hover:bg-slate-50 transition">
+        <div class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
+            <a href="{{ route('trainer.final-evaluations.index') }}" class="px-4 sm:px-6 py-3 rounded-xl border border-slate-300 text-xs font-bold text-slate-600 hover:bg-slate-50 transition text-center min-h-[44px] inline-flex items-center justify-center">
                 Batal
             </a>
-            <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#00A859] hover:bg-emerald-600 text-white text-xs font-bold transition">
+            <button type="submit" class="px-4 sm:px-6 py-3 rounded-xl bg-[#2563eb] hover:bg-blue-600 text-white text-xs font-bold transition min-h-[44px]">
                 Simpan Evaluasi
             </button>
         </div>
@@ -332,3 +332,5 @@
         updateKesimpulan();
     </script>
 </x-app-layout>
+
+

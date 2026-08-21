@@ -24,7 +24,7 @@
         .no-print { margin-bottom: 8px; text-align: right; }
 
         .btn-print {
-            background-color: #00A859; color: white; border: none;
+            background-color: #2563eb; color: white; border: none;
             padding: 6px 14px; font-weight: bold; font-size: 11px;
             border-radius: 5px; cursor: pointer;
         }
@@ -128,3 +128,5 @@
 
 </body>
 </html>
+
+

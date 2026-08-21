@@ -10,9 +10,9 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#003829',
-                        secondary: '#00593E',
-                        accent: '#00A859',
+                        primary: '#1e3a8a',
+                        secondary: '#1d4ed8',
+                        accent: '#2563eb',
                     }
                 }
             }
@@ -20,19 +20,19 @@
     </script>
 </head>
 <body class="bg-gray-50">
-    <div class="max-w-5xl mx-auto p-6">
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-            <div class="flex items-start justify-between mb-6">
+    <div class="max-w-5xl mx-auto p-4 sm:p-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 sm:mb-6 gap-3 sm:gap-4">
                 <div>
-                    <img src="{{ asset('images/berau_coal_logo.svg') }}" alt="Berau Coal Logo" class="h-16 w-auto">
+                    <img src="{{ asset('images/berau_coal_logo.svg') }}" alt="Berau Coal Logo" class="h-12 w-auto sm:h-16">
                 </div>
-                <div class="text-right">
-                    <h1 class="text-xl font-bold text-primary">Formulir Evaluasi On the Job Training A2B</h1>
-                    <p class="text-sm text-slate-600">F-HCT-02.02, Revisi 2</p>
+                <div class="text-left sm:text-right">
+                    <h1 class="text-lg sm:text-xl font-bold text-primary">Formulir Evaluasi On the Job Training A2B</h1>
+                    <p class="text-xs sm:text-sm text-slate-600">F-HCT-02.02, Revisi 2</p>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
                 <div><span class="text-xs font-bold text-slate-500">Nama Operator</span><div class="text-sm font-semibold">{{ $evaluation->nama_operator }}</div></div>
                 <div><span class="text-xs font-bold text-slate-500">Perusahaan</span><div class="text-sm font-semibold">{{ $evaluation->perusahaan }}</div></div>
                 <div><span class="text-xs font-bold text-slate-500">Lokasi Kerja</span><div class="text-sm font-semibold">{{ $evaluation->lokasi_kerja }}</div></div>
@@ -53,14 +53,14 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl border border-slate-200 overflow-hidden mb-6">
-                <table class="w-full text-sm">
+            <div class="bg-white rounded-xl border border-slate-200 overflow-hidden mb-4 sm:mb-6">
+                <table class="w-full text-xs sm:text-sm">
                     <thead class="bg-primary text-white">
                         <tr>
-                            <th class="px-4 py-3 text-left w-16">No</th>
-                            <th class="px-4 py-3 text-left">Aspek Penilaian</th>
-                            <th class="px-4 py-3 text-center w-24">K</th>
-                            <th class="px-4 py-3 text-center w-24">BK</th>
+                            <th class="px-3 sm:px-4 py-2 sm:py-3 text-left w-12 sm:w-16">No</th>
+                            <th class="px-3 sm:px-4 py-2 sm:py-3 text-left">Aspek Penilaian</th>
+                            <th class="px-3 sm:px-4 py-2 sm:py-3 text-center w-16 sm:w-24">K</th>
+                            <th class="px-3 sm:px-4 py-2 sm:py-3 text-center w-16 sm:w-24">BK</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -122,11 +122,11 @@
                 @endif
             </div>
 
-            <div class="flex justify-between">
-                <a href="{{ route('trainer.reviews.index') }}" class="px-6 py-2 rounded-lg border border-slate-300 text-sm font-bold text-slate-600 hover:bg-slate-50">
+            <div class="flex flex-col sm:flex-row sm:justify-between gap-3 sm:gap-4">
+                <a href="{{ route('trainer.reviews.index') }}" class="px-4 sm:px-6 py-3 rounded-lg border border-slate-300 text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-50 text-center min-h-[44px] inline-flex items-center justify-center">
                     Kembali
                 </a>
-                <a href="{{ route('trainer.final-evaluations.print', $evaluation->id) }}" target="_blank" class="px-6 py-2 rounded-lg bg-primary text-white text-sm font-bold hover:bg-secondary">
+                <a href="{{ route('trainer.final-evaluations.print', $evaluation->id) }}" target="_blank" class="px-4 sm:px-6 py-3 rounded-lg bg-primary text-white text-xs sm:text-sm font-bold hover:bg-secondary text-center min-h-[44px] inline-flex items-center justify-center">
                     Cetak / Download PDF
                 </a>
             </div>
@@ -134,3 +134,5 @@
     </div>
 </body>
 </html>
+
+

@@ -6,35 +6,35 @@
     @endphp
 
     <!-- Page Header & Action Bar -->
-    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-            <div class="flex items-center space-x-2 text-xs font-semibold text-[#00A859] mb-1">
+            <div class="flex items-center space-x-2 text-xs font-semibold text-[#2563eb] mb-1">
                 <a href="{{ $trainingCentreApproval ? route('training-centre.approvals.index') : ($trainerReview ? route('trainer.reviews.index') : route('ojt.logbooks.index')) }}" class="hover:underline">{{ $trainingCentreApproval ? 'Final Approval Training Centre' : ($trainerReview ? 'Trainer Review Queue' : 'My Logbook') }}</a>
                 <span>/</span>
                 <span class="text-slate-500">{{ $logbook->logbook_number }}</span>
             </div>
             <div class="flex items-center space-x-3">
-                <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">{{ $logbook->logbook_number }}</h1>
+                <h1 class="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">{{ $logbook->logbook_number }}</h1>
                 <x-badge :status="$logbook->status" />
             </div>
         </div>
 
-        <div class="flex items-center space-x-3">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
             @if($trainerReview && $logbook->status === 'submitted')
-                <a href="{{ route('trainer.reviews.edit', $logbook->id) }}" class="inline-flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold text-xs rounded-xl shadow-xs transition">Edit Logbook</a>
+                <a href="{{ route('trainer.reviews.edit', $logbook->id) }}" class="inline-flex items-center justify-center px-4 py-3 bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold text-xs rounded-xl shadow-xs transition min-h-[44px]">Edit Logbook</a>
             @endif
             @if($trainerReview && $logbook->status === 'verified')
-                <a href="{{ route('trainer.reviews.index') }}" class="inline-flex items-center px-4 py-2 bg-[#00A859] hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-xs transition">Approval Pengawas</a>
+                <a href="{{ route('trainer.reviews.index') }}" class="inline-flex items-center justify-center px-4 py-3 bg-[#2563eb] hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow-xs transition min-h-[44px]">Approval Pengawas</a>
             @endif
             @if(!$trainerReview && !$trainingCentreApproval && in_array($logbook->status, ['draft']) || (!$trainerReview && !$trainingCentreApproval && $logbook->status === 'revision' && empty($logbook->training_centre_decided_at)))
-                <a href="{{ route('ojt.logbooks.edit', $logbook->id) }}" class="inline-flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold text-xs rounded-xl shadow-xs transition">
-                    <svg class="w-4 h-4 mr-2 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                <a href="{{ route('ojt.logbooks.edit', $logbook->id) }}" class="inline-flex items-center justify-center px-4 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow-xs transition min-h-[44px]">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                     Edit Logbook
                 </a>
             @endif
 
             @if(auth()->user()?->isTrainingCentre() && $logbook->status === 'final_approved')
-                <a href="{{ route('ojt.logbooks.print', $logbook->id) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-[#003829] hover:bg-[#00241A] text-white font-bold text-xs rounded-xl shadow-xs transition">
+                <a href="{{ route('ojt.logbooks.print', $logbook->id) }}" target="_blank" class="inline-flex items-center justify-center px-4 py-3 bg-[#1e3a8a] hover:bg-[#172554] text-white font-bold text-xs rounded-xl shadow-xs transition min-h-[44px]">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                     Cetak / Download PDF Logbook
                 </a>
@@ -47,22 +47,22 @@
         @php
             $revisionFromTc = !empty($logbook->training_centre_decided_at);
         @endphp
-        <div class="mb-8 bg-amber-50 border-l-4 border-amber-500 p-6 rounded-2xl shadow-sm">
+        <div class="mb-4 sm:mb-8 bg-amber-50 border-l-4 border-amber-500 p-4 sm:p-6 rounded-2xl shadow-sm">
             <div class="flex items-start space-x-3">
                 <div class="p-2 bg-amber-100 rounded-xl text-amber-800 flex-shrink-0">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                 </div>
                 <div>
-                    <h3 class="text-sm font-bold text-amber-900">
+                    <h3 class="text-xs sm:text-sm font-bold text-amber-900">
                         @if($revisionFromTc)
                             Catatan Revisi dari Admin Training Centre
                         @else
                             Catatan Revisi dari Trainer Evaluator
                         @endif
                     </h3>
-                    <p class="text-xs text-amber-800 mt-1 leading-relaxed">{{ $logbook->revision_notes }}</p>
+                    <p class="text-[10px] sm:text-xs text-amber-800 mt-1 leading-relaxed">{{ $logbook->revision_notes }}</p>
                     @if(!$trainerReview && !$revisionFromTc)<div class="mt-3">
-                        <a href="{{ route('ojt.logbooks.edit', $logbook->id) }}" class="inline-flex items-center text-xs font-extrabold text-amber-900 bg-amber-200 hover:bg-amber-300 px-3 py-1.5 rounded-lg transition">
+                        <a href="{{ route('ojt.logbooks.edit', $logbook->id) }}" class="inline-flex items-center text-xs font-extrabold text-amber-900 bg-amber-200 hover:bg-amber-300 px-3 py-2.5 rounded-lg transition min-h-[44px]">
                             Perbaiki Logbook Sekarang
                             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                         </a>
@@ -79,17 +79,17 @@
         @include('trainer.reviews.partials.submitted-checklist')
     @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 {{ $trainerReview ? 'mt-8' : '' }}">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8 {{ $trainerReview ? 'mt-4 sm:mt-8' : '' }}">
 
         <!-- Left 2 Columns: Logbook Details -->
-        <div class="lg:col-span-2 space-y-8">
+        <div class="lg:col-span-2 space-y-4 sm:space-y-8">
             
             <!-- Section A & General Info Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
-                    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Informasi General OJT Operations</h2>
+                <div class="bg-slate-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200">
+                    <h2 class="text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wide">Informasi General OJT Operations</h2>
                 </div>
-                <div class="p-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-xs">
+                <div class="p-4 sm:p-6 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 text-xs">
                     <div>
                         <span class="text-slate-400 font-medium block">Tanggal</span>
                         <span class="font-bold text-slate-800 mt-1 block">{{ \Carbon\Carbon::parse($logbook->date)->format('d F Y') }}</span>
@@ -107,12 +107,12 @@
 
                     <div>
                         <span class="text-slate-400 font-medium block">Lokasi Pit / Area</span>
-                        <span class="font-bold text-[#003829] mt-1 block">{{ $logbook->location }}</span>
+                        <span class="font-bold text-[#1e3a8a] mt-1 block">{{ $logbook->location }}</span>
                     </div>
 
                     <div class="col-span-2">
                         <span class="text-slate-400 font-medium block">Unit Alat Berat</span>
-                        <span class="font-extrabold text-[#003829] text-sm mt-1 block">
+                        <span class="font-extrabold text-[#1e3a8a] text-xs sm:text-sm mt-1 block">
                             {{ $logbook->equipment_number ?? $logbook->equipment?->unit_code ?? '-' }}{{ $logbook->equipment?->model_name ? ' - '.$logbook->equipment->model_name : '' }}
                         </span>
                     </div>
@@ -140,7 +140,7 @@
                                 <span class="text-slate-400 font-medium block">Pengawas</span>
                                 <div class="mt-2 space-y-1">
                                     @foreach($assignedPengawas as $p)
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold">{{ $p->name }}</span>
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50 text-blue-800 border border-blue-200 font-semibold">{{ $p->name }}</span>
                                     @endforeach
                                 </div>
                             </div>
@@ -161,10 +161,10 @@
 
             <!-- Hour Meter Summary Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
-                    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Hour Meter & Jam Pengoperasian</h2>
+                <div class="bg-slate-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200">
+                    <h2 class="text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wide">Hour Meter & Jam Pengoperasian</h2>
                 </div>
-                <div class="p-6 grid grid-cols-2 sm:grid-cols-3 gap-6 text-center">
+                <div class="p-4 sm:p-6 grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-6 text-center">
                     <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">HM Awal</span>
                         <span class="text-xl font-extrabold text-slate-800 mt-1 block">{{ number_format($logbook->hm_start, 1) }}</span>
@@ -175,9 +175,9 @@
                         <span class="text-xl font-extrabold text-slate-800 mt-1 block">{{ number_format($logbook->hm_end, 1) }}</span>
                     </div>
 
-                    <div class="p-4 bg-[#003829] text-white rounded-xl border border-emerald-900 shadow-sm">
-                        <span class="text-[10px] font-bold text-emerald-300 uppercase tracking-wider block">Total HM</span>
-                        <span class="text-2xl font-black text-[#F5A623] mt-1 block">{{ number_format($logbook->total_hm, 1) }} <span class="text-xs text-white">Jam</span></span>
+                    <div class="p-4 bg-[#1e3a8a] text-white rounded-xl border border-blue-900 shadow-sm">
+                        <span class="text-[10px] font-bold text-blue-300 uppercase tracking-wider block">Total HM</span>
+                        <span class="text-2xl font-black text-[#f59e0b] mt-1 block">{{ number_format($logbook->total_hm, 1) }} <span class="text-xs text-white">Jam</span></span>
                     </div>
                 </div>
             </div>
@@ -194,7 +194,7 @@
                     @foreach($logbook->histories as $h)
                         <div class="relative">
                             <!-- Bullet -->
-                            <div class="absolute -left-7 top-0.5 w-5 h-5 rounded-full bg-[#00A859] border-2 border-white ring-2 ring-emerald-100 flex items-center justify-center"></div>
+                            <div class="absolute -left-7 top-0.5 w-5 h-5 rounded-full bg-[#2563eb] border-2 border-white ring-2 ring-blue-100 flex items-center justify-center"></div>
                             
                             <div>
                                 <span class="text-sm font-bold text-slate-800 block">{{ $h->action }}</span>
@@ -217,16 +217,16 @@
                 <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">Status Lembar Pengesahan</h2>
 
                 <!-- Trainee -->
-                <div class="flex-1 p-5 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-between">
+                <div class="flex-1 p-5 bg-amber-50 rounded-xl border border-amber-200 flex items-center justify-between">
                     <div>
-                        <span class="text-xs text-emerald-700 font-bold uppercase block">Trainee Operator</span>
+                        <span class="text-xs text-amber-700 font-bold uppercase block">Trainee Operator</span>
                         <span class="text-sm font-bold text-slate-800 mt-1 block">{{ $logbook->trainee->name ?? 'Ahmad Rian Syahputra' }}</span>
                     </div>
-                    <span class="px-3 py-1 bg-[#00A859] text-white text-xs font-bold rounded">Tersimpan</span>
+                    <span class="px-3 py-1 bg-amber-600 text-white text-xs font-bold rounded">Tersimpan</span>
                 </div>
 
                 <!-- Trainer -->
-                <div class="flex-1 p-5 {{ in_array($logbook->status, ['verified', 'approved', 'supervisor_approved', 'final_approved']) ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200' }} rounded-xl border flex items-center justify-between">
+                <div class="flex-1 p-5 {{ in_array($logbook->status, ['verified', 'approved', 'supervisor_approved', 'final_approved']) ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-200' }} rounded-xl border flex items-center justify-between">
                     <div>
                         @php
                             $trainerApproverTitle = 'Instruktur/ Pengawas/ Operator Pendamping';
@@ -247,36 +247,36 @@
                         <span class="text-xs text-slate-500 font-bold uppercase block">{{ $trainerApproverTitle }}</span>
                         <span class="text-sm font-bold text-slate-800 mt-1 block">{{ $trainerApproverName }}</span>
                         @if($logbook->evaluation?->trainer_signature_path)
-                            <img src="{{ asset('storage/'.$logbook->evaluation->trainer_signature_path) }}" alt="Trainer signature" class="mt-2 max-h-12 w-auto object-contain bg-white rounded-lg border border-emerald-200 p-1">
+                            <img src="{{ asset('storage/'.$logbook->evaluation->trainer_signature_path) }}" alt="Trainer signature" class="mt-2 max-h-12 w-auto object-contain bg-white rounded-lg border border-amber-200 p-1">
                         @endif
                     </div>
                     @if(in_array($logbook->status, ['verified', 'approved', 'supervisor_approved', 'final_approved']))
-                        <span class="px-3 py-1 bg-[#00A859] text-white text-xs font-bold rounded">Verified</span>
+                        <span class="px-3 py-1 bg-amber-600 text-white text-xs font-bold rounded">Verified</span>
                     @else
                         <span class="px-3 py-1 bg-slate-200 text-slate-600 text-xs font-bold rounded">Pending</span>
                     @endif
                 </div>
 
                 @if($logbook->pjo_decided_at || $trainingCentreApproval)
-                    <div class="flex-1 p-5 {{ in_array($logbook->status, ['verified', 'approved', 'supervisor_approved', 'final_approved']) ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200' }} rounded-xl border flex items-center justify-between">
+                    <div class="flex-1 p-5 {{ in_array($logbook->status, ['verified', 'approved', 'supervisor_approved', 'final_approved']) ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-200' }} rounded-xl border flex items-center justify-between">
                     <div>
                         <span class="text-xs text-slate-500 font-bold uppercase block">Pengawas Trainer</span>
                         <span class="text-sm font-bold text-slate-800 mt-1 block">{{ $logbook->pengawasTrainer->name ?? 'Menunggu Approval Pengawas' }}</span>
                         @if($logbook->pjo_signature_path)
-                            <img src="{{ asset('storage/'.$logbook->pjo_signature_path) }}" alt="Pengawas signature" class="mt-2 max-h-12 w-auto object-contain bg-white rounded-lg border border-emerald-200 p-1">
+                            <img src="{{ asset('storage/'.$logbook->pjo_signature_path) }}" alt="Pengawas signature" class="mt-2 max-h-12 w-auto object-contain bg-white rounded-lg border border-amber-200 p-1">
                         @endif
                     </div>
-                        <span class="px-3 py-1 {{ in_array($logbook->status, ['verified', 'approved', 'supervisor_approved', 'final_approved']) ? 'bg-[#00A859] text-white' : 'bg-slate-200 text-slate-600' }} text-xs font-bold rounded">{{ in_array($logbook->status, ['verified', 'approved', 'supervisor_approved', 'final_approved']) ? 'Approved' : 'Pending' }}</span>
+                        <span class="px-3 py-1 {{ in_array($logbook->status, ['verified', 'approved', 'supervisor_approved', 'final_approved']) ? 'bg-amber-600 text-white' : 'bg-slate-200 text-slate-600' }} text-xs font-bold rounded">{{ in_array($logbook->status, ['verified', 'approved', 'supervisor_approved', 'final_approved']) ? 'Approved' : 'Pending' }}</span>
                     </div>
                 @endif
 
                 @if($trainingCentreApproval)
-                    <div class="flex-1 p-5 {{ $logbook->training_centre_decided_at ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200' }} rounded-xl border flex items-center justify-between">
+                    <div class="flex-1 p-5 {{ $logbook->training_centre_decided_at ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-200' }} rounded-xl border flex items-center justify-between">
                         <div><span class="text-xs text-slate-500 font-bold uppercase block">Kabag Training Centre</span><span class="text-sm font-bold text-slate-800 mt-1 block">{{ $logbook->trainingCentre->name ?? 'Menunggu Final Approval' }}</span></div>
                         @if($logbook->training_centre_signature_path)
-                            <img src="{{ asset('storage/'.$logbook->training_centre_signature_path) }}" alt="Training centre signature" class="mt-2 max-h-12 w-auto object-contain bg-white rounded-lg border border-emerald-200 p-1">
+                            <img src="{{ asset('storage/'.$logbook->training_centre_signature_path) }}" alt="Training centre signature" class="mt-2 max-h-12 w-auto object-contain bg-white rounded-lg border border-amber-200 p-1">
                         @endif
-                        <span class="px-3 py-1 {{ $logbook->training_centre_decided_at ? 'bg-[#00A859] text-white' : 'bg-slate-200 text-slate-600' }} text-xs font-bold rounded">{{ $logbook->training_centre_decided_at ? 'Approved' : 'Pending' }}</span>
+                        <span class="px-3 py-1 {{ $logbook->training_centre_decided_at ? 'bg-amber-600 text-white' : 'bg-slate-200 text-slate-600' }} text-xs font-bold rounded">{{ $logbook->training_centre_decided_at ? 'Approved' : 'Pending' }}</span>
                     </div>
                 @endif
 
@@ -371,7 +371,7 @@
 
     @if($trainerReview && $logbook->status === 'revision')
         <div class="mt-6">
-            <a href="{{ route('trainer.reviews.edit', $logbook->id) }}" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-[#003829] text-white hover:bg-[#00241A] text-xs font-bold shadow-sm">
+            <a href="{{ route('trainer.reviews.edit', $logbook->id) }}" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-[#1e3a8a] text-white hover:bg-[#172554] text-xs font-bold shadow-sm">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                 Edit & Revisi Logbook
             </a>
@@ -389,3 +389,4 @@
     @endif
 
 </x-app-layout>
+

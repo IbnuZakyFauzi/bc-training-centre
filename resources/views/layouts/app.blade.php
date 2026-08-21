@@ -19,16 +19,17 @@
                 extend: {
                     colors: {
                         brand: {
-                            50: '#E6F3EF',
-                            100: '#C0E2D7',
-                            500: '#00A859',
-                            700: '#00593E',
-                            800: '#003829', // Primary Corporate Green
-                            900: '#00241A',
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#2563eb',
+                            600: '#1e40af',
+                            700: '#1d4ed8',
+                            800: '#1e3a8a',
+                            900: '#172554',
                         },
                         accent: {
-                            500: '#F5A623', // Equipment Safety Yellow/Amber
-                            600: '#D98E18',
+                            500: '#f59e0b', // Equipment Safety Yellow/Amber
+                            600: '#d97706',
                         }
                     },
                     fontFamily: {
@@ -55,7 +56,10 @@
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
-<body class="h-full antialiased text-slate-800 bg-[#F8FAFC] flex overflow-hidden" x-data="{ sidebarOpen: true, mobileMenuOpen: false }">
+<body class="h-full antialiased text-slate-800 bg-[#F8FAFC] flex overflow-hidden" x-data="{ sidebarOpen: false, mobileMenuOpen: false }">
+
+    <!-- Sidebar Backdrop (mobile) -->
+    <div x-show="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 bg-black/40 z-40 lg:hidden" x-cloak></div>
 
     <!-- Sidebar -->
     @include('layouts.sidebar')
@@ -68,24 +72,24 @@
 
         <!-- Flash Messages -->
         @if (session('success'))
-            <div x-data="{ show: true }" x-show="show" x-transition class="bg-emerald-50 border-l-4 border-[#00A859] p-4 m-6 mb-0 rounded-r-lg shadow-sm flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <svg class="w-5 h-5 text-[#00A859]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    <span class="text-sm font-medium text-emerald-800">{{ session('success') }}</span>
+            <div x-data="{ show: true }" x-show="show" x-transition class="bg-amber-50 border-l-4 border-amber-500 p-3 sm:p-4 m-3 sm:m-6 mb-0 rounded-r-lg shadow-sm flex items-center justify-between">
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span class="text-xs sm:text-sm font-medium text-amber-800">{{ session('success') }}</span>
                 </div>
-                <button @click="show = false" class="text-emerald-500 hover:text-emerald-700">
+                <button @click="show = false" class="text-amber-500 hover:text-amber-700 min-h-[44px] min-w-[44px] flex items-center justify-center">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
         @endif
 
         @if (session('error'))
-            <div x-data="{ show: true }" x-show="show" x-transition class="bg-rose-50 border-l-4 border-rose-500 p-4 m-6 mb-0 rounded-r-lg shadow-sm flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    <span class="text-sm font-medium text-rose-800">{{ session('error') }}</span>
+            <div x-data="{ show: true }" x-show="show" x-transition class="bg-rose-50 border-l-4 border-rose-500 p-3 sm:p-4 m-3 sm:m-6 mb-0 rounded-r-lg shadow-sm flex items-center justify-between">
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span class="text-xs sm:text-sm font-medium text-rose-800">{{ session('error') }}</span>
                 </div>
-                <button @click="show = false" class="text-rose-500 hover:text-rose-700">
+                <button @click="show = false" class="text-rose-500 hover:text-rose-700 min-h-[44px] min-w-[44px] flex items-center justify-center">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>

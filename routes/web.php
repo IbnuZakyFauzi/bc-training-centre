@@ -65,6 +65,7 @@ Route::middleware(['auth', 'must.change.password', 'role:admin'])->prefix('train
     Route::post('/final-evaluations/{id}/tc-approve', ['App\Http\Controllers\EvaluationFlowController', 'tcApprove'])->name('final-evaluations.tc-approve');
     Route::post('/final-evaluations/{id}/reject', ['App\Http\Controllers\EvaluationFlowController', 'reject'])->name('final-evaluations.tc-reject');
     Route::get('/monitoring', ['App\Http\Controllers\EvaluationFlowController', 'monitoring'])->name('monitoring');
+    Route::get('/trainees/{traineeId}/documents', ['App\Http\Controllers\TrainingCentreApprovalController', 'traineeDocuments'])->name('trainee-documents');
 });
 
 // Final Logbook Print Route (Restricted to Admin Training Centre only)

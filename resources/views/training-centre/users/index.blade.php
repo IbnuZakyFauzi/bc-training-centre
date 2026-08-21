@@ -3,7 +3,7 @@
 
     <div class="mb-6 flex items-center justify-between">
         <div>
-            <div class="flex items-center space-x-2 text-xs font-semibold text-[#00A859] mb-1">
+            <div class="flex items-center space-x-2 text-xs font-semibold text-[#2563eb] mb-1">
                 <a href="{{ route('training-centre.dashboard') }}" class="hover:underline">Dashboard</a>
                 <span>/</span>
                 <span class="text-slate-500">Manajemen Pengguna</span>
@@ -11,35 +11,35 @@
             <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">Manajemen Pengguna</h1>
             <p class="text-xs text-slate-500 mt-1">Daftar trainee, trainer (instruktur/pengawas/operator pendamping), dan admin yang terdaftar di sistem.</p>
         </div>
-        <a href="{{ route('training-centre.users.create') }}" class="px-4 py-2 bg-[#00A859] hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition shadow-sm">
+        <a href="{{ route('training-centre.users.create') }}" class="px-4 py-2 bg-[#2563eb] hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition shadow-sm">
             + Tambah Pengguna
         </a>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white rounded-xl border border-slate-200 p-4">
-            <p class="text-[11px] text-slate-500 font-bold uppercase">Total</p>
-            <p class="text-2xl font-black text-slate-800">{{ $counts['total'] }}</p>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <div class="bg-white rounded-xl border border-slate-200 p-3 sm:p-4">
+            <p class="text-[10px] sm:text-[11px] text-slate-500 font-bold uppercase">Total</p>
+            <p class="text-xl sm:text-2xl font-black text-slate-800">{{ $counts['total'] }}</p>
         </div>
-        <div class="bg-white rounded-xl border border-slate-200 p-4">
-            <p class="text-[11px] text-slate-500 font-bold uppercase">Trainee</p>
-            <p class="text-2xl font-black text-[#00A859]">{{ $counts['trainee'] }}</p>
+        <div class="bg-white rounded-xl border border-slate-200 p-3 sm:p-4">
+            <p class="text-[10px] sm:text-[11px] text-slate-500 font-bold uppercase">Trainee</p>
+            <p class="text-xl sm:text-2xl font-black text-[#2563eb]">{{ $counts['trainee'] }}</p>
         </div>
-        <div class="bg-white rounded-xl border border-slate-200 p-4">
-            <p class="text-[11px] text-slate-500 font-bold uppercase">Trainer</p>
-            <p class="text-2xl font-black text-[#003829]">{{ $counts['trainer'] }}</p>
+        <div class="bg-white rounded-xl border border-slate-200 p-3 sm:p-4">
+            <p class="text-[10px] sm:text-[11px] text-slate-500 font-bold uppercase">Trainer</p>
+            <p class="text-xl sm:text-2xl font-black text-[#1e3a8a]">{{ $counts['trainer'] }}</p>
         </div>
     </div>
 
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="p-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4">
             <div>
-                <h2 class="font-bold text-slate-800">Daftar Pengguna</h2>
-                <p class="text-xs text-slate-500 mt-1">Kelola akun trainee, trainer, dan pengawas.</p>
+                <h2 class="font-bold text-slate-800 text-sm sm:text-base">Daftar Pengguna</h2>
+                <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Kelola akun trainee, trainer, dan pengawas.</p>
             </div>
-            <form class="flex gap-2" method="GET">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari SID, nama, atau email..." class="text-xs rounded-xl border-slate-300 focus:border-[#00A859] focus:ring-[#00A859]">
-                <select name="role" class="text-xs rounded-xl border-slate-300">
+            <form class="flex flex-col sm:flex-row gap-2" method="GET">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari SID, nama, atau email..." class="text-xs rounded-xl border-slate-300 focus:border-brand-500 focus:ring-brand-500 min-h-[44px]">
+                <select name="role" class="text-xs rounded-xl border-slate-300 min-h-[44px]">
                     <option value="">Semua Role</option>
                     <option value="trainee" {{ request('role') === 'trainee' ? 'selected' : '' }}>Trainee</option>
                     <option value="trainer" {{ request('role') === 'trainer' ? 'selected' : '' }}>Trainer</option>
@@ -47,7 +47,7 @@
                 <option value="pjo" {{ request('role') === 'pjo' ? 'selected' : '' }}>PJO</option>
                 <option value="hse_ct" {{ request('role') === 'hse_ct' ? 'selected' : '' }}>HSE CT</option>
                 </select>
-                <button class="px-4 rounded-xl bg-[#003829] text-white text-xs font-bold">Filter</button>
+                <button class="px-4 py-2.5 rounded-xl bg-[#1e3a8a] text-white text-xs font-bold min-h-[44px]">Filter</button>
             </form>
         </div>
         <div class="overflow-x-auto">
@@ -63,7 +63,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($users as $user)
-                        <tr class="hover:bg-emerald-50/30">
+                        <tr class="hover:bg-blue-50/30">
                             <td class="px-5 py-4">
                                 <p class="text-xs font-bold text-slate-800">{{ $user->sid }}</p>
                                 <p class="text-[11px] text-slate-500 mt-0.5">{{ $user->name }}</p>
@@ -71,7 +71,7 @@
                             <td class="px-5 py-4 text-xs text-slate-600">{{ $user->email }}</td>
                             <td class="px-5 py-4">
                                 <span class="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-bold
-                                    {{ $user->role === 'trainee' ? 'bg-emerald-50 text-[#00593E]' : '' }}
+                                    {{ $user->role === 'trainee' ? 'bg-blue-50 text-blue-700' : '' }}
                                     {{ $user->role === 'trainer' ? 'bg-blue-50 text-blue-700' : '' }}
                                     {{ $user->role === 'admin' ? 'bg-violet-50 text-violet-700' : '' }}
                                 ">
@@ -85,7 +85,7 @@
                             </td>
                             <td class="px-5 py-4">
                                 <span class="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-bold
-                                    {{ $user->role === 'trainee' ? 'bg-emerald-50 text-[#00593E]' : '' }}
+                                    {{ $user->role === 'trainee' ? 'bg-blue-50 text-blue-700' : '' }}
                                     {{ $user->role === 'trainer' ? 'bg-blue-50 text-blue-700' : '' }}
                                     {{ $user->role === 'admin' ? 'bg-violet-50 text-violet-700' : '' }}
                                 ">
@@ -141,3 +141,5 @@
         </div>
     </div>
 </x-app-layout>
+
+

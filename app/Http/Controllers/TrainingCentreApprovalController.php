@@ -91,7 +91,34 @@ class TrainingCentreApprovalController extends Controller
             ->map(fn ($g) => $g->count())
             ->sortKeys();
 
-        return view('training-centre.approvals.index', compact('reviewer', 'logbooks', 'counts', 'activeStatus', 'groupedFinalized', 'pendingEvaluations', 'evalCounts', 'phaseRecap'));
+        $trainerRatingRows = OjtLogbook::whereNotNull('trainer_ratings')
+            ->get()
+            ->filter(fn ($logbook) => !empty($logbook->trainer_ratings))
+            ->flatMap(fn ($logbook) => collect($logbook->trainer_ratings ?? []))
+            ->filter(fn ($r) => isset($r['user_id'], $r['rating']))
+            ->groupBy('user_id')
+            ->map(function ($items) {
+                $ratings = $items->pluck('rating')->filter()->map(fn ($r) => (int) $r);
+                return [
+                    'avg' => $ratings->isNotEmpty() ? $ratings->avg() : 0,
+                    'count' => $ratings->count(),
+                ];
+            });
+
+        $trainerRatings = User::whereIn('id', $trainerRatingRows->keys())
+            ->get()
+            ->mapWithKeys(fn ($user) => [
+                $user->id => [
+                    'name' => $user->name,
+                    'avg' => round($trainerRatingRows->get($user->id)['avg'], 1),
+                    'count' => $trainerRatingRows->get($user->id)['count'],
+                ],
+            ])
+            ->sortByDesc('avg')
+            ->values()
+            ->all();
+
+        return view('training-centre.approvals.index', compact('reviewer', 'logbooks', 'counts', 'activeStatus', 'groupedFinalized', 'pendingEvaluations', 'evalCounts', 'phaseRecap', 'trainerRatings'));
     }
 
     public function show($id)
@@ -122,5 +149,26 @@ class TrainingCentreApprovalController extends Controller
             LogbookHistory::create(['ojt_logbook_id' => $logbook->id, 'user_id' => $reviewer->id, 'action' => $approved ? 'Approved by Head of Training Centre' : 'Revision Requested by Head of Training Centre', 'from_status' => $previousStatus, 'to_status' => $approved ? 'final_approved' : 'revision', 'comment' => $data['approval_notes'] ?? null]);
         });
         return redirect()->route('training-centre.approvals.index')->with('success', $approved ? 'Logbook telah disahkan oleh Kabag Training Centre.' : 'Logbook dikembalikan untuk revisi.');
+    }
+
+    public function traineeDocuments($traineeId)
+    {
+        $reviewer = $this->reviewer();
+
+        $trainee = User::where('role', 'trainee')->findOrFail($traineeId);
+
+        $logbooks = OjtLogbook::where('trainee_id', $traineeId)
+            ->where('status', 'final_approved')
+            ->whereNotNull('training_centre_decided_at')
+            ->with(['trainer', 'equipmentCategory', 'equipment', 'trainingCentre'])
+            ->orderBy('training_centre_decided_at', 'asc')
+            ->get();
+
+        $evaluations = \App\Models\FinalEvaluation::where('nama_operator', $trainee->name)
+            ->with(['trainer'])
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        return view('training-centre.trainee-documents', compact('reviewer', 'trainee', 'logbooks', 'evaluations'));
     }
 }

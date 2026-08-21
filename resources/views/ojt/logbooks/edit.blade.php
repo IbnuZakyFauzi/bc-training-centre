@@ -19,3 +19,4 @@
     @include('ojt.logbooks.partials.edit-form')
 
 </x-app-layout>
+
