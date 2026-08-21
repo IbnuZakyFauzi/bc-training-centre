@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Support\CompetencyScale;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateLogbookRequest extends FormRequest
@@ -9,6 +10,20 @@ class UpdateLogbookRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    /**
+     * Normalisasi nilai item evaluasi menjadi integer 1-4 sebelum divalidasi.
+     * Nilai legacy 'K' / 'BK' tetap diterima dan dikonversi otomatis, sedangkan
+     * nilai di luar skala dibiarkan agar ditolak aturan validasi.
+     */
+    protected function prepareForValidation(): void
+    {
+        $payload = $this->input('sop_payload');
+
+        if (is_array($payload)) {
+            $this->merge(['sop_payload' => CompetencyScale::normalizePayload($payload, true)]);
+        }
     }
 
     public function rules(): array
@@ -35,7 +50,27 @@ class UpdateLogbookRequest extends FormRequest
             'trainer_ratings.*.user_id' => ['required_with:trainer_ratings', 'exists:users,id'],
             'trainer_ratings.*.rating' => ['required_with:trainer_ratings', 'integer', 'min:1', 'max:5'],
             'sop_payload' => ['nullable', 'array'],
+            'sop_payload.*.groups.*.items.*.status' => ['nullable', 'integer', 'between:1,4'],
+            'sop_payload.*.groups.*.items.*.trainee_feedback' => ['nullable', 'string'],
+            'sop_payload.*.compliance.*.status' => ['nullable', 'integer', 'between:1,4'],
+            'sop_payload.*.compliance.*.trainee_feedback' => ['nullable', 'string'],
+            'sop_payload.*.behavior.*.status' => ['nullable', 'integer', 'between:1,4'],
+            'sop_payload.*.behavior.*.trainee_feedback' => ['nullable', 'string'],
             'action_type' => ['required', 'in:draft,submit'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        $scaleMessage = 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Bisa), atau 4 (Mahir).';
+
+        return [
+            'sop_payload.*.groups.*.items.*.status.integer' => $scaleMessage,
+            'sop_payload.*.groups.*.items.*.status.between' => $scaleMessage,
+            'sop_payload.*.compliance.*.status.integer' => $scaleMessage,
+            'sop_payload.*.compliance.*.status.between' => $scaleMessage,
+            'sop_payload.*.behavior.*.status.integer' => $scaleMessage,
+            'sop_payload.*.behavior.*.status.between' => $scaleMessage,
         ];
     }
 
@@ -62,30 +97,27 @@ class UpdateLogbookRequest extends FormRequest
             $blankItems = [];
             foreach (data_get($checklist, 'groups', []) as $group) {
                 foreach (data_get($group, 'items', []) as $item) {
-                    $status = $item['status'] ?? null;
-                    $note = trim((string)($item['note'] ?? ''));
-                    if (!in_array($status, ['K', 'BK'], true) && $note === '') {
+                    $note = trim((string)($item['trainee_feedback'] ?? $item['note'] ?? ''));
+                    if (!CompetencyScale::isFilled($item['status'] ?? null) && $note === '') {
                         $blankItems[] = $item['code'] . ' - ' . $item['label'];
                     }
                 }
             }
             foreach (data_get($checklist, 'compliance', []) as $item) {
-                $status = $item['status'] ?? null;
-                $note = trim((string)($item['note'] ?? ''));
-                if (!in_array($status, ['K', 'BK'], true) && $note === '') {
+                $note = trim((string)($item['trainee_feedback'] ?? $item['note'] ?? ''));
+                if (!CompetencyScale::isFilled($item['status'] ?? null) && $note === '') {
                     $blankItems[] = $item['code'] . ' - ' . $item['label'];
                 }
             }
             foreach (data_get($checklist, 'behavior', []) as $item) {
-                $status = $item['status'] ?? null;
-                $note = trim((string)($item['note'] ?? ''));
-                if (!in_array($status, ['K', 'BK'], true) && $note === '') {
+                $note = trim((string)($item['trainee_feedback'] ?? $item['note'] ?? ''));
+                if (!CompetencyScale::isFilled($item['status'] ?? null) && $note === '') {
                     $blankItems[] = $item['code'] . ' - ' . $item['label'];
                 }
             }
 
             if (!empty($blankItems)) {
-                $validator->errors()->add('sop_payload', 'Item evaluasi berikut belum diisi: ' . implode(', ', $blankItems) . '. Pilih K/BK atau isi catatan penguji.');
+                $validator->errors()->add('sop_payload', 'Item evaluasi berikut belum diisi: ' . implode(', ', $blankItems) . '. Pilih nilai 1-4 atau isi trainee feedback.');
             }
         });
     }

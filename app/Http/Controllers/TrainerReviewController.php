@@ -10,6 +10,7 @@ use App\Models\LogbookHistory;
 use App\Models\OjtLogbook;
 use App\Models\User;
 use App\Models\LogbookAssignment;
+use App\Support\CompetencyScale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -124,6 +125,14 @@ class TrainerReviewController extends Controller
         abort_unless(in_array($logbook->status, ['submitted', 'revision']), 403);
         abort_unless($logbook->assignments()->where('user_id', $trainer->id)->where('status', 'pending')->exists(), 403);
 
+        // Nilai item evaluasi memakai skala 1-4; nilai legacy 'K'/'BK' dikonversi
+        // lebih dulu agar tetap kompatibel dengan logbook lama.
+        if (is_array($request->input('sop_payload'))) {
+            $request->merge([
+                'sop_payload' => CompetencyScale::normalizePayload($request->input('sop_payload'), true),
+            ]);
+        }
+
         $data = $request->validate([
             'date' => ['required', 'date'], 'shift' => ['required', 'in:day,night'],
             'location' => ['required', 'string', 'max:255'], 'equipment_number' => ['required', 'string', 'max:100'],
@@ -131,7 +140,25 @@ class TrainerReviewController extends Controller
             'daily_activity' => ['nullable', 'string'],
             'daily_activity_backup' => ['nullable', 'string'],
             'sop_payload' => ['nullable', 'array'],
+            'sop_payload.*.groups.*.items.*.status' => ['nullable', 'integer', 'between:1,4'],
+            'sop_payload.*.compliance.*.status' => ['nullable', 'integer', 'between:1,4'],
+            'sop_payload.*.behavior.*.status' => ['nullable', 'integer', 'between:1,4'],
+            'sop_payload.*.groups.*.items.*.trainee_feedback' => ['nullable', 'string'],
+            'sop_payload.*.compliance.*.trainee_feedback' => ['nullable', 'string'],
+            'sop_payload.*.behavior.*.trainee_feedback' => ['nullable', 'string'],
+        ], [
+            'sop_payload.*.groups.*.items.*.status.integer' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Bisa), atau 4 (Mahir).',
+            'sop_payload.*.groups.*.items.*.status.between' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Bisa), atau 4 (Mahir).',
+            'sop_payload.*.compliance.*.status.integer' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Bisa), atau 4 (Mahir).',
+            'sop_payload.*.compliance.*.status.between' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Bisa), atau 4 (Mahir).',
+            'sop_payload.*.behavior.*.status.integer' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Bisa), atau 4 (Mahir).',
+            'sop_payload.*.behavior.*.status.between' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Bisa), atau 4 (Mahir).',
         ]);
+
+        // Nilai item evaluasi selalu disimpan sebagai integer 1-4 (legacy 'K'/'BK' dikonversi).
+        if (isset($data['sop_payload']) && is_array($data['sop_payload'])) {
+            $data['sop_payload'] = CompetencyScale::normalizePayload($data['sop_payload']);
+        }
 
         $activity = trim((string)($data['daily_activity'] ?? ''));
         $backup = trim((string)($data['daily_activity_backup'] ?? ''));
@@ -169,8 +196,9 @@ class TrainerReviewController extends Controller
                 $items = $section === 'groups' ? ($group['items'] ?? []) : [$groupIndex => $group];
                 foreach ($items as $itemIndex => $item) {
                     $path = $section === 'groups' ? "{$family}.groups.{$groupIndex}.items.{$itemIndex}" : ($section === 'compliance' ? "{$family}.compliance.{$itemIndex}" : "{$family}.behavior.{$itemIndex}");
-                    data_set($payload, "{$path}.status", $item['status'] ?? null);
-                    data_set($payload, "{$path}.note", $item['note'] ?? null);
+                    data_set($payload, "{$path}.status", CompetencyScale::toScale($item['status'] ?? null));
+                    $feedback = $item['trainee_feedback'] ?? $item['note'] ?? null;
+                    data_set($payload, "{$path}.trainee_feedback", $feedback);
                 }
             }
         }

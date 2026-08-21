@@ -53,7 +53,7 @@ class FinalEvaluationController extends Controller
         return view('final-evaluations.index', compact('evaluations', 'statusCounts'));
     }
 
-    public function createStandalone()
+    public function createStandalone(Request $request)
     {
         $user = Auth::user();
         abort_unless($user && $user->isTrainer(), 403, 'Hanya Trainer yang dapat mengisi formulir evaluasi.');

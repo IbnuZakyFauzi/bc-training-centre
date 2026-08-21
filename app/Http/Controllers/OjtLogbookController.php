@@ -11,6 +11,7 @@ use App\Models\LogbookHistory;
 use App\Models\LogbookAssignment;
 use App\Http\Requests\StoreLogbookRequest;
 use App\Http\Requests\UpdateLogbookRequest;
+use App\Support\CompetencyScale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -177,7 +178,7 @@ class OjtLogbookController extends Controller
         $logbook = OjtLogbook::findOrFail($id);
 
         // Check editable
-        if (!in_array($logbook->status, ['draft'])) {
+        if (!in_array($logbook->status, ['draft', 'revision'])) {
             return redirect()->route('ojt.logbooks.show', $logbook->id)
                 ->with('error', 'Logbook yang sudah dikirim atau diverifikasi tidak dapat diubah.');
         }
@@ -197,8 +198,8 @@ class OjtLogbookController extends Controller
     {
         $logbook = OjtLogbook::findOrFail($id);
 
-        if (!in_array($logbook->status, ['draft'])) {
-            return redirect()->route('ojt.logbooks.show', $logbook->id)->with('error', 'Logbook tidak dapat diubah.');
+        if (!in_array($logbook->status, ['draft', 'revision'])) {
+            return redirect()->route('ojt.logbooks.show', $logbook->id)->with('error', 'Logbook yang sudah dikirim atau diverifikasi tidak dapat diubah.');
         }
 
         $user = Auth::user() ?? User::where('role', 'trainee')->first();
@@ -333,8 +334,9 @@ class OjtLogbookController extends Controller
                 $items = $section === 'groups' ? ($group['items'] ?? []) : [$groupIndex => $group];
                 foreach ($items as $itemIndex => $item) {
                     $path = $section === 'groups' ? "{$family}.groups.{$groupIndex}.items.{$itemIndex}" : ($section === 'compliance' ? "{$family}.compliance.{$itemIndex}" : "{$family}.behavior.{$itemIndex}");
-                    data_set($payload, "{$path}.status", $item['status'] ?? null);
-                    data_set($payload, "{$path}.note", $item['note'] ?? null);
+                    data_set($payload, "{$path}.status", CompetencyScale::toScale($item['status'] ?? null));
+                    $feedback = $item['trainee_feedback'] ?? $item['note'] ?? null;
+                    data_set($payload, "{$path}.trainee_feedback", $feedback);
                 }
             }
         }

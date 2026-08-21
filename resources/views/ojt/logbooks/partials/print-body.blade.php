@@ -3,9 +3,9 @@
         $categoryCode = $logbook->equipmentCategory->code ?? 'DZ';
         $categoryName = $logbook->equipmentCategory->name ?? 'Bulldozer & Motor Grader';
         $family = data_get($payload, 'meta.unit_family');
-         if (!$family) {
-             $family = in_array($categoryCode, ['DZ', 'MG']) ? 'track' : (in_array($categoryCode, ['EXC', 'EX']) ? 'excavator' : (in_array($categoryCode, ['HDT', 'LDT']) ? 'dumptruck' : (in_array($categoryCode, ['SDT', 'ADT']) ? 'semidump' : ($categoryCode === 'WL' ? 'wheelloader' : 'track'))));
-         }
+        if (!$family) {
+            $family = in_array($categoryCode, ['DZ', 'MG']) ? 'track' : (in_array($categoryCode, ['EXC', 'EX']) ? 'excavator' : (in_array($categoryCode, ['HDT', 'LDT']) ? 'dumptruck' : (in_array($categoryCode, ['SDT', 'ADT']) ? 'semidump' : ($categoryCode === 'WL' ? 'wheelloader' : 'track'))));
+        }
 
         $checklist = $payload[$family] ?? [];
         $certification = data_get($payload, 'meta.certification', 'Green');
@@ -15,307 +15,48 @@
         $assessmentStage = data_get($payload, 'meta.assessment_stage', '');
         $assessmentStageDetail = data_get($payload, 'meta.assessment_stage_detail', '');
 
-        // Extract Section A Groups
-        $groups = data_get($checklist, 'groups', []);
-        if (empty($groups)) {
-            if ($family === 'excavator') {
-                $groups = [
-                    [
-                        'title' => '1. Positioning',
-                        'subtitle' => 'Cara memosisisikan unit, track, dan upper structure di front loading',
-                        'items' => [
-                            ['code' => '1.1', 'kind' => 'Skl', 'label' => 'Cara memposisikan unit di front loading', 'status' => 'K'],
-                            ['code' => '1.2', 'kind' => 'Skl', 'label' => 'Cara membuat landasan', 'status' => 'K'],
-                            ['code' => '1.3', 'kind' => 'Skl', 'label' => 'Cara mengatur track dan upper structure', 'status' => 'K'],
-                        ]
-                    ],
-                    [
-                        'title' => '2. Loading & Dumping',
-                        'subtitle' => 'Cara swing, memuat, dan dumping yang aman',
-                        'items' => [
-                            ['code' => '2.1', 'kind' => 'Skl', 'label' => 'Cara swing muatan', 'status' => 'K'],
-                            ['code' => '2.2', 'kind' => 'Skl', 'label' => 'Cara swing kosongan', 'status' => 'K'],
-                            ['code' => '2.3', 'kind' => 'Knw', 'label' => 'Kombinasi gerakan', 'status' => 'K'],
-                            ['code' => '2.4', 'kind' => 'Skl', 'label' => 'Cara dumping dan kerapihan muatan', 'status' => 'K'],
-                            ['code' => '2.5', 'kind' => 'Knw', 'label' => 'Sudut swing', 'status' => 'K'],
-                            ['code' => '2.6', 'kind' => 'Knw', 'label' => 'Cycle time', 'status' => 'K'],
-                        ]
-                    ],
-                    [
-                        'title' => '3. Digging',
-                        'subtitle' => 'Teknik digging dan pengaturan kerja bucket',
-                        'items' => [
-                            ['code' => '3.1', 'kind' => 'Skl', 'label' => 'Teknik digging (urutan pengambilan)', 'status' => 'K'],
-                            ['code' => '3.2', 'kind' => 'Skl', 'label' => 'Sudut pengambilan (digging)', 'status' => 'K'],
-                            ['code' => '3.3', 'kind' => 'Skl', 'label' => 'Gerakan kombinasi pada saat digging', 'status' => 'K'],
-                            ['code' => '3.4', 'kind' => 'Knw', 'label' => 'Volume bucket', 'status' => 'K'],
-                        ]
-                    ],
-                    [
-                        'title' => '4. Sloping',
-                        'subtitle' => 'Teknik pembuatan slope dan kerapihan permukaan',
-                        'items' => [
-                            ['code' => '4.1', 'kind' => 'Skl', 'label' => 'Teknik pembuatan slope', 'status' => 'K'],
-                            ['code' => '4.2', 'kind' => 'Skl', 'label' => 'Kerapihan slope', 'status' => 'K'],
-                        ]
-                    ],
-                ];
-            } elseif ($family === 'dumptruck') {
-                $groups = [
-                    [
-                        'title' => '1. Loading',
-                        'subtitle' => 'Teknik pengambilan haluan, posisi terhadap alat muat, dan penggunaan transmisi/brake saat loading',
-                        'items' => [
-                            ['code' => '1.1', 'kind' => 'Skl', 'label' => 'Pengambilan haluan untuk loading/ posisi antri/', 'status' => 'K'],
-                            ['code' => '1.2', 'kind' => 'Skl', 'label' => 'Posisi terhadap Alat muat (rata, aman & keras)', 'status' => 'K'],
-                            ['code' => '1.3', 'kind' => 'Skl', 'label' => 'Tranmission "N" & Penggunaan brake saat loading', 'status' => 'K'],
-                            ['code' => '1.4', 'kind' => 'Knw', 'label' => 'Perhatian saat loading terhadap beban/payload meter (Khusus untuk Unit HDT)', 'status' => 'K'],
-                            ['code' => '1.5', 'kind' => 'Knw', 'label' => 'Perhatian saat loading thd operator alat muat (Khusus untuk Unit LDT)', 'status' => 'K'],
-                            ['code' => '1.6', 'kind' => 'Knw', 'label' => 'Perhatian terhadap standart muatan (Khusus untuk Unit LDT)', 'status' => 'K'],
-                        ]
-                    ],
-                    [
-                        'title' => '2. Hauling',
-                        'subtitle' => 'Penggunaan speed/transmissi, clutch, shift limit, retarder, brake, dan keemihan mengemudi saat bergerak',
-                        'items' => [
-                            ['code' => '2.1', 'kind' => 'Knw', 'label' => 'Penggunaan Speed/ Transmissi saat bergerak (Pastikan saat awal muatan harus dari F1 - Khusus HD)', 'status' => 'K'],
-                            ['code' => '2.2', 'kind' => 'Knw', 'label' => 'Penggunaan Clutch (Khusus untuk Unit LDT)', 'status' => 'K'],
-                            ['code' => '2.3', 'kind' => 'Knw', 'label' => 'Penggunaan Shift Limit & Power/ Eco Mode (Khusus untuk Unit HDT)', 'status' => 'K'],
-                            ['code' => '2.4', 'kind' => 'Skl', 'label' => 'Penyesuaian tingkat kecepatan, RPM Engine & transmisi dengan kondisi medan (Jalan turunan, mendatar, dan tanjakan)', 'status' => 'K'],
-                            ['code' => '2.5', 'kind' => 'Skl', 'label' => 'Penggunaan Retarder waktu turunan (Khusus untuk Unit HDT)', 'status' => 'K'],
-                            ['code' => '2.6', 'kind' => 'Skl', 'label' => 'Penggunaan brake di turunan & menghentikan unit (Khusus untuk Unit LDT)', 'status' => 'K'],
-                            ['code' => '2.7', 'kind' => 'Skl', 'label' => 'Pengembalian haluan saat membelok/ di tikungan', 'status' => 'K'],
-                            ['code' => '2.8', 'kind' => 'Skl', 'label' => 'Ketrampilan/ kelembutan mengemudi', 'status' => 'K'],
-                            ['code' => '2.9', 'kind' => 'Knw', 'label' => 'Cycle time', 'status' => 'K'],
-                        ]
-                    ],
-                    [
-                        'title' => '3. Dumping',
-                        'subtitle' => 'Teknik pengambilan haluan, posisi dumping, penggunaan brake, dan prosedur dumping/vessel',
-                        'items' => [
-                            ['code' => '3.1', 'kind' => 'Skl', 'label' => 'Pengambilan haluan untuk dumping/ manuver', 'status' => 'K'],
-                            ['code' => '3.2', 'kind' => 'Knw', 'label' => 'Posisi dumping (lokasi harus rata)', 'status' => 'K'],
-                            ['code' => '3.3', 'kind' => 'Skl', 'label' => 'Penggunaan brake saat Dumping', 'status' => 'K'],
-                            ['code' => '3.4', 'kind' => 'Knw', 'label' => 'Prosedur Dumping (Penggunaan RPM)', 'status' => 'K'],
-                            ['code' => '3.5', 'kind' => 'Knw', 'label' => 'Prosedur menurunkan Vessel', 'status' => 'K'],
-                            ['code' => '3.6', 'kind' => 'Knw', 'label' => 'Penempatan material yang tepat di disposal (Khusus untuk Unit HDT)', 'status' => 'K'],
-                            ['code' => '3.7', 'kind' => 'Knw', 'label' => 'Prosedur menurunkan vesel di hopper/ stock pile (Khusus untuk Unit LDT)', 'status' => 'K'],
-                        ]
-                    ],
-                ];
-            } elseif ($family === 'semidump') {
-                $groups = [
-                    [
-                        'title' => '1. Loading',
-                        'subtitle' => 'Teknik penempatan posisi, posisi trailer terhadap alat muat, dan penggunaan transmisi/brake saat loading',
-                        'items' => [
-                            ['code' => '1.1', 'kind' => 'Skl', 'label' => 'Penempatan posisi untuk loading/ posisi antri', 'status' => 'K'],
-                            ['code' => '1.2', 'kind' => 'Skl', 'label' => 'Posisi Trailer terhadap Alat muat (rata & aman)', 'status' => 'K'],
-                            ['code' => '1.3', 'kind' => 'Skl', 'label' => 'Transmission "N" & Penggunaan Parking Brake saat loading', 'status' => 'K'],
-                            ['code' => '1.4', 'kind' => 'Knw', 'label' => 'Perhatian saat loading terhadap beban/ vessel penuh', 'status' => 'K'],
-                        ]
-                    ],
-                    [
-                        'title' => '2. Hauling',
-                        'subtitle' => 'Penggunaan speed/transmissi, power/offroad mode, trailer brake, dan keemihan mengemudi saat bergerak',
-                        'items' => [
-                            ['code' => '2.1', 'kind' => 'Knw', 'label' => 'Penggunaan Speed/ Transmissi saat bergerak (Pastikan saat awal muatan harus dari C low)', 'status' => 'K'],
-                            ['code' => '2.2', 'kind' => 'Knw', 'label' => 'Penggunaan Power/ Offroad Mode', 'status' => 'K'],
-                            ['code' => '2.3', 'kind' => 'Skl', 'label' => 'Penyesuaian tingkat kecepatan dengan kondisi medan (jalan turunan, mendatar, dan tanjakan)', 'status' => 'K'],
-                            ['code' => '2.4', 'kind' => 'Skl', 'label' => 'Penggunaan Trailer Brake', 'status' => 'K'],
-                            ['code' => '2.5', 'kind' => 'Skl', 'label' => 'Pengembalian haluan saat membelok/ditikungan', 'status' => 'K'],
-                            ['code' => '2.6', 'kind' => 'Skl', 'label' => 'Ketrampilan/kelembutan mengemudi', 'status' => 'K'],
-                            ['code' => '2.7', 'kind' => 'Skl', 'label' => 'Cycle time', 'status' => 'K'],
-                        ]
-                    ],
-                    [
-                        'title' => '3. Dumping',
-                        'subtitle' => 'Teknik pengambilan haluan, posisi dumping, penggunaan brake, dan prosedur dumping/vessel',
-                        'items' => [
-                            ['code' => '3.1', 'kind' => 'Skl', 'label' => 'Pengambilan haluan untuk dumping/ manuver', 'status' => 'K'],
-                            ['code' => '3.2', 'kind' => 'Knw', 'label' => 'Posisi dumping (lokasi harus rata)', 'status' => 'K'],
-                            ['code' => '3.3', 'kind' => 'Skl', 'label' => 'Penggunaan brake saat Dumping', 'status' => 'K'],
-                            ['code' => '3.4', 'kind' => 'Knw', 'label' => 'Prosedur Dumping (Penggunaan RPM)', 'status' => 'K'],
-                            ['code' => '3.5', 'kind' => 'Knw', 'label' => 'Prosedur menurunkan Vessel', 'status' => 'K'],
-                            ['code' => '3.6', 'kind' => 'Knw', 'label' => 'Penempatan material yang tepat di Hopper/Stock Pile', 'status' => 'K'],
-                        ]
-                    ],
-                ];
-            } elseif ($family === 'wheelloader') {
-                $groups = [
-                    [
-                        'title' => '1. Traveling',
-                        'subtitle' => 'Pengoperasian wheel loader saat bergerak: speed, manuver, dan pemilihan jalur',
-                        'items' => [
-                            ['code' => '1.1', 'kind' => 'Skl', 'label' => 'Memposisikan attachment dengan benar', 'status' => 'K'],
-                            ['code' => '1.2', 'kind' => 'Skl', 'label' => 'Penyesuaian speed dengan kondisi medan', 'status' => 'K'],
-                            ['code' => '1.3', 'kind' => 'Skl', 'label' => 'Cara manuver & membelok di tikungan', 'status' => 'K'],
-                        ]
-                    ],
-                    [
-                        'title' => '2. Scoping & Loading',
-                        'subtitle' => 'Teknik scopping, loading, dan load & carry ke hauling truck',
-                        'items' => [
-                            ['code' => '2.1', 'kind' => 'Skl', 'label' => 'Cara memposisikan bucket pada saat scopping', 'status' => 'K'],
-                            ['code' => '2.2', 'kind' => 'Skl', 'label' => 'Cara manuver/ pengoperasian load & carry', 'status' => 'K'],
-                            ['code' => '2.3', 'kind' => 'Skl', 'label' => 'Cara loading ke hauling truck', 'status' => 'K'],
-                            ['code' => '2.4', 'kind' => 'Knw', 'label' => 'Cycle Time', 'status' => 'K'],
-                        ]
-                    ],
-                    [
-                        'title' => '3. Digging',
-                        'subtitle' => 'Teknik digging: posisi unit, penetrasi bucket, dan kapasitas',
-                        'items' => [
-                            ['code' => '3.1', 'kind' => 'Skl', 'label' => 'Position unit', 'status' => 'K'],
-                            ['code' => '3.2', 'kind' => 'Knw', 'label' => 'Teknik penetrasi bucket', 'status' => 'K'],
-                            ['code' => '3.3', 'kind' => 'Skl', 'label' => 'Penyesuaian posisi lift arm', 'status' => 'K'],
-                            ['code' => '3.4', 'kind' => 'Knw', 'label' => 'Kapasitas bucket', 'status' => 'K'],
-                        ]
-                    ],
-                    [
-                        'title' => '4. Leveling',
-                        'subtitle' => 'Teknik leveling: speed, tilt, steering, dan penempatan material',
-                        'items' => [
-                            ['code' => '4.1', 'kind' => 'Skl', 'label' => 'Penggunaan speed/transmisi saat bergerak', 'status' => 'K'],
-                            ['code' => '4.2', 'kind' => 'Skl', 'label' => 'Cara leveling menggunakan tilt', 'status' => 'K'],
-                            ['code' => '4.3', 'kind' => 'Skl', 'label' => 'Cara menghampar material untuk membuat jalan, menimbun lubang dll', 'status' => 'K'],
-                            ['code' => '4.4', 'kind' => 'Skl', 'label' => 'Filling pada saat melevelkan area kerja', 'status' => 'K'],
-                            ['code' => '4.5', 'kind' => 'Skl', 'label' => 'Penggunaan steering', 'status' => 'K'],
-                        ]
-                    ],
-                ];
-            } else {
-                $groups = [
-                    [
-                        'title' => '1. Dozing & Digging untuk Unit (DZ) / Grading & Digging untuk Unit (GR)',
-                        'items' => [
-                            ['code' => '1.1', 'kind' => 'Skl', 'label' => 'Cara memosisisikan unit, track, dan upper structure di front loading', 'status' => 'K'],
-                            ['code' => '1.2', 'kind' => 'Knw', 'label' => 'Penggunaan Tilt Blade', 'status' => 'K'],
-                            ['code' => '1.3', 'kind' => 'Skl', 'label' => 'Cara Pengoperasian blade untuk mendorong/ ditching', 'status' => 'K'],
-                            ['code' => '1.4', 'kind' => 'Skl', 'label' => 'Cara Pengoperasian blade untuk menggali/ sloping', 'status' => 'K'],
-                            ['code' => '1.5', 'kind' => 'Skl', 'label' => 'Penyesuaian beban dengan rpm/posisi transmissi', 'status' => 'K'],
-                            ['code' => '1.6', 'kind' => 'Skl', 'label' => 'Teknik dozing/grading/digging', 'status' => 'K'],
-                        ]
-                    ],
-                    [
-                        'title' => '2. Spreading & Leveling',
-                        'items' => [
-                            ['code' => '2.1', 'kind' => 'Knw', 'label' => 'Penggunaan Speed/ Transmissi saat bergerak', 'status' => 'K'],
-                            ['code' => '2.2', 'kind' => 'Knw', 'label' => 'Cara leveling menggunakan tilt', 'status' => 'K'],
-                            ['code' => '2.3', 'kind' => 'Skl', 'label' => 'Cara menghampar material untuk membuat jalan, menimbun lubang dll', 'status' => 'K'],
-                            ['code' => '2.4', 'kind' => 'Skl', 'label' => 'Filling pada saat melevelkan area kerja', 'status' => 'K'],
-                            ['code' => '2.5', 'kind' => 'Skl', 'label' => 'Penggunaan Steering', 'status' => 'K'],
-                            ['code' => '2.6', 'kind' => 'Skl', 'label' => 'Penggunaan Articulated (Khusus untuk unit GR)', 'status' => 'K'],
-                            ['code' => '2.7', 'kind' => 'Skl', 'label' => 'Teknik spreading/levelling', 'status' => 'K'],
-                        ]
-                    ],
-                    [
-                        'title' => '3. Ripping',
-                        'items' => [
-                            ['code' => '3.1', 'kind' => 'Skl', 'label' => 'Cara memosisisikan Ripper', 'status' => 'K'],
-                            ['code' => '3.2', 'kind' => 'Knw', 'label' => 'Teknik Penetrasi Ripping', 'status' => 'K'],
-                            ['code' => '3.3', 'kind' => 'Skl', 'label' => 'Penyesuaian posisi ripper dengan kekerasan material', 'status' => 'K'],
-                        ]
-                    ],
-                    [
-                        'title' => '4. Finishing',
-                        'items' => [
-                            ['code' => '4.1', 'kind' => 'Skl', 'label' => 'Kesesuaian penggunaan speed', 'status' => 'K'],
-                            ['code' => '4.2', 'kind' => 'Skl', 'label' => 'Hasil akhir pendorungan (hasil pekerjaan)', 'status' => 'K'],
-                        ]
-                    ],
-                ];
-            }
-        }
+        $definition = \App\Support\ChecklistTemplate::structure($family);
+        $stored = $payload[$family] ?? [];
+        $groups = [];
+        $complianceItems = [];
+        $disciplineItems = [];
 
-        // Section B: Compliance
-        if (in_array($family, ['dumptruck', 'semidump'])) {
-            $complianceItems = [
-                ['code' => '1', 'kind' => 'Knw', 'label' => 'Kesehatan fisik dan perlengkapan/ penggunaan APD'],
-                ['code' => '2', 'kind' => 'Skl', 'label' => 'Menaiki dan menuruni unit (Three point contact)'],
-                ['code' => '3', 'kind' => 'Skl', 'label' => 'Penyetelan tempat duduk dan steering wheel'],
-                ['code' => '4', 'kind' => 'Atd', 'label' => 'Penggunaan sabuk pengaman/safety belt'],
-                ['code' => '5', 'kind' => 'Skl', 'label' => 'Penggunaan klakson dan lampu-lampu'],
-                ['code' => '6', 'kind' => 'Atd', 'label' => 'Keselamatan saat loading/harus didalam kabin'],
-                ['code' => '7', 'kind' => 'Skl', 'label' => 'Penyesuaian kecepatan terhadap kondisi medan (saat berpapasan, jalan licin, beiringan, kabut dan berdebu)'],
-                ['code' => '8', 'kind' => 'Atd', 'label' => 'Kepedulian terhadap Rambu lalu lintas'],
-                ['code' => '9', 'kind' => 'Skl', 'label' => 'Keselamatan saat dumping'],
-                ['code' => '10', 'kind' => 'Atd', 'label' => 'Sopan santun mengemudi'],
-                ['code' => '11', 'kind' => 'Skl', 'label' => 'Parkir unit ditempat yang rata (jarak antara unit dari samping kanan-kiri dan depan-belakang)'],
-            ];
-        } elseif ($family === 'wheelloader') {
-            $complianceItems = [
-                ['code' => '1', 'kind' => 'Knw', 'label' => 'Kesehatan fisik dan perlengkapan/ penggunaan APD'],
-                ['code' => '2', 'kind' => 'Skl', 'label' => 'Menaiki dan menuruni unit (three point contact)'],
-                ['code' => '3', 'kind' => 'Skl', 'label' => 'Penyetelan tempat duduk'],
-                ['code' => '4', 'kind' => 'Atd', 'label' => 'Penggunaan sabuk pengaman/ safety belt'],
-                ['code' => '5', 'kind' => 'Skl', 'label' => 'Penggunaan klakson dan lampu-lampu'],
-                ['code' => '6', 'kind' => 'Skl', 'label' => 'Keselamatan saat travelling, scopping, loading, digging, dan leveling'],
-                ['code' => '7', 'kind' => 'Skl', 'label' => 'Penyesuaian jenis alat dengan lokasi pekerjaan'],
-                ['code' => '8', 'kind' => 'Atd', 'label' => 'Kepedulian terhadap patok-patok survey dan rambu'],
-                ['code' => '9', 'kind' => 'Skl', 'label' => 'Parkir unit ditempat yang rata dan aman (pasang lock dan cara meletakkan attachment)'],
-                ['code' => '10', 'kind' => 'Knw', 'label' => 'Keselamatan selama operasi'],
-            ];
-        } else {
-            $complianceItems = [
-                ['code' => '1', 'kind' => 'Knw', 'label' => 'Kesehatan fisik dan perlengkapan/ penggunaan APD'],
-                ['code' => '2', 'kind' => 'Skl', 'label' => 'Menaiki dan menuruni Unit (Three point contact)'],
-                ['code' => '3', 'kind' => 'Skl', 'label' => 'Penyetelan tempat duduk'],
-                ['code' => '4', 'kind' => 'Atd', 'label' => 'Penggunaan sabuk pengaman/safety belt'],
-                ['code' => '5', 'kind' => 'Skl', 'label' => 'Penggunaan klakson dan lampu-lampu'],
-                ['code' => '6', 'kind' => 'Skl', 'label' => $family === 'track' ? 'Keselamatan saat digging, dozing, spreading, levelling, ripping, travelling' : 'Keselamatan saat loading, unloading, positioning, traveling, dan digging'],
-                ['code' => '7', 'kind' => 'Skl', 'label' => 'Penyesuaian jenis alat dengan lokasi pekerjaan'],
-                ['code' => '8', 'kind' => 'Atd', 'label' => 'Kepedulian terhadap patok-patok survey dan rambu'],
-                ['code' => '9', 'kind' => 'Skl', 'label' => 'Parkir unit ditempat yang rata dan aman (pasang lock dan cara meletakkan attachment)'],
-                ['code' => '10', 'kind' => 'Knw', 'label' => 'Keselamatan selama operasi'],
-            ];
-        }
+        if ($definition) {
+            $groups = $definition['groups'] ?? [];
+            $complianceItems = $definition['compliance'] ?? [];
+            $disciplineItems = $definition['behavior'] ?? [];
 
-        // Merge saved compliance statuses if exists
-        $savedCompliance = data_get($checklist, 'compliance', []);
-        foreach ($complianceItems as $i => $item) {
-            if (isset($savedCompliance[$i])) {
-                $complianceItems[$i]['status'] = $savedCompliance[$i]['status'] ?? 'K';
-                $complianceItems[$i]['note'] = $savedCompliance[$i]['note'] ?? '';
-            } else {
-                $complianceItems[$i]['status'] = 'K';
-                $complianceItems[$i]['note'] = '';
-            }
-        }
+            foreach (['groups', 'compliance', 'behavior'] as $section) {
+                if (!isset($definition[$section])) {
+                    continue;
+                }
+                $storedSection = data_get($stored, $section, []);
 
-        // Section C: Discipline & Communication
-        $savedBehavior = data_get($checklist, 'behavior', []);
-        $disciplineItems = [
-            ['code' => '1', 'kind' => 'Atd', 'label' => 'Mempedulikan pemakaian fuel/ bahan bakar'],
-            ['code' => '2', 'kind' => 'Atd', 'label' => 'Mempedulikan pemakaian tyre/ undercarriage'],
-            ['code' => '3', 'kind' => 'Atd', 'label' => 'Mempedulikan akan ketidaknormalan unit'],
-            ['code' => '4', 'kind' => 'Atd', 'label' => 'Mempedulikan untuk bekerja dengan efektif dan efisien'],
-            ['code' => '5', 'kind' => 'Atd', 'label' => 'Mempedulikan untuk meniadakan pemborosan dimanapun'],
-            ['code' => '6', 'kind' => 'Atd', 'label' => 'Melaksanakan aktivitas sesuai instruksi'],
-            ['code' => '7', 'kind' => 'Atd', 'label' => 'Berusaha untuk melakukan yang terbaik'],
-            ['code' => '8', 'kind' => 'Atd', 'label' => 'Selalu siap menerima tugas yang diberikan'],
-            ['code' => '9', 'kind' => 'Atd', 'label' => 'Berani mengingatkan jika ada yang berbuat kesalahan'],
-            ['code' => '10', 'kind' => 'Atd', 'label' => 'Disiplin waktu saat pelaksanaan pelatihan'],
-            ['code' => '11', 'kind' => 'Atd', 'label' => 'Mematuhi semua aturan yang berlaku'],
-            ['code' => '12', 'kind' => 'Atd', 'label' => 'Tidak pernah mangkir'],
-            ['code' => '13', 'kind' => 'Atd', 'label' => 'Melaksanakan tugas kelompok bersama-sama'],
-            ['code' => '14', 'kind' => 'Atd', 'label' => 'Berinisiatif untuk membantu'],
-            ['code' => '15', 'kind' => 'Atd', 'label' => 'Selalu antusias jika diberi tugas'],
-            ['code' => '16', 'kind' => 'Atd', 'label' => 'Melaporkan setiap kejadian diluar wewenangnya'],
-            ['code' => '17', 'kind' => 'Atd', 'label' => 'Tidak ragu-ragu jika diberi instruksi'],
-            ['code' => '18', 'kind' => 'Atd', 'label' => 'Mengoperasikan unit dengan penuh keyakinan'],
-            ['code' => '19', 'kind' => 'Atd', 'label' => 'Bersikap proaktif di setiap kegiatan'],
-            ['code' => '20', 'kind' => 'Atd', 'label' => 'Tidak malu untuk bertanya jika ada kesulitan'],
-        ];
-
-        // Merge saved behavior statuses if exists
-        foreach ($disciplineItems as $i => $item) {
-            if (isset($savedBehavior[$i])) {
-                $disciplineItems[$i]['status'] = $savedBehavior[$i]['status'] ?? 'K';
-                $disciplineItems[$i]['note'] = $savedBehavior[$i]['note'] ?? '';
-            } else {
-                $disciplineItems[$i]['status'] = 'K';
-                $disciplineItems[$i]['note'] = '';
+                if ($section === 'groups') {
+                    foreach ($definition['groups'] as $gi => $group) {
+                        $storedGroup = $storedSection[$gi] ?? [];
+                        $storedItems = $storedGroup['items'] ?? [];
+                        foreach ($group['items'] as $ii => $item) {
+                            $si = $storedItems[$ii] ?? [];
+                            $groups[$gi]['items'][$ii]['status'] = $si['status'] ?? null;
+                            $groups[$gi]['items'][$ii]['trainee_feedback']
+                                = $si['trainee_feedback'] ?? $si['note'] ?? null;
+                        }
+                    }
+                } else {
+                    foreach ($definition[$section] as $ii => $item) {
+                        $si = $storedSection[$ii] ?? [];
+                        if ($section === 'compliance') {
+                            $complianceItems[$ii]['status'] = $si['status'] ?? null;
+                            $complianceItems[$ii]['trainee_feedback']
+                                = $si['trainee_feedback'] ?? $si['note'] ?? null;
+                        } else {
+                            $disciplineItems[$ii]['status'] = $si['status'] ?? null;
+                            $disciplineItems[$ii]['trainee_feedback']
+                                = $si['trainee_feedback'] ?? $si['note'] ?? null;
+                        }
+                    }
+                }
             }
         }
     @endphp
@@ -419,6 +160,11 @@
             UNIT*: {{ $categoryCode }}
         </div>
 
+        {{--
+            Dokumen akhir tetap memakai kolom K / BK.
+            Nilai skala pengisian dikonversi otomatis oleh App\Support\CompetencyScale:
+            1 (Belum) & 2 (Cukup) => BK, 3 (Bisa) & 4 (Mahir) => K.
+        --}}
         <!-- Main Evaluation Table -->
         <table class="eval-table">
             <thead>
@@ -447,15 +193,15 @@
                     @foreach($group['items'] ?? [] as $itemIndex => $item)
                         @php
                             $status = $item['status'] ?? 'K';
-                            $note = trim((string)($item['note'] ?? ''));
+                            $note = trim((string)($item['trainee_feedback'] ?? $item['note'] ?? ''));
                         @endphp
                         <tr>
                             <td class="col-no">{{ $item['code'] ?? ($groupIndex + 1).'.'.($itemIndex + 1) }}</td>
                             <td class="col-aspek">{{ $item['kind'] ?? 'Skl' }}</td>
                             <td class="col-item">{{ $item['label'] ?? '' }}</td>
-                            <td class="col-kbk">{!! (!in_array($note, ['N/A', 'n/a', '-']) && $status === 'K') ? '✓' : '' !!}</td>
-                            <td class="col-kbk">{!! (!in_array($note, ['N/A', 'n/a', '-']) && $status === 'BK') ? '✓' : '' !!}</td>
-                            <td class="col-catatan">{{ $item['note'] ?? '' }}</td>
+                            <td class="col-kbk">{!! (!in_array($note, ['N/A', 'n/a', '-']) && \App\Support\CompetencyScale::isKompeten($status)) ? '✓' : '' !!}</td>
+                            <td class="col-kbk">{!! (!in_array($note, ['N/A', 'n/a', '-']) && \App\Support\CompetencyScale::isBelumKompeten($status)) ? '✓' : '' !!}</td>
+                            <td class="col-catatan">{{ $item['trainee_feedback'] ?? $item['note'] ?? '' }}</td>
                         </tr>
                     @endforeach
                 @endforeach
@@ -468,15 +214,15 @@
                 @foreach($complianceItems as $itemIndex => $item)
                     @php
                         $status = $item['status'] ?? 'K';
-                        $note = trim((string)($item['note'] ?? ''));
+                        $note = trim((string)($item['trainee_feedback'] ?? $item['note'] ?? ''));
                     @endphp
                     <tr>
                         <td class="col-no">{{ $item['code'] }}</td>
                         <td class="col-aspek">{{ $item['kind'] }}</td>
                         <td class="col-item">{{ $item['label'] }}</td>
-                        <td class="col-kbk">{!! (!in_array($note, ['N/A', 'n/a', '-']) && $status === 'K') ? '✓' : '' !!}</td>
-                        <td class="col-kbk">{!! (!in_array($note, ['N/A', 'n/a', '-']) && $status === 'BK') ? '✓' : '' !!}</td>
-                        <td class="col-catatan">{{ $item['note'] ?? '' }}</td>
+                        <td class="col-kbk">{!! (!in_array($note, ['N/A', 'n/a', '-']) && \App\Support\CompetencyScale::isKompeten($status)) ? '✓' : '' !!}</td>
+                        <td class="col-kbk">{!! (!in_array($note, ['N/A', 'n/a', '-']) && \App\Support\CompetencyScale::isBelumKompeten($status)) ? '✓' : '' !!}</td>
+                        <td class="col-catatan">{{ $item['trainee_feedback'] ?? $item['note'] ?? '' }}</td>
                     </tr>
                 @endforeach
 
@@ -488,15 +234,15 @@
                 @foreach($disciplineItems as $itemIndex => $item)
                     @php
                         $status = $item['status'] ?? 'K';
-                        $note = trim((string)($item['note'] ?? ''));
+                        $note = trim((string)($item['trainee_feedback'] ?? $item['note'] ?? ''));
                     @endphp
                     <tr>
                         <td class="col-no">{{ $item['code'] }}</td>
                         <td class="col-aspek">{{ $item['kind'] }}</td>
                         <td class="col-item">{{ $item['label'] }}</td>
-                        <td class="col-kbk">{!! (!in_array($note, ['N/A', 'n/a', '-']) && $status === 'K') ? '✓' : '' !!}</td>
-                        <td class="col-kbk">{!! (!in_array($note, ['N/A', 'n/a', '-']) && $status === 'BK') ? '✓' : '' !!}</td>
-                        <td class="col-catatan">{{ $item['note'] ?? '' }}</td>
+                        <td class="col-kbk">{!! (!in_array($note, ['N/A', 'n/a', '-']) && \App\Support\CompetencyScale::isKompeten($status)) ? '✓' : '' !!}</td>
+                        <td class="col-kbk">{!! (!in_array($note, ['N/A', 'n/a', '-']) && \App\Support\CompetencyScale::isBelumKompeten($status)) ? '✓' : '' !!}</td>
+                        <td class="col-catatan">{{ $item['trainee_feedback'] ?? $item['note'] ?? '' }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -523,7 +269,7 @@
 
                         foreach ($groups as $group) {
                             foreach ($group['items'] ?? [] as $item) {
-                                if (($item['status'] ?? 'K') === 'BK') {
+                                if (\App\Support\CompetencyScale::isBelumKompeten($item['status'] ?? 'K')) {
                                     $hasAnyBk = true;
                                     break 2;
                                 }
@@ -532,7 +278,7 @@
 
                         if (!$hasAnyBk) {
                             foreach ($complianceItems as $item) {
-                                if (($item['status'] ?? 'K') === 'BK') {
+                                if (\App\Support\CompetencyScale::isBelumKompeten($item['status'] ?? 'K')) {
                                     $hasAnyBk = true;
                                     break;
                                 }
@@ -541,7 +287,7 @@
 
                         if (!$hasAnyBk) {
                             foreach ($disciplineItems as $item) {
-                                if (($item['status'] ?? 'K') === 'BK') {
+                                if (\App\Support\CompetencyScale::isBelumKompeten($item['status'] ?? 'K')) {
                                     $hasAnyBk = true;
                                     break;
                                 }
