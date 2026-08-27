@@ -1,10 +1,10 @@
 {{--
-    Dua kolom K / BK read-only untuk tampilan View Detail Logbook
+    Dua kolom K / BK read-only untuk tampilan View Detail Form OJT
     (Trainer & Admin Training Centre).
 
     Nilai skala yang tersimpan dikonversi otomatis:
         1 (Belum) / 2 (Cukup) -> centang read-only pada kolom BK
-        3 (Bisa)  / 4 (Mahir) -> centang read-only pada kolom K
+        3 (Mampu)  / 4 (Mahir) -> centang read-only pada kolom K
 
     Parameter:
         $status : nilai tersimpan pada item evaluasi (1-4, atau legacy 'K'/'BK')

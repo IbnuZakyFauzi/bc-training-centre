@@ -13,7 +13,7 @@
             ['Sudah TC', $counts['tc_approved'], 'purple'],
             ['Di PJO', $counts['pjo_approved'], 'amber'],
             ['Selesai', $counts['completed'], 'blue'],
-            ['Ditolak', $counts['rejected'], 'red'],
+            ['Revisi', $counts['rejected'], 'amber'],
         ] as [$label, $value, $color])
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-3 sm:p-4">
                 <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-{{ $color }}-600">{{ $label }}</p>

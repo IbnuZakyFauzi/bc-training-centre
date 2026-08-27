@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'OJT Logbook System' }} - PT Berau Coal / PT MTL Training Centre</title>
+    <title>{{ $title ?? 'OJT Form System' }} - PT Berau Coal / PT MTL Training Centre</title>
 
     <!-- Google Fonts Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

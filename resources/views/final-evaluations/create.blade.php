@@ -47,7 +47,7 @@
                                 <select name="nama_operator" id="nama_operator" data-trainees='@json($trainees)' onchange="handleOperatorChange(this)" required class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                                     <option value="">Pilih operator...</option>
                                     @foreach($trainees as $trainee)
-                                        <option value="{{ $trainee['name'] }}" {{ (old('nama_operator') == $trainee['name'] || (isset($selectedTraineeId) && $selectedTraineeId == $trainee['id'])) ? 'selected' : '' }}>
+                                        <option value="{{ $trainee['name'] }}" {{ old('nama_operator') == $trainee['name'] ? 'selected' : '' }}>
                                             {{ $trainee['name'] }} @if(!$trainee['eligible']) (fase {{ $trainee['current_phase_label'] }}) @endif
                                         </option>
                                     @endforeach
@@ -107,21 +107,21 @@
 
         <!-- Section B: Penilaian Pasca Pelatihan -->
         <div class="rounded-2xl border-2 border-slate-900 bg-white overflow-hidden shadow-sm">
-            <div class="grid grid-cols-1 lg:grid-cols-2 border-t border-slate-900">
+            <div class="grid grid-cols-1 lg:grid-cols-3 border-t border-slate-900">
                 <div class="border-b border-slate-900 lg:border-b-0 lg:border-r p-3 sm:p-4 text-[10px] sm:text-[11px]">
-                    <div class="font-semibold mb-2">Penilaian Pasca Pelatihan (Beri tanda "√" untuk yang sesuai)</div>
+                    <div class="font-semibold mb-2">Tahap Penilaian OJT</div>
                     <div class="flex flex-col gap-2">
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="radio" name="tahap_penilaian" value="pendampingan" {{ old('tahap_penilaian', $isEditing ? $evaluation->tahap_penilaian : '') === 'pendampingan' ? 'checked' : '' }} class="h-4 w-4 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
-                            <span class="text-xs sm:text-sm">Tahap Pendampingan</span>
+                            <span class="text-xs sm:text-sm">Pendampingan</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="radio" name="tahap_penilaian" value="tanpa_pendampingan" {{ old('tahap_penilaian', $isEditing ? $evaluation->tahap_penilaian : '') === 'tanpa_pendampingan' ? 'checked' : '' }} class="h-4 w-4 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
-                            <span class="text-xs sm:text-sm">Tahap Tanpa Pendampingan</span>
+                            <span class="text-xs sm:text-sm">Tanpa Pendampingan</span>
                         </label>
                     </div>
                 </div>
-                <div class="p-3 sm:p-4 text-[10px] sm:text-[11px]">
+                <div class="border-b border-slate-900 lg:border-b-0 lg:border-r p-3 sm:p-4 text-[10px] sm:text-[11px]">
                     <div class="font-semibold mb-2">Tahap Tanpa Pendampingan Lanjutan</div>
                     <div class="flex flex-col gap-2">
                         <label class="flex items-center gap-2 cursor-pointer">
@@ -137,18 +137,38 @@
                             <span>3 Bulan Kedua</span>
                         </label>
                     </div>
-                    <div class="mt-3">
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan</label>
-                        <select name="sub_tahap_keterangan" class="w-full border border-slate-200 rounded-lg bg-white px-2 py-1.5 text-[11px] font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
-                            <option value="">Pilih bulan</option>
-                            <option value="-" {{ old('sub_tahap_keterangan', $isEditing ? ($evaluation->sub_tahap ?? '') : '') === '-' ? 'selected' : '' }}>-</option>
-                            <option value="bulan_1" {{ old('sub_tahap_keterangan', $isEditing ? ($evaluation->sub_tahap ?? '') : '') === 'bulan_1' ? 'selected' : '' }}>Bulan ke-1</option>
-                            <option value="bulan_2" {{ old('sub_tahap_keterangan', $isEditing ? ($evaluation->sub_tahap ?? '') : '') === 'bulan_2' ? 'selected' : '' }}>Bulan ke-2</option>
-                            <option value="bulan_3" {{ old('sub_tahap_keterangan', $isEditing ? ($evaluation->sub_tahap ?? '') : '') === 'bulan_3' ? 'selected' : '' }}>Bulan ke-3</option>
-                            <option value="bulan_4" {{ old('sub_tahap_keterangan', $isEditing ? ($evaluation->sub_tahap ?? '') : '') === 'bulan_4' ? 'selected' : '' }}>Bulan ke-4</option>
-                            <option value="bulan_5" {{ old('sub_tahap_keterangan', $isEditing ? ($evaluation->sub_tahap ?? '') : '') === 'bulan_5' ? 'selected' : '' }}>Bulan ke-5</option>
-                            <option value="bulan_6" {{ old('sub_tahap_keterangan', $isEditing ? ($evaluation->sub_tahap ?? '') : '') === 'bulan_6' ? 'selected' : '' }}>Bulan ke-6</option>
-                        </select>
+                </div>
+                <div class="p-3 sm:p-4 text-[10px] sm:text-[11px]">
+                    <div class="font-semibold mb-2">Keterangan</div>
+                    <div class="flex flex-col gap-2">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="sub_tahap_keterangan" value="bulan_1" {{ old('sub_tahap_keterangan') === 'bulan_1' ? 'checked' : '' }} class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
+                            <span>Bulan ke-1</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="sub_tahap_keterangan" value="bulan_2" {{ old('sub_tahap_keterangan') === 'bulan_2' ? 'checked' : '' }} class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
+                            <span>Bulan ke-2</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="sub_tahap_keterangan" value="bulan_3" {{ old('sub_tahap_keterangan') === 'bulan_3' ? 'checked' : '' }} class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
+                            <span>Bulan ke-3</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="sub_tahap_keterangan" value="bulan_4" {{ old('sub_tahap_keterangan') === 'bulan_4' ? 'checked' : '' }} class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
+                            <span>Bulan ke-4</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="sub_tahap_keterangan" value="bulan_5" {{ old('sub_tahap_keterangan') === 'bulan_5' ? 'checked' : '' }} class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
+                            <span>Bulan ke-5</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="sub_tahap_keterangan" value="bulan_6" {{ old('sub_tahap_keterangan') === 'bulan_6' ? 'checked' : '' }} class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
+                            <span>Bulan ke-6</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="sub_tahap_keterangan" value="-" {{ old('sub_tahap_keterangan') === '-' ? 'checked' : '' }} class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
+                            <span>-</span>
+                        </label>
                     </div>
                 </div>
             </div>

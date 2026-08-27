@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\CompetencyEvaluation;
-use App\Models\Department;
 use App\Models\Equipment;
 use App\Models\EquipmentCategory;
 use App\Models\LogbookHistory;
@@ -13,6 +12,7 @@ use App\Models\LogbookAssignment;
 use App\Support\CompetencyScale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class TrainerReviewController extends Controller
@@ -22,7 +22,7 @@ class TrainerReviewController extends Controller
         $trainer = auth()->user();
         abort_unless($trainer && $trainer->isTrainer(), 403);
 
-        $query = OjtLogbook::with(['trainee.department', 'equipment', 'department', 'evaluation'])
+        $query = OjtLogbook::with(['trainee', 'equipment', 'evaluation'])
             ->whereHas('assignments', function ($q) use ($trainer) {
                 $q->where('user_id', $trainer->id)
                   ->where('status', 'pending');
@@ -86,7 +86,7 @@ class TrainerReviewController extends Controller
 
     public function show($id)
     {
-        $logbook = OjtLogbook::with(['trainee.department', 'trainer', 'department', 'equipment', 'equipmentCategory', 'histories.user', 'evaluation', 'assignedPjo', 'assignedTc'])->findOrFail($id);
+        $logbook = OjtLogbook::with(['trainee', 'trainer', 'equipment', 'equipmentCategory', 'histories.user', 'evaluation', 'assignedPjo', 'assignedTc'])->findOrFail($id);
         $trainer = auth()->user();
         abort_unless($logbook->status !== 'draft', 403);
         abort_unless($logbook->assignments()->where('user_id', $trainer->id)->where('status', 'pending')->exists(), 403);
@@ -103,7 +103,6 @@ class TrainerReviewController extends Controller
         abort_unless($logbook->assignments()->where('user_id', $trainer->id)->where('status', 'pending')->exists(), 403);
 
         $user = $logbook->trainee;
-        $departments = Department::whereIn('code', ['CHCPP', 'RIM', 'PLANT'])->get();
         $categories = EquipmentCategory::whereIn('code', ['EXC', 'DZ', 'MG', 'HDT', 'SDT', 'WL'])->get();
         $trainers = User::where('role', 'trainer')->get();
         $equipments = Equipment::where('status', 'active')->get();
@@ -114,7 +113,7 @@ class TrainerReviewController extends Controller
             ? User::whereIn('id', $logbook->selected_operator_pendamping_ids)->get()
             : collect();
 
-        return view('trainer.reviews.edit', compact('logbook', 'user', 'departments', 'categories', 'trainers', 'equipments', 'assignedPengawas', 'assignedOperators'));
+        return view('trainer.reviews.edit', compact('logbook', 'user', 'categories', 'trainers', 'equipments', 'assignedPengawas', 'assignedOperators'));
     }
 
     public function updateLogbook(Request $request, $id)
@@ -137,9 +136,10 @@ class TrainerReviewController extends Controller
             'date' => ['required', 'date'], 'shift' => ['required', 'in:day,night'],
             'location' => ['required', 'string', 'max:255'], 'equipment_number' => ['required', 'string', 'max:100'],
             'hm_start' => ['required', 'numeric', 'min:0'], 'hm_end' => ['required', 'numeric', 'gte:hm_start'],
-            'daily_activity' => ['nullable', 'string'],
-            'daily_activity_backup' => ['nullable', 'string'],
             'sop_payload' => ['nullable', 'array'],
+            'sop_payload.meta.unit_type' => ['nullable', 'string', 'in:DZ,GR,HDT,LDT,SDT,ADT', Rule::requiredIf(function () use ($request) {
+                return in_array($request->input('sop_payload.meta.unit_family'), ['track', 'dumptruck', 'semidump']);
+            })],
             'sop_payload.*.groups.*.items.*.status' => ['nullable', 'integer', 'between:1,4'],
             'sop_payload.*.compliance.*.status' => ['nullable', 'integer', 'between:1,4'],
             'sop_payload.*.behavior.*.status' => ['nullable', 'integer', 'between:1,4'],
@@ -147,12 +147,14 @@ class TrainerReviewController extends Controller
             'sop_payload.*.compliance.*.trainee_feedback' => ['nullable', 'string'],
             'sop_payload.*.behavior.*.trainee_feedback' => ['nullable', 'string'],
         ], [
-            'sop_payload.*.groups.*.items.*.status.integer' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Bisa), atau 4 (Mahir).',
-            'sop_payload.*.groups.*.items.*.status.between' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Bisa), atau 4 (Mahir).',
-            'sop_payload.*.compliance.*.status.integer' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Bisa), atau 4 (Mahir).',
-            'sop_payload.*.compliance.*.status.between' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Bisa), atau 4 (Mahir).',
-            'sop_payload.*.behavior.*.status.integer' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Bisa), atau 4 (Mahir).',
-            'sop_payload.*.behavior.*.status.between' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Bisa), atau 4 (Mahir).',
+            'sop_payload.meta.unit_type.required' => 'Pilih tipe unit (DZ/GR, HDT/LDT, atau SDT/ADT) sesuai kategori alat.',
+            'sop_payload.meta.unit_type.in' => 'Tipe unit yang dipilih tidak valid.',
+            'sop_payload.*.groups.*.items.*.status.integer' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Mampu), atau 4 (Mahir).',
+            'sop_payload.*.groups.*.items.*.status.between' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Mampu), atau 4 (Mahir).',
+            'sop_payload.*.compliance.*.status.integer' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Mampu), atau 4 (Mahir).',
+            'sop_payload.*.compliance.*.status.between' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Mampu), atau 4 (Mahir).',
+            'sop_payload.*.behavior.*.status.integer' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Mampu), atau 4 (Mahir).',
+            'sop_payload.*.behavior.*.status.between' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Mampu), atau 4 (Mahir).',
         ]);
 
         // Nilai item evaluasi selalu disimpan sebagai integer 1-4 (legacy 'K'/'BK' dikonversi).
@@ -160,9 +162,12 @@ class TrainerReviewController extends Controller
             $data['sop_payload'] = CompetencyScale::normalizePayload($data['sop_payload']);
         }
 
-        $activity = trim((string)($data['daily_activity'] ?? ''));
-        $backup = trim((string)($data['daily_activity_backup'] ?? ''));
-        $data['daily_activity'] = $activity !== '' ? $activity : $backup;
+        if (isset($data['sop_payload']) && is_array($data['sop_payload'])) {
+            $existingUnitType = data_get($logbook->sop_payload, 'meta.unit_type');
+            if ($existingUnitType && empty($data['sop_payload']['meta']['unit_type'])) {
+                data_set($data['sop_payload'], 'meta.unit_type', $existingUnitType);
+            }
+        }
 
         $data['total_hm'] = max(0, (float) $data['hm_end'] - (float) $data['hm_start']);
         $previousStatus = $logbook->status;
@@ -253,6 +258,13 @@ class TrainerReviewController extends Controller
                 'to_status' => 'revision',
                 'comment' => $data['revision_instruction'],
             ]);
+
+            $logbook->trainee?->notify(new \App\Notifications\LogbookRevisionRequestedNotification([
+                'title' => 'Logbook Memerlukan Revisi',
+                'message' => "Trainer meminta revisi pada logbook {$logbook->logbook_number}. Silakan perbaiki sesuai catatan.",
+                'url' => route('ojt.logbooks.edit', $logbook->id),
+            ]));
+
             return redirect()->route('trainer.reviews.index')->with('success', 'Logbook telah dikembalikan untuk revisi.');
         }
 
@@ -298,6 +310,20 @@ class TrainerReviewController extends Controller
                 'from_status' => $previousStatus, 'to_status' => $newStatus,
                 'comment' => 'Logbook diverifikasi trainer. Evaluasi: '.($data['competency_status'] === 'competent' ? 'Kompeten' : 'Belum Kompeten').'.',
             ]);
+
+            \App\Models\User::where('role', 'admin')->get()->each(function ($adminTc) use ($logbook) {
+                $adminTc->notify(new \App\Notifications\LogbookSubmittedNotification([
+                    'title' => 'Form OJT Baru Menunggu Persetujuan Final',
+                    'message' => "Form OJT {$logbook->logbook_number} dari {$logbook->trainee->name} telah diverifikasi trainer dan menunggu persetujuan Anda.",
+                    'url' => route('training-centre.approvals.show', $logbook->id),
+                ]));
+            });
+
+            $logbook->trainee?->notify(new \App\Notifications\LogbookApprovedNotification([
+                'title' => 'Form OJT Telah Diverifikasi Trainer',
+                'message' => "Form OJT {$logbook->logbook_number} Anda telah diverifikasi oleh trainer dan dikirim ke Admin TC untuk persetujuan final.",
+                'url' => route('ojt.logbooks.show', $logbook->id),
+            ]));
 
             if (!empty($logbook->selected_pengawas_ids)) {
                 foreach ($logbook->selected_pengawas_ids as $pengawasId) {

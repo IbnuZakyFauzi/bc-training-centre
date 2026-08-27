@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Support\CompetencyScale;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreLogbookRequest extends FormRequest
 {
@@ -37,20 +38,19 @@ class StoreLogbookRequest extends FormRequest
             'equipment_id' => ['nullable', 'exists:equipments,id'],
             'equipment_number' => [$isDraft ? 'nullable' : 'required', 'string', 'max:100'],
             'trainer_id' => ['nullable', 'exists:users,id'],
-            'selected_pengawas_ids' => [$isDraft ? 'nullable' : 'required', 'array', 'min:1'],
+            'selected_pengawas_ids' => ['nullable', 'array', 'min:1'],
             'selected_pengawas_ids.*' => ['exists:users,id'],
-            'selected_operator_pendamping_ids' => [$isDraft ? 'nullable' : 'required', 'array', 'min:1'],
+            'selected_operator_pendamping_ids' => ['nullable', 'array', 'min:1'],
             'selected_operator_pendamping_ids.*' => ['exists:users,id'],
             'location' => [$isDraft ? 'nullable' : 'required', 'string', 'max:255'],
             'hm_start' => [$isDraft ? 'nullable' : 'required', 'numeric', 'min:0'],
             'hm_end' => [$isDraft ? 'nullable' : 'required', 'numeric', 'gte:hm_start'],
-            'daily_activity' => ['nullable', 'string'],
-            'daily_activity_backup' => ['nullable', 'string'],
             'trainer_ratings' => ['nullable', 'array'],
             'trainer_ratings.*.user_id' => ['required_with:trainer_ratings', 'exists:users,id'],
-            'trainer_ratings.*.rating' => ['required_with:trainer_ratings', 'integer', 'min:1', 'max:5'],
+            'trainer_ratings.*.rating' => ['required_with:trainer_ratings', 'integer', 'min:0', 'max:5'],
             'trainer_ratings.*.role_type' => ['nullable', 'string', 'in:instruktur,pengawas,operator_pendamping'],
             'sop_payload' => [$isDraft ? 'nullable' : 'required', 'array'],
+            'sop_payload.meta.unit_type' => ['nullable', 'string', 'in:DZ,GR,HDT,LDT,SDT,ADT', Rule::requiredIf(fn () => in_array($this->input('sop_payload.meta.unit_family'), ['track', 'dumptruck', 'semidump']))],
             'sop_payload.*.groups.*.items.*.status' => ['nullable', 'integer', 'between:1,4'],
             'sop_payload.*.groups.*.items.*.trainee_feedback' => ['nullable', 'string'],
             'sop_payload.*.compliance.*.status' => ['nullable', 'integer', 'between:1,4'],
@@ -63,9 +63,11 @@ class StoreLogbookRequest extends FormRequest
 
     public function messages(): array
     {
-        $scaleMessage = 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Bisa), atau 4 (Mahir).';
+        $scaleMessage = 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Mampu), atau 4 (Mahir).';
 
         return [
+            'sop_payload.meta.unit_type.required' => 'Pilih tipe unit (DZ/GR, HDT/LDT, atau SDT/ADT) sesuai kategori alat.',
+            'sop_payload.meta.unit_type.in' => 'Tipe unit yang dipilih tidak valid.',
             'sop_payload.*.groups.*.items.*.status.integer' => $scaleMessage,
             'sop_payload.*.groups.*.items.*.status.between' => $scaleMessage,
             'sop_payload.*.compliance.*.status.integer' => $scaleMessage,
@@ -84,9 +86,30 @@ class StoreLogbookRequest extends FormRequest
         $ratings = $this->input('trainer_ratings', []);
         if (empty($ratings)) {
             $validator->errors()->add('trainer_ratings', 'Penilaian trainer wajib diisi sebelum submit.');
+        } else {
+            $hasRating = false;
+            foreach ($ratings as $rating) {
+                if (!empty($rating['rating']) && (int) $rating['rating'] > 0) {
+                    $hasRating = true;
+                    break;
+                }
+            }
+            if (!$hasRating) {
+                $validator->errors()->add('trainer_ratings', 'Penilaian trainer wajib diisi sebelum submit.');
+            }
         }
 
         $validator->after(function ($validator) {
+            if ($this->action_type === 'submit') {
+                $hasInstruktur = !empty($this->input('trainer_id'));
+                $hasPengawas = !empty($this->input('selected_pengawas_ids'));
+                $hasOperator = !empty($this->input('selected_operator_pendamping_ids'));
+
+                if (!$hasInstruktur && !$hasPengawas && !$hasOperator) {
+                    $validator->errors()->add('personnel', 'Pilih minimal salah satu: Instruktur, Pengawas, atau Operator Pendamping.');
+                }
+            }
+
             $family = data_get($this->input('sop_payload'), 'meta.unit_family');
             $checklist = data_get($this->input('sop_payload'), $family);
 

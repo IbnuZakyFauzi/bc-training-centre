@@ -21,7 +21,6 @@ class User extends Authenticatable
         'is_super_admin',
         'role',
         'trainer_type',
-        'department_id',
         'phone',
         'avatar',
         'signature_path',
@@ -45,11 +44,6 @@ class User extends Authenticatable
             'password' => 'hashed',
             'sticker_expired_at' => 'date',
         ];
-    }
-
-    public function department(): BelongsTo
-    {
-        return $this->belongsTo(Department::class);
     }
 
     public function equipmentCategory(): BelongsTo

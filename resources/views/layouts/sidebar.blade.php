@@ -37,7 +37,7 @@
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'ojt.dashboard', 'match' => 'ojt.dashboard'],
                 ['label' => 'My Submission', 'route' => 'ojt.logbooks.index', 'match' => 'ojt.logbooks.*'],
-                ['label' => 'Form OJT', 'route' => 'ojt.logbooks.create', 'match' => 'ojt.logbooks.create'],
+                ['label' => 'Create Form OJT', 'route' => 'ojt.logbooks.create', 'match' => 'ojt.logbooks.create'],
             ],
         ],
         'trainer' => [
@@ -45,9 +45,8 @@
             'tag' => 'TRAINER',
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'trainer.dashboard', 'match' => 'trainer.dashboard'],
-                ['label' => 'Review Logbook', 'route' => 'trainer.reviews.index', 'match' => 'trainer.reviews.*'],
-                ['label' => 'Evaluasi Akhir A2B', 'route' => 'trainer.final-evaluations.index', 'match' => 'trainer.final-evaluations.*'],
-                ['label' => 'Approval Pengawas', 'route' => 'supervisor.approvals.index', 'match' => 'supervisor.approvals.*'],
+                ['label' => 'Review Form OJT', 'route' => 'trainer.reviews.index', 'match' => 'trainer.reviews.*'],
+                ['label' => 'Form Evaluasi OJT A2B', 'route' => 'trainer.final-evaluations.index', 'match' => 'trainer.final-evaluations.*'],
             ],
         ],
         'pengawas' => [
@@ -55,9 +54,8 @@
             'tag' => 'PENGAWAS',
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'trainer.dashboard', 'match' => 'trainer.dashboard'],
-                ['label' => 'Review Logbook', 'route' => 'trainer.reviews.index', 'match' => 'trainer.reviews.*'],
+                ['label' => 'Review Form OJT', 'route' => 'trainer.reviews.index', 'match' => 'trainer.reviews.*'],
                 ['label' => 'Evaluasi Akhir A2B', 'route' => 'trainer.final-evaluations.index', 'match' => 'trainer.final-evaluations.*'],
-                ['label' => 'Approval Saya', 'route' => 'supervisor.approvals.index', 'match' => 'supervisor.approvals.*'],
             ],
         ],
         'operator_pendamping' => [
@@ -65,7 +63,7 @@
             'tag' => 'OPERATOR',
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'trainer.dashboard', 'match' => 'trainer.dashboard'],
-                ['label' => 'Review Logbook', 'route' => 'trainer.reviews.index', 'match' => 'trainer.reviews.*'],
+                ['label' => 'Review Form OJT', 'route' => 'trainer.reviews.index', 'match' => 'trainer.reviews.*'],
                 ['label' => 'Evaluasi Akhir A2B', 'route' => 'trainer.final-evaluations.index', 'match' => 'trainer.final-evaluations.*'],
             ],
         ],

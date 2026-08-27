@@ -13,6 +13,23 @@
     $selectedCategoryId = old('equipment_category_id', $isEditing ? $logbook->equipment_category_id : ($trainee->equipment_category_id ?? ''));
     $selectedCategoryCode = $selectedCategoryId ? ($categoryMap[$selectedCategoryId] ?? '') : '';
 
+    $defaultAssessmentMode = '';
+    $defaultAssessmentStage = '';
+    $defaultAssessmentStageDetail = '';
+    if (!$isEditing || !data_get($formPayload, 'meta.assessment_mode')) {
+        $traineeCert = $trainee->certification ?? 'Green';
+        $traineePhase = $trainee->current_phase ?? \App\Services\PhaseService::firstPhase($traineeCert);
+        $phaseMeta = \App\Services\PhaseService::meta($traineeCert, $traineePhase);
+        if ($phaseMeta && ($phaseMeta['type'] ?? '') === 'bulanan') {
+            $defaultAssessmentMode = 'tanpa_pendampingan';
+            $defaultAssessmentStage = 'bulanan';
+            $bulananIndex = (int) str_replace('bulanan_', '', $traineePhase);
+            $defaultAssessmentStageDetail = 'bulan_' . max(1, min(6, $bulananIndex - 4));
+        } else {
+            $defaultAssessmentMode = 'pendampingan';
+        }
+    }
+
     $trackGroups = [
         [
             'title' => 'Dozing & Digging untuk Unit (DZ) / Grading & Digging untuk Unit (GR)',
@@ -318,11 +335,11 @@
 <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
     <div>
         <div class="flex items-center space-x-2 text-xs font-semibold text-[#2563eb] mb-1">
-            <a href="{{ route('ojt.logbooks.index') }}" class="hover:underline">My Logbook</a>
+            <a href="{{ route('ojt.logbooks.index') }}" class="hover:underline">My Form OJT</a>
             <span>/</span>
-            <span class="text-slate-500">{{ $isTrainerEditing ? 'Edit Logbook Trainer' : ($isEditing ? 'Edit Draft Logbook' : 'Create Digital Logbook') }}</span>
+            <span class="text-slate-500">{{ $isTrainerEditing ? 'Edit Form OJT Trainer' : ($isEditing ? 'Edit Draft Form OJT' : 'Create Digital Form OJT') }}</span>
         </div>
-        <h1 class="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">Formulir Logbook Harian Trainee OJT</h1>
+        <h1 class="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">Formulir Harian Trainee OJT</h1>
         <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Form ini menampilkan checklist harian per unit: track unit (DZ/GR), excavator (EXC), dump truck (HDT/LDT), dan semi dump (SDT/ADT).</p>
     </div>
     <a href="{{ route('ojt.logbooks.index') }}" class="px-3.5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition text-center min-h-[44px] inline-flex items-center justify-center">Kembali</a>
@@ -338,15 +355,13 @@
             company: @js(old('sop_payload.meta.company', data_get($formPayload, 'meta.company', $trainee->company ?? ''))),
             certification: @js(old('sop_payload.meta.certification', data_get($formPayload, 'meta.certification', $trainee->certification ?? 'Green'))),
             stickerExpiredAt: @js(old('sop_payload.meta.sticker_expired_at', data_get($formPayload, 'meta.sticker_expired_at', $trainee->sticker_expired_at?->format('Y-m-d') ?? ''))),
-            assessmentMode: @js(old('sop_payload.meta.assessment_mode', data_get($formPayload, 'meta.assessment_mode', ''))),
-            assessmentStage: @js(old('sop_payload.meta.assessment_stage', data_get($formPayload, 'meta.assessment_stage', ''))),
-            assessmentStageDetail: @js(old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', ''))),
+            assessmentMode: @js(old('sop_payload.meta.assessment_mode', data_get($formPayload, 'meta.assessment_mode', $defaultAssessmentMode))),
+            assessmentStage: @js(old('sop_payload.meta.assessment_stage', data_get($formPayload, 'meta.assessment_stage', $defaultAssessmentStage))),
+            assessmentStageDetail: @js(old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', $defaultAssessmentStageDetail))),
             hmStart: @js(old('hm_start', $isEditing ? $logbook->hm_start : '')),
             hmEnd: @js(old('hm_end', $isEditing ? $logbook->hm_end : '')),
             unitType: @js(old('sop_payload.meta.unit_type', data_get($formPayload, 'meta.unit_type', ''))),
             location: @js(old('location', $isEditing ? $logbook->location : '')),
-            dailyActivity: @js(old('daily_activity', $isEditing ? $logbook->daily_activity : '')),
-            trainerRatings: {},
             selectedTrainerId: '',
             selectedPengawasIds: [],
             selectedOperatorIds: [],
@@ -389,18 +404,6 @@
                     else if (!field.value) field.value = value;
                 });
             },
-            getTrainerRating(userId) {
-                return this.trainerRatings[userId] || 0;
-            },
-            setTrainerRating(userId, rating) {
-                this.trainerRatings[userId] = rating;
-            },
-            initTrainerRatings() {
-                const raw = @js(old('trainer_ratings', $isEditing ? ($logbook->trainer_ratings ?? []) : []));
-                for (const [userId, entry] of Object.entries(raw)) {
-                    this.trainerRatings[userId] = entry.rating || 0;
-                }
-            },
             initSelectedTrainers() {
                 const trainerId = @js(old('trainer_id', $isEditing ? $logbook->trainer_id : ''));
                 this.selectedTrainerId = trainerId ? Number(trainerId) : '';
@@ -425,7 +428,7 @@
 
     <form action="{{ $isTrainerEditing ? route('trainer.reviews.update', $logbook->id) : ($isEditing ? route('ojt.logbooks.update', $logbook->id) : route('ojt.logbooks.store')) }}" method="POST"
       x-data="logbookFormData()"
-       x-init="$nextTick(() => { fillExistingChecklist(); initTrainerRatings(); initSelectedTrainers(); })"
+        x-init="$nextTick(() => { fillExistingChecklist(); initSelectedTrainers(); })"
         class="space-y-3 sm:space-y-3 pb-6 sm:pb-10">
     @csrf
     @if($isEditing)
@@ -552,7 +555,7 @@
                 <ol class="space-y-1 pl-4 list-decimal">
                     <li>Pilih salah satu angka 1 - 4 pada kolom "Penilaian" yang sesuai</li>
                     <li>Kolom "Trainee Feedback" memuat penjelasan item evaluasi terkait</li>
-                    <li>(1) Belum &amp; (2) Cukup = (BK) Belum Kompeten, (3) Bisa &amp; (4) Mahir = (K) Kompeten</li>
+                    <li>(1) Belum &amp; (2) Cukup = (BK) Belum Kompeten, (3) Mampu &amp; (4) Mahir = (K) Kompeten</li>
                     <li>Knw: Knowledge, Skl: Skill, Atd: Attitude</li>
                 </ol>
             </div>
@@ -560,11 +563,11 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <div class="font-semibold mb-2">Tahap Penilaian OJT</div>
-                        <label class="flex items-center gap-2 mb-2 cursor-pointer">
+                        <label class="flex items-center gap-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
                             <input type="radio" name="sop_payload[meta][assessment_mode]" value="pendampingan" x-model="assessmentMode" class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
                             <span>Pendampingan</span>
                         </label>
-                        <label class="flex items-center gap-2 mb-2 cursor-pointer">
+                        <label class="flex items-center gap-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
                             <input type="radio" name="sop_payload[meta][assessment_mode]" value="tanpa_pendampingan" x-model="assessmentMode" class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
                             <span>Tanpa Pendampingan</span>
                         </label>
@@ -572,15 +575,15 @@
                     <div>
                         <div class="font-semibold mb-2">Tahap Tanpa Pendampingan Lanjutan</div>
                         <div class="flex flex-col gap-2">
-                            <label class="flex items-center gap-2 cursor-pointer">
+                            <label class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
                                 <input type="radio" name="sop_payload[meta][assessment_stage]" value="bulanan" x-model="assessmentStage" class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
                                 <span>Bulanan</span>
                             </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
+                            <label class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
                                 <input type="radio" name="sop_payload[meta][assessment_stage]" value="3_bulan_pertama" x-model="assessmentStage" class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
                                 <span>3 Bulan Pertama</span>
                             </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
+                            <label class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
                                 <input type="radio" name="sop_payload[meta][assessment_stage]" value="3_bulan_kedua" x-model="assessmentStage" class="h-3.5 w-3.5 border-slate-400 text-[#1e3a8a] focus:ring-brand-500">
                                 <span>3 Bulan Kedua</span>
                             </label>
@@ -590,7 +593,6 @@
                         <div class="font-semibold mb-2">Keterangan</div>
                         <select name="sop_payload[meta][assessment_stage_detail]" x-model="assessmentStageDetail" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                             <option value="">Pilih bulan</option>
-                            <option value="-" {{ old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', '')) == '-' ? 'selected' : '' }}>-</option>
                             <option value="bulan_1" {{ old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', '')) == 'bulan_1' ? 'selected' : '' }}>Bulan ke-1</option>
                             <option value="bulan_2" {{ old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', '')) == 'bulan_2' ? 'selected' : '' }}>Bulan ke-2</option>
                             <option value="bulan_3" {{ old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', '')) == 'bulan_3' ? 'selected' : '' }}>Bulan ke-3</option>
@@ -611,7 +613,7 @@
         </div>
         <div class="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Instruktur <span class="text-rose-500">*</span></label>
+                    <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Instruktur</label>
                     <select name="trainer_id" x-model="selectedTrainerId" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition min-h-[44px]">
                     <option value="">Pilih instruktur</option>
                     @foreach($user->assignedInstruktur as $instruktur)
@@ -623,10 +625,10 @@
                 @endif
             </div>
             <div>
-                <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Pengawas <span class="text-rose-500">*</span></label>
+                <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Pengawas</label>
                 <div class="space-y-2">
                     @foreach($assignedPengawas as $pengawas)
-                        <label class="flex items-center gap-2 cursor-pointer">
+                        <label class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
                             <input type="checkbox" name="selected_pengawas_ids[]" value="{{ $pengawas->id }}" {{ in_array($pengawas->id, old('selected_pengawas_ids', $isEditing ? ($logbook->selected_pengawas_ids ?? []) : [])) ? 'checked' : '' }} x-model="selectedPengawasIds" class="accent-blue-600">
                             <span class="text-xs">{{ $pengawas->name }}</span>
                         </label>
@@ -640,10 +642,10 @@
                 @enderror
             </div>
             <div>
-                <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Operator Pendamping <span class="text-rose-500">*</span></label>
+                <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Operator Pendamping</label>
                 <div class="space-y-2">
                     @foreach($assignedOperators as $operator)
-                        <label class="flex items-center gap-2 cursor-pointer">
+                        <label class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
                             <input type="checkbox" name="selected_operator_pendamping_ids[]" value="{{ $operator->id }}" {{ in_array($operator->id, old('selected_operator_pendamping_ids', $isEditing ? ($logbook->selected_operator_pendamping_ids ?? []) : [])) ? 'checked' : '' }} @click="toggleOperator({{ $operator->id }}, $event)" class="accent-blue-600">
                             <span class="text-xs">{{ $operator->name }}</span>
                         </label>
@@ -656,6 +658,7 @@
                     <p class="text-[10px] text-rose-600 mt-1">{{ $message }}</p>
                 @enderror
             </div>
+            <p class="text-[10px] text-slate-500 mt-2">Pilih minimal salah satu: Instruktur, Pengawas, atau Operator Pendamping.</p>
         </div>
     </div>
 
@@ -678,10 +681,10 @@
                             <span>BAGIAN A: TEKNIK PENGOPERASIAN (DOZING &amp; DIGGING, SPREADING &amp; LEVELING, RIPPING, FINISHING)</span>
                         </div>
                         <div class="flex gap-3 sm:gap-4" x-show="unitFamily === 'track'" x-cloak>
-                            <label class="flex items-center gap-2 text-xs font-medium text-slate-600 cursor-pointer">
+                            <label class="flex items-center gap-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
                                 <input type="radio" name="sop_payload[meta][unit_type]" value="DZ" x-model="unitType" class="accent-slate-800"> DZ (Bulldozer)
                             </label>
-                            <label class="flex items-center gap-2 text-xs font-medium text-slate-600 cursor-pointer">
+                            <label class="flex items-center gap-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
                                 <input type="radio" name="sop_payload[meta][unit_type]" value="GR" x-model="unitType" class="accent-slate-800"> GR (Motor Grader)
                             </label>
                         </div>
@@ -958,10 +961,10 @@
                             <span>BAGIAN A: TEKNIK PENGOPERASIAN (LOADING, HAULING &amp; DUMPING)</span>
                         </div>
                         <div class="flex gap-4" x-show="unitFamily === 'dumptruck'" x-cloak>
-                            <label class="flex items-center gap-2 text-xs font-medium text-slate-600 cursor-pointer">
+                            <label class="flex items-center gap-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
                                 <input type="radio" name="sop_payload[meta][unit_type]" value="HDT" x-model="unitType" class="accent-slate-800"> HDT (Heavy Dump Truck)
                             </label>
-                            <label class="flex items-center gap-2 text-xs font-medium text-slate-600 cursor-pointer">
+                            <label class="flex items-center gap-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
                                 <input type="radio" name="sop_payload[meta][unit_type]" value="LDT" x-model="unitType" class="accent-slate-800"> LDT (Light Dump Truck)
                             </label>
                         </div>
@@ -1103,10 +1106,10 @@
                             <span>BAGIAN A: TEKNIK PENGOPERASIAN (LOADING, HAULING &amp; DUMPING)</span>
                         </div>
                         <div class="flex gap-4" x-show="unitFamily === 'semidump'" x-cloak>
-                            <label class="flex items-center gap-2 text-xs font-medium text-slate-600 cursor-pointer">
+                            <label class="flex items-center gap-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
                                 <input type="radio" name="sop_payload[meta][unit_type]" value="SDT" x-model="unitType" class="accent-slate-800"> SDT (Semi Dump Trailer)
                             </label>
-                            <label class="flex items-center gap-2 text-xs font-medium text-slate-600 cursor-pointer">
+                            <label class="flex items-center gap-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
                                 <input type="radio" name="sop_payload[meta][unit_type]" value="ADT" x-model="unitType" class="accent-slate-800"> ADT (Articulated Dump Truck)
                             </label>
                         </div>
@@ -1374,35 +1377,43 @@
                 <span class="w-7 h-7 rounded-lg bg-[#1e3a8a] text-white font-bold text-xs flex items-center justify-center">B</span>
                 <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Penilaian Trainer</h2>
             </div>
-            <span class="text-[11px] text-slate-400 font-medium">Klik bintang untuk memberikan rating</span>
+            <span class="text-[11px] text-slate-400 font-medium">Pilih nilai 1 sampai 5 untuk setiap trainer</span>
         </div>
 
         <div class="p-6 space-y-5">
+            @php
+                $existingRatings = $isEditing ? ($logbook->trainer_ratings ?? []) : [];
+                $ratingMap = [];
+                foreach ($existingRatings as $r) {
+                    if (!empty($r['user_id']) && !empty($r['rating'])) {
+                        $ratingMap[$r['user_id']] = (int) $r['rating'];
+                    }
+                }
+            @endphp
+
             <div>
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Instruktur</p>
-                @foreach($user->assignedInstruktur as $instruktur)
+                @foreach($trainers as $instruktur)
                     <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0 trainer-rating-row" data-type="instruktur" data-user-id="{{ $instruktur->id }}" style="display: none;">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">
+                        <div class="flex items-center gap-3 min-w-0 flex-1 mr-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
                                 {{ substr($instruktur->name, 0, 1) }}
                             </div>
-                            <span class="text-xs font-semibold text-slate-700">{{ $instruktur->name }}</span>
+                            <span class="text-xs font-semibold text-slate-700 truncate">{{ $instruktur->name }}</span>
                         </div>
-                        <div class="flex items-center gap-1 trainer-rating" data-user-id="{{ $instruktur->id }}" data-input-name="trainer_ratings[{{ $instruktur->id }}][rating]">
-                            @for($i = 1; $i <= 5; $i++)
-                                <button type="button" data-rating="{{ $i }}" class="rating-star relative w-7 h-7 cursor-pointer transition-transform duration-150 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-1 rounded">
-                                    <svg class="star-icon w-full h-full transition-colors duration-150 pointer-events-none text-slate-200" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                    </svg>
-                                </button>
-                            @endfor
-                            <input type="hidden" name="trainer_ratings[{{ $instruktur->id }}][user_id]" value="{{ $instruktur->id }}">
-                            <input type="hidden" name="trainer_ratings[{{ $instruktur->id }}][role_type]" value="instruktur">
-                            <input type="hidden" class="rating-value" name="trainer_ratings[{{ $instruktur->id }}][rating]" value="0">
-                        </div>
+                         <div class="flex items-center gap-1.5 trainer-rating flex-shrink-0" data-user-id="{{ $instruktur->id }}" data-role-type="instruktur">
+                             @for($i = 1; $i <= 5; $i++)
+                                 <button type="button" data-rating="{{ $i }}" class="rating-pill w-8 h-8 rounded-lg text-xs font-bold border transition-all duration-150 bg-white border-slate-200 text-slate-500 hover:border-blue-400 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
+                                     {{ $i }}
+                                 </button>
+                             @endfor
+                             <input type="hidden" name="trainer_ratings[{{ $instruktur->id }}][user_id]" value="{{ $instruktur->id }}">
+                             <input type="hidden" name="trainer_ratings[{{ $instruktur->id }}][role_type]" value="instruktur">
+                             <input type="hidden" class="rating-value" name="trainer_ratings[{{ $instruktur->id }}][rating]" value="{{ $ratingMap[$instruktur->id] ?? '0' }}">
+                         </div>
                     </div>
                 @endforeach
-                @if($user->assignedInstruktur->isEmpty())
+                @if($trainers->isEmpty())
                     <p class="text-[10px] text-slate-400 py-2">Belum ada instruktur yang ditugaskan.</p>
                 @endif
             </div>
@@ -1411,24 +1422,22 @@
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Pengawas</p>
                 @foreach($user->assignedPengawas as $pengawas)
                     <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0 trainer-rating-row" data-type="pengawas" data-user-id="{{ $pengawas->id }}" style="display: none;">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">
+                        <div class="flex items-center gap-3 min-w-0 flex-1 mr-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
                                 {{ substr($pengawas->name, 0, 1) }}
                             </div>
-                            <span class="text-xs font-semibold text-slate-700">{{ $pengawas->name }}</span>
+                            <span class="text-xs font-semibold text-slate-700 truncate">{{ $pengawas->name }}</span>
                         </div>
-                        <div class="flex items-center gap-1 trainer-rating" data-user-id="{{ $pengawas->id }}" data-input-name="trainer_ratings[{{ $pengawas->id }}][rating]">
-                            @for($i = 1; $i <= 5; $i++)
-                                <button type="button" data-rating="{{ $i }}" class="rating-star relative w-7 h-7 cursor-pointer transition-transform duration-150 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-1 rounded">
-                                    <svg class="star-icon w-full h-full transition-colors duration-150 pointer-events-none text-slate-200" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                    </svg>
-                                </button>
-                            @endfor
-                            <input type="hidden" name="trainer_ratings[{{ $pengawas->id }}][user_id]" value="{{ $pengawas->id }}">
-                            <input type="hidden" name="trainer_ratings[{{ $pengawas->id }}][role_type]" value="pengawas">
-                            <input type="hidden" class="rating-value" name="trainer_ratings[{{ $pengawas->id }}][rating]" value="0">
-                        </div>
+                         <div class="flex items-center gap-1.5 trainer-rating flex-shrink-0" data-user-id="{{ $pengawas->id }}" data-role-type="pengawas">
+                             @for($i = 1; $i <= 5; $i++)
+                                 <button type="button" data-rating="{{ $i }}" class="rating-pill w-8 h-8 rounded-lg text-xs font-bold border transition-all duration-150 bg-white border-slate-200 text-slate-500 hover:border-blue-400 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
+                                     {{ $i }}
+                                 </button>
+                             @endfor
+                             <input type="hidden" name="trainer_ratings[{{ $pengawas->id }}][user_id]" value="{{ $pengawas->id }}">
+                             <input type="hidden" name="trainer_ratings[{{ $pengawas->id }}][role_type]" value="pengawas">
+                             <input type="hidden" class="rating-value" name="trainer_ratings[{{ $pengawas->id }}][rating]" value="{{ $ratingMap[$pengawas->id] ?? '0' }}">
+                         </div>
                     </div>
                 @endforeach
                 @if($user->assignedPengawas->isEmpty())
@@ -1440,24 +1449,22 @@
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Operator Pendamping</p>
                 @foreach($user->assignedOperatorPendamping as $operator)
                     <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0 trainer-rating-row" data-type="operator" data-user-id="{{ $operator->id }}" style="display: none;">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold">
+                        <div class="flex items-center gap-3 min-w-0 flex-1 mr-3">
+                            <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
                                 {{ substr($operator->name, 0, 1) }}
                             </div>
-                            <span class="text-xs font-semibold text-slate-700">{{ $operator->name }}</span>
+                            <span class="text-xs font-semibold text-slate-700 truncate">{{ $operator->name }}</span>
                         </div>
-                        <div class="flex items-center gap-1 trainer-rating" data-user-id="{{ $operator->id }}" data-input-name="trainer_ratings[{{ $operator->id }}][rating]">
-                            @for($i = 1; $i <= 5; $i++)
-                                <button type="button" data-rating="{{ $i }}" class="rating-star relative w-7 h-7 cursor-pointer transition-transform duration-150 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-1 rounded">
-                                    <svg class="star-icon w-full h-full transition-colors duration-150 pointer-events-none text-slate-200" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292z"/>
-                                    </svg>
-                                </button>
-                            @endfor
-                            <input type="hidden" name="trainer_ratings[{{ $operator->id }}][user_id]" value="{{ $operator->id }}">
-                            <input type="hidden" name="trainer_ratings[{{ $operator->id }}][role_type]" value="operator_pendamping">
-                            <input type="hidden" class="rating-value" name="trainer_ratings[{{ $operator->id }}][rating]" value="0">
-                        </div>
+                         <div class="flex items-center gap-1.5 trainer-rating flex-shrink-0" data-user-id="{{ $operator->id }}" data-role-type="operator_pendamping">
+                             @for($i = 1; $i <= 5; $i++)
+                                 <button type="button" data-rating="{{ $i }}" class="rating-pill w-8 h-8 rounded-lg text-xs font-bold border transition-all duration-150 bg-white border-slate-200 text-slate-500 hover:border-blue-400 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
+                                     {{ $i }}
+                                 </button>
+                             @endfor
+                             <input type="hidden" name="trainer_ratings[{{ $operator->id }}][user_id]" value="{{ $operator->id }}">
+                             <input type="hidden" name="trainer_ratings[{{ $operator->id }}][role_type]" value="operator_pendamping">
+                             <input type="hidden" class="rating-value" name="trainer_ratings[{{ $operator->id }}][rating]" value="{{ $ratingMap[$operator->id] ?? '0' }}">
+                         </div>
                     </div>
                 @endforeach
                 @if($user->assignedOperatorPendamping->isEmpty())
@@ -1492,43 +1499,115 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        function syncPillVisuals() {
+            document.querySelectorAll('.trainer-rating').forEach(function(container) {
+                const pills = container.querySelectorAll('.rating-pill');
+                const ratingValue = container.querySelector('.rating-value');
+                if (!ratingValue || !pills.length) return;
+
+                const currentRating = parseInt(ratingValue.value || '0', 10);
+                pills.forEach(function(pill, index) {
+                    const num = index + 1;
+                    if (num <= currentRating) {
+                        pill.className = 'rating-pill w-8 h-8 rounded-lg text-xs font-bold border transition-all duration-150 bg-blue-600 border-blue-600 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer';
+                    } else {
+                        pill.className = 'rating-pill w-8 h-8 rounded-lg text-xs font-bold border transition-all duration-150 bg-white border-slate-200 text-slate-500 hover:border-blue-400 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer';
+                    }
+                });
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                syncTrainerRatingsVisibility();
+                syncPillVisuals();
+
+                const trainerSelect = document.querySelector('select[name="trainer_id"]');
+                if (trainerSelect) trainerSelect.addEventListener('change', function() {
+                    syncTrainerRatingsVisibility();
+                    syncPillVisuals();
+                });
+
+                document.querySelectorAll('input[name="selected_pengawas_ids[]"]').forEach(function(cb) {
+                    cb.addEventListener('change', function() {
+                        syncTrainerRatingsVisibility();
+                        syncPillVisuals();
+                    });
+                });
+
+                document.querySelectorAll('input[name="selected_operator_pendamping_ids[]"]').forEach(function(cb) {
+                    cb.addEventListener('change', function() {
+                        syncTrainerRatingsVisibility();
+                        syncPillVisuals();
+                    });
+                });
+
+                document.querySelectorAll('.trainer-rating').forEach(function(container) {
+                    const pills = container.querySelectorAll('.rating-pill');
+                    const ratingValue = container.querySelector('.rating-value');
+                    
+                    pills.forEach(function(pill) {
+                        pill.addEventListener('click', function() {
+                            const rating = parseInt(this.dataset.rating);
+                            if (ratingValue) ratingValue.value = rating;
+                            
+                            pills.forEach(function(p, index) {
+                                const num = index + 1;
+                                if (num <= rating) {
+                                    p.className = 'rating-pill w-8 h-8 rounded-lg text-xs font-bold border transition-all duration-150 bg-blue-600 border-blue-600 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer';
+                                } else {
+                                    p.className = 'rating-pill w-8 h-8 rounded-lg text-xs font-bold border transition-all duration-150 bg-white border-slate-200 text-slate-500 hover:border-blue-400 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer';
+                                }
+                            });
+                        });
+                    });
+                });
+            });
+        } else {
             syncTrainerRatingsVisibility();
+            syncPillVisuals();
 
             const trainerSelect = document.querySelector('select[name="trainer_id"]');
-            if (trainerSelect) trainerSelect.addEventListener('change', syncTrainerRatingsVisibility);
+            if (trainerSelect) trainerSelect.addEventListener('change', function() {
+                syncTrainerRatingsVisibility();
+                syncPillVisuals();
+            });
 
             document.querySelectorAll('input[name="selected_pengawas_ids[]"]').forEach(function(cb) {
-                cb.addEventListener('change', syncTrainerRatingsVisibility);
+                cb.addEventListener('change', function() {
+                    syncTrainerRatingsVisibility();
+                    syncPillVisuals();
+                });
             });
 
             document.querySelectorAll('input[name="selected_operator_pendamping_ids[]"]').forEach(function(cb) {
-                cb.addEventListener('change', syncTrainerRatingsVisibility);
+                cb.addEventListener('change', function() {
+                    syncTrainerRatingsVisibility();
+                    syncPillVisuals();
+                });
             });
 
             document.querySelectorAll('.trainer-rating').forEach(function(container) {
-                const stars = container.querySelectorAll('.rating-star');
+                const pills = container.querySelectorAll('.rating-pill');
                 const ratingValue = container.querySelector('.rating-value');
                 
-                stars.forEach(function(star) {
-                    star.addEventListener('click', function() {
+                pills.forEach(function(pill) {
+                    pill.addEventListener('click', function() {
                         const rating = parseInt(this.dataset.rating);
                         if (ratingValue) ratingValue.value = rating;
                         
-                        stars.forEach(function(s, index) {
-                            const icon = s.querySelector('.star-icon');
-                            if (index < rating) {
-                                icon.classList.remove('text-slate-200');
-                                icon.classList.add('text-amber-400', 'drop-shadow-sm');
+                        pills.forEach(function(p, index) {
+                            const num = index + 1;
+                            if (num <= rating) {
+                                p.className = 'rating-pill w-8 h-8 rounded-lg text-xs font-bold border transition-all duration-150 bg-blue-600 border-blue-600 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer';
                             } else {
-                                icon.classList.remove('text-amber-400', 'drop-shadow-sm');
-                                icon.classList.add('text-slate-200');
+                                p.className = 'rating-pill w-8 h-8 rounded-lg text-xs font-bold border transition-all duration-150 bg-white border-slate-200 text-slate-500 hover:border-blue-400 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer';
                             }
                         });
                     });
                 });
             });
-        });
+        }
     </script>
 
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
@@ -1563,7 +1642,7 @@
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center gap-2">
             <svg class="w-5 h-5 text-[#1e3a8a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-            <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Kirim Logbook</h2>
+            <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Kirim Form OJT</h2>
         </div>
         <div class="p-6 space-y-4">
             <p class="text-[11px] text-slate-500">Penilaian skala 1-4 dan trainee feedback harus sesuai SOP unit yang dipilih sebelum submit.</p>
@@ -1575,7 +1654,7 @@
                         </div>
                         <div>
                             <span class="text-xs font-bold text-slate-700">{{ $isEditing ? 'Simpan Perubahan Draft' : 'Save Draft' }}</span>
-                            <p class="mt-1 text-[11px] text-slate-500 leading-relaxed">Logbook akan disimpan sebagai draft. Anda bisa melanjutkan pengisian nanti.</p>
+                            <p class="mt-1 text-[11px] text-slate-500 leading-relaxed">Form OJT akan disimpan sebagai draft. Anda mampu melanjutkan pengisian nanti.</p>
                         </div>
                     </button>
                 @endunless
@@ -1584,14 +1663,54 @@
                         <svg class="w-5 h-5 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                     </div>
                     <div>
-                        <span class="text-xs font-bold text-blue-800">{{ $isTrainerEditing ? 'Simpan Perubahan' : ($isEditing ? 'Kirim Ulang ke Trainer' : 'Submit Logbook') }}</span>
+                        <span class="text-xs font-bold text-blue-800">{{ $isTrainerEditing ? 'Simpan Perubahan' : ($isEditing ? 'Kirim Ulang ke Trainer' : 'Submit Form OJT') }}</span>
                         <p class="mt-1 text-[11px] text-blue-700 leading-relaxed">Kirim logbook untuk dievaluasi trainer. Pastikan semua checklist dan HM sudah terisi dengan benar.</p>
                     </div>
                 </button>
             </div>
         </div>
     </div>
+    <input type="hidden" name="trainer_ratings_json" id="trainer_ratings_json" value="">
 </form>
+
+<script>
+(function() {
+    const form = document.querySelector('form[x-data*="logbookFormData"]');
+    if (!form) return;
+
+    const jsonInput = document.getElementById('trainer_ratings_json');
+
+     function collectRatings() {
+         const ratings = [];
+         document.querySelectorAll('.trainer-rating').forEach(function(container) {
+             const userId = container.dataset.userId;
+             const ratingValue = container.querySelector('.rating-value');
+             const rating = ratingValue ? parseInt(ratingValue.value || '0', 10) : 0;
+             const roleType = container.dataset.roleType || '';
+             
+             if (userId && rating > 0) {
+                 ratings.push({
+                     user_id: parseInt(userId),
+                     rating: rating,
+                     role_type: roleType
+                 });
+             }
+         });
+         return ratings;
+     }
+
+    form.addEventListener('submit', function() {
+        const ratings = collectRatings();
+        if (jsonInput) {
+            jsonInput.value = JSON.stringify(ratings);
+        }
+    });
+})();
+</script>
+
+    <script>
+        syncPillVisuals();
+    </script>
 
 <script>
 (function() {

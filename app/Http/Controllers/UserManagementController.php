@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TraineePhaseHistory;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -211,5 +212,42 @@ class UserManagementController extends Controller
         ]);
 
         return redirect()->route('training-centre.users.index')->with('success', "Password {$user->name} ({$user->sid}) telah direset ke 'password'.");
+    }
+
+    public function assignPhase(Request $request, $id)
+    {
+        $admin = Auth::user();
+        abort_unless($admin && $admin->isTrainingCentre(), 403);
+
+        $user = User::findOrFail($id);
+        abort_unless($user->role === 'trainee', 400, 'Hanya trainee yang dapat di-assign fase evaluasi.');
+
+        $certification = $user->certification ?? 'Green';
+        $validPhases = collect(\App\Services\PhaseService::sequence($certification))->pluck('key')->toArray();
+
+        $validated = $request->validate([
+            'phase' => ['required', 'string', Rule::in($validPhases)],
+        ]);
+
+        $newPhase = $validated['phase'];
+        $oldPhase = $user->current_phase ?? \App\Services\PhaseService::firstPhase($certification);
+
+        if ($oldPhase === $newPhase) {
+            return redirect()->route('training-centre.users.index')->with('info', 'Fase evaluasi trainee tidak berubah.');
+        }
+
+        DB::transaction(function () use ($user, $newPhase, $oldPhase, $admin) {
+            $user->update(['current_phase' => $newPhase]);
+
+            TraineePhaseHistory::create([
+                'user_id' => $user->id,
+                'from_phase' => $oldPhase,
+                'to_phase' => $newPhase,
+                'approved_by' => $admin->id,
+                'notes' => 'Di-assign manual oleh Admin TC sebagai kickstart OJT.',
+            ]);
+        });
+
+        return redirect()->route('training-centre.users.index')->with('success', "Fase evaluasi {$user->name} berhasil di-set ke: " . \App\Services\PhaseService::meta($certification, $newPhase)['label']);
     }
 }

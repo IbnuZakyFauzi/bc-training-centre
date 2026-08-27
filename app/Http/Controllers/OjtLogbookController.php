@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\OjtLogbook;
-use App\Models\Department;
 use App\Models\EquipmentCategory;
 use App\Models\Equipment;
 use App\Models\User;
 use App\Models\LogbookHistory;
 use App\Models\LogbookAssignment;
+use App\Models\FinalEvaluation;
 use App\Http\Requests\StoreLogbookRequest;
 use App\Http\Requests\UpdateLogbookRequest;
 use App\Support\CompetencyScale;
@@ -24,7 +24,7 @@ class OjtLogbookController extends Controller
         $traineeId = $user ? $user->id : 1;
 
         $query = OjtLogbook::where('trainee_id', $traineeId)
-            ->with(['equipment', 'equipmentCategory', 'trainer', 'department']);
+            ->with(['equipment', 'equipmentCategory', 'trainer']);
 
         // Search
         if ($request->filled('search')) {
@@ -32,7 +32,6 @@ class OjtLogbookController extends Controller
             $query->where(function($q) use ($search) {
                 $q->where('logbook_number', 'like', "%{$search}%")
                   ->orWhere('location', 'like', "%{$search}%")
-                  ->orWhere('daily_activity', 'like', "%{$search}%")
                   ->orWhereHas('equipment', function($eqQuery) use ($search) {
                       $eqQuery->where('unit_code', 'like', "%{$search}%")
                               ->orWhere('model_name', 'like', "%{$search}%");
@@ -86,7 +85,6 @@ class OjtLogbookController extends Controller
     public function create()
     {
         $user = Auth::user() ?? User::where('role', 'trainee')->first();
-        $departments = Department::whereIn('code', ['CHCPP', 'RIM', 'PLANT'])->get();
         $categories = EquipmentCategory::whereIn('code', ['EXC', 'DZ', 'MG', 'HDT', 'SDT', 'WL'])->with('equipments')->get();
         $trainers = User::where('role', 'trainer')->get();
         $equipments = Equipment::with('category')->where('status', 'active')->get();
@@ -94,7 +92,7 @@ class OjtLogbookController extends Controller
         $assignedPengawas = $user->assignedPengawas()->get();
         $assignedOperators = $user->assignedOperatorPendamping()->get();
 
-        return view('ojt.logbooks.create', compact('user', 'departments', 'categories', 'trainers', 'equipments', 'assignedPengawas', 'assignedOperators'));
+        return view('ojt.logbooks.create', compact('user', 'categories', 'trainers', 'equipments', 'assignedPengawas', 'assignedOperators'));
     }
 
     public function store(StoreLogbookRequest $request)
@@ -126,12 +124,23 @@ class OjtLogbookController extends Controller
             'total_hm' => $totalHm,
             'hm_day' => $hmDay,
             'hm_night' => $hmNight,
-            'daily_activity' => $request->input('daily_activity', $request->input('daily_activity_backup', '')),
-            'trainer_ratings' => $request->input('trainer_ratings', []),
             'sop_payload' => $request->input('sop_payload', []),
             'status' => $status,
             'submitted_at' => $status === 'submitted' ? now() : null,
         ]);
+
+        $ratings = collect($request->input('trainer_ratings', []))->filter(fn ($r) => !empty($r['rating']) && (int) $r['rating'] > 0)->values()->all();
+
+        if (empty($ratings)) {
+            $jsonRatings = json_decode($request->input('trainer_ratings_json', '[]'), true);
+            if (is_array($jsonRatings)) {
+                $ratings = collect($jsonRatings)->filter(fn ($r) => !empty($r['rating']) && (int) $r['rating'] > 0)->values()->all();
+            }
+        }
+
+        if (!empty($ratings)) {
+            $logbook->update(['trainer_ratings' => $ratings]);
+        }
 
         if ($status === 'submitted') {
             $assignments = [];
@@ -146,6 +155,22 @@ class OjtLogbookController extends Controller
             }
             foreach ($assignments as $assignment) {
                 LogbookAssignment::create(array_merge($assignment, ['ojt_logbook_id' => $logbook->id, 'status' => 'pending']));
+            }
+
+            $submitPayload = [
+                'title' => 'Form OJT Baru Menunggu Verifikasi',
+                'message' => "Form OJT {$logbook->logbook_number} dari {$logbook->trainee->name} telah disubmit dan menunggu verifikasi Anda.",
+                'url' => route('trainer.reviews.show', $logbook->id),
+            ];
+
+            if ($request->trainer_id) {
+                \App\Models\User::find($request->trainer_id)?->notify(new \App\Notifications\LogbookSubmittedNotification($submitPayload));
+            }
+            foreach ($request->input('selected_pengawas_ids', []) as $pengawasId) {
+                \App\Models\User::find($pengawasId)?->notify(new \App\Notifications\LogbookSubmittedNotification($submitPayload));
+            }
+            foreach ($request->input('selected_operator_pendamping_ids', []) as $operatorId) {
+                \App\Models\User::find($operatorId)?->notify(new \App\Notifications\LogbookSubmittedNotification($submitPayload));
             }
         }
 
@@ -166,7 +191,7 @@ class OjtLogbookController extends Controller
 
     public function show($id)
     {
-        $logbook = OjtLogbook::with(['trainee', 'trainer', 'supervisor', 'department', 'equipmentCategory', 'equipment', 'histories.user'])->findOrFail($id);
+        $logbook = OjtLogbook::with(['trainee', 'trainer', 'equipmentCategory', 'equipment', 'histories.user'])->findOrFail($id);
         $assignedPengawas = collect($logbook->selected_pengawas_ids ?? [])->map(fn ($id) => User::find($id))->filter();
         $assignedOperators = collect($logbook->selected_operator_pendamping_ids ?? [])->map(fn ($id) => User::find($id))->filter();
 
@@ -184,14 +209,13 @@ class OjtLogbookController extends Controller
         }
 
         $user = Auth::user() ?? User::where('role', 'trainee')->first();
-        $departments = Department::whereIn('code', ['CHCPP', 'RIM', 'PLANT'])->get();
         $categories = EquipmentCategory::whereIn('code', ['EXC', 'DZ', 'MG', 'HDT', 'SDT', 'WL'])->with('equipments')->get();
         $trainers = User::where('role', 'trainer')->get();
         $equipments = Equipment::with('category')->where('status', 'active')->get();
         $assignedPengawas = $user->assignedPengawas()->get();
         $assignedOperators = $user->assignedOperatorPendamping()->get();
 
-        return view('ojt.logbooks.edit', compact('logbook', 'user', 'departments', 'categories', 'trainers', 'equipments', 'assignedPengawas', 'assignedOperators'));
+        return view('ojt.logbooks.edit', compact('logbook', 'user', 'categories', 'trainers', 'equipments', 'assignedPengawas', 'assignedOperators'));
     }
 
     public function update(UpdateLogbookRequest $request, $id)
@@ -209,6 +233,14 @@ class OjtLogbookController extends Controller
         $hmDay = $request->shift === 'day' ? $totalHm : 0;
         $hmNight = $request->shift === 'night' ? $totalHm : 0;
 
+        $payload = $request->input('sop_payload', $logbook->sop_payload ?? []);
+        if (is_array($payload)) {
+            $existingUnitType = data_get($logbook->sop_payload, 'meta.unit_type');
+            if ($existingUnitType && empty($payload['meta']['unit_type'])) {
+                data_set($payload, 'meta.unit_type', $existingUnitType);
+            }
+        }
+
         $logbook->update([
             'equipment_category_id' => $request->equipment_category_id,
             'equipment_id' => $request->equipment_id,
@@ -224,9 +256,7 @@ class OjtLogbookController extends Controller
             'total_hm' => $totalHm,
             'hm_day' => $hmDay,
             'hm_night' => $hmNight,
-            'daily_activity' => $request->input('daily_activity', $request->input('daily_activity_backup', $logbook->daily_activity)),
-            'trainer_ratings' => $request->input('trainer_ratings', $logbook->trainer_ratings ?? []),
-            'sop_payload' => $request->input('sop_payload', $logbook->sop_payload ?? []),
+            'sop_payload' => $payload,
             'status' => $newStatus,
             'revision_notes' => $newStatus === 'submitted' ? null : $logbook->revision_notes,
             'submitted_at' => $newStatus === 'submitted' ? now() : $logbook->submitted_at,
@@ -242,9 +272,22 @@ class OjtLogbookController extends Controller
             'training_centre_signature_path' => $newStatus === 'submitted' ? null : $logbook->training_centre_signature_path,
         ]);
 
+        $ratings = collect($request->input('trainer_ratings', []))->filter(fn ($r) => !empty($r['rating']) && (int) $r['rating'] > 0)->values()->all();
+
+        if (empty($ratings)) {
+            $jsonRatings = json_decode($request->input('trainer_ratings_json', '[]'), true);
+            if (is_array($jsonRatings)) {
+                $ratings = collect($jsonRatings)->filter(fn ($r) => !empty($r['rating']) && (int) $r['rating'] > 0)->values()->all();
+            }
+        }
+
+        if (!empty($ratings)) {
+            $logbook->update(['trainer_ratings' => $ratings]);
+        }
         if ($newStatus === 'submitted') {
             LogbookAssignment::where('ojt_logbook_id', $logbook->id)->delete();
             $assignments = [];
+
             if ($request->trainer_id) {
                 $assignments[] = ['user_id' => $request->trainer_id, 'role_type' => 'instruktur'];
             }
@@ -256,6 +299,24 @@ class OjtLogbookController extends Controller
             }
             foreach ($assignments as $assignment) {
                 LogbookAssignment::create(array_merge($assignment, ['ojt_logbook_id' => $logbook->id, 'status' => 'pending']));
+            }
+
+            if (in_array($oldStatus, ['draft', 'revision'], true)) {
+                $submitPayload = [
+                    'title' => $oldStatus === 'revision' ? 'Form OJT Revisi Baru Menunggu Verifikasi' : 'Form OJT Baru Menunggu Verifikasi',
+                    'message' => "Form OJT {$logbook->logbook_number} dari {$logbook->trainee->name} telah disubmit dan menunggu verifikasi Anda.",
+                    'url' => route('trainer.reviews.show', $logbook->id),
+                ];
+
+                if ($request->trainer_id) {
+                    \App\Models\User::find($request->trainer_id)?->notify(new \App\Notifications\LogbookSubmittedNotification($submitPayload));
+                }
+                foreach ($request->input('selected_pengawas_ids', []) as $pengawasId) {
+                    \App\Models\User::find($pengawasId)?->notify(new \App\Notifications\LogbookSubmittedNotification($submitPayload));
+                }
+                foreach ($request->input('selected_operator_pendamping_ids', []) as $operatorId) {
+                    \App\Models\User::find($operatorId)?->notify(new \App\Notifications\LogbookSubmittedNotification($submitPayload));
+                }
             }
         }
 
@@ -296,7 +357,6 @@ class OjtLogbookController extends Controller
             'hm_start' => $original->hm_end, // Continue from previous HM
             'hm_end' => $original->hm_end,
             'total_hm' => 0,
-            'daily_activity' => "[Duplicated from {$original->logbook_number}]\n" . $original->daily_activity,
             'sop_payload' => $original->sop_payload ?? [],
             'selected_pengawas_ids' => $original->selected_pengawas_ids ?? [],
             'selected_operator_pendamping_ids' => $original->selected_operator_pendamping_ids ?? [],
@@ -360,7 +420,7 @@ class OjtLogbookController extends Controller
         $user = Auth::user();
         abort_unless($user && $user->isTrainingCentre(), 403, 'Hanya Admin Training Centre yang dapat mencetak atau mengunduh logbook.');
 
-        $logbook = OjtLogbook::with(['trainee', 'trainer', 'supervisor', 'department', 'equipmentCategory', 'equipment', 'histories.user', 'trainingCentre', 'pengawasTrainer'])->findOrFail($id);
+        $logbook = OjtLogbook::with(['trainee', 'trainer', 'equipmentCategory', 'equipment', 'histories.user', 'trainingCentre', 'pengawasTrainer'])->findOrFail($id);
 
         abort_unless($logbook->status === 'final_approved', 403, 'Hanya logbook yang telah disahkan (Final Approved) oleh Training Centre yang dapat dicetak.');
 
@@ -375,14 +435,31 @@ class OjtLogbookController extends Controller
         $trainee = User::where('role', 'trainee')->findOrFail($traineeId);
 
         $logbooks = OjtLogbook::where('trainee_id', $traineeId)
-            ->where('status', 'final_approved')
-            ->whereNotNull('training_centre_decided_at')
-            ->with(['trainee', 'trainer', 'supervisor', 'department', 'equipmentCategory', 'equipment', 'histories.user', 'trainingCentre', 'pengawasTrainer'])
-            ->orderBy('training_centre_decided_at', 'asc')
-            ->get();
+            ->whereIn('status', ['verified', 'final_approved'])
+            ->with(['trainee', 'trainer', 'equipmentCategory', 'equipment', 'histories.user', 'trainingCentre', 'pengawasTrainer'])
+            ->get()
+            ->map(fn ($logbook) => [
+                'type' => 'logbook',
+                'date' => $logbook->date ?? $logbook->training_centre_decided_at,
+                'model' => $logbook,
+            ]);
 
-        abort_if($logbooks->isEmpty(), 404, 'Tidak ada logbook final approved untuk trainee ini.');
+        $evaluations = FinalEvaluation::where('nama_operator', $trainee->name)
+            ->whereIn('status', ['tc_approved', 'pjo_approved', 'hse_approved'])
+            ->with(['trainer', 'tcApprover', 'pjoApprover', 'hseApprover', 'logbook'])
+            ->get()
+            ->map(fn ($evaluation) => [
+                'type' => 'evaluation',
+                'date' => $evaluation->tanggal_penilaian,
+                'model' => $evaluation,
+            ]);
 
-        return view('ojt.logbooks.print-trainee', compact('trainee', 'logbooks'));
+        $combined = $logbooks->merge($evaluations)
+            ->sortBy(fn ($item) => $item['date'] ?? now())
+            ->values();
+
+        abort_if($combined->isEmpty(), 404, 'Tidak ada dokumen final untuk trainee ini.');
+
+        return view('ojt.logbooks.print-trainee', compact('trainee', 'combined'));
     }
 }

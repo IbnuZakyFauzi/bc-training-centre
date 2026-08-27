@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Department;
 use App\Models\EquipmentCategory;
 use App\Models\Equipment;
 use App\Models\User;
@@ -17,44 +16,7 @@ class OjtSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Departments
-        $deptChcpp = Department::create([
-            'code' => 'CHCPP',
-            'name' => 'CHCPP',
-            'description' => 'Coal Handling & Processing Plant',
-        ]);
-
-        $deptRim = Department::create([
-            'code' => 'RIM',
-            'name' => 'RIM',
-            'description' => 'Road & Infrastructure Maintenance',
-        ]);
-
-        $deptPlant = Department::create([
-            'code' => 'PLANT',
-            'name' => 'PLANT',
-            'description' => 'Plant Operations',
-        ]);
-
-        $deptMining = Department::create([
-            'code' => 'MIN-OPS',
-            'name' => 'Mining Operations',
-            'description' => 'Mine Operation & Production Division',
-        ]);
-        
-        $deptMaintenance = Department::create([
-            'code' => 'PLT-MAINT',
-            'name' => 'Plant & Asset Maintenance',
-            'description' => 'Heavy Equipment Maintenance Division',
-        ]);
-
-        $deptShe = Department::create([
-            'code' => 'SHE-TC',
-            'name' => 'Safety, Health & Environment Training',
-            'description' => 'Mining Competency & Training Division',
-        ]);
-
-        // 2. Equipment Categories
+        // 1. Equipment Categories
         $catExcavator = EquipmentCategory::create([
             'code' => 'EXC',
             'name' => 'Heavy Excavator',
@@ -112,14 +74,13 @@ class OjtSeeder extends Seeder
             'status' => 'active',
         ]);
 
-        // 4. Users (Trainee, Trainer, Supervisor)
+        // 4. Users (Trainee, Trainer)
         $trainee = User::create([
             'sid' => 'BC-60491',
             'name' => 'Ahmad Rian Syahputra',
             'email' => 'trainee@beraucoal.co.id',
             'password' => Hash::make('password'),
             'role' => 'trainee',
-            'department_id' => $deptChcpp->id,
             'phone' => '+62 812-5543-9901',
         ]);
 
@@ -130,29 +91,16 @@ class OjtSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => 'trainer',
             'trainer_type' => 'instruktur',
-            'department_id' => $deptShe->id,
             'phone' => '+62 811-9876-1234',
         ]);
 
-        $supervisor = User::create([
-            'sid' => 'BC-20054',
-            'name' => 'Rahmat Hidayat (Pit Superintendent)',
-            'email' => 'supervisor@beraucoal.co.id',
-            'password' => Hash::make('password'),
-            'role' => 'supervisor',
-            'department_id' => $deptChcpp->id,
-            'phone' => '+62 813-1122-3344',
-        ]);
-
-        // 5. OJT Logbooks (Sample entries covering Draft, Submitted, Revision, Verified, Supervisor Approved)
+        // 5. OJT Logbooks (Sample entries covering Draft, Submitted, Revision, Verified, Final Approved)
         
-        // Entry 1: Supervisor Approved
+        // Entry 1: Final Approved
         $log1 = OjtLogbook::create([
             'logbook_number' => 'LOG-202607-0001',
             'trainee_id' => $trainee->id,
             'trainer_id' => $trainer->id,
-            'supervisor_id' => $supervisor->id,
-            'department_id' => $deptChcpp->id,
             'equipment_category_id' => $catExcavator->id,
             'equipment_id' => $eqEx2001->id,
             'date' => Carbon::now()->subDays(5)->format('Y-m-d'),
@@ -163,12 +111,12 @@ class OjtSeeder extends Seeder
             'hm_start' => 4520.5,
             'hm_end' => 4529.0,
             'total_hm' => 8.5,
-            'daily_activity' => "1. Pre-Operational Check & P2H Inspection on Komatsu PC2000-8 unit.\n2. Inspection of hydraulic oil levels, bucket teeth wear, and track tension.\n3. Digging and loading overburden into HT-7042 haul trucks (35 passes).\n4. Maintaining clean loading pit layout and bench face angle safety.\n5. End of shift housekeeping and refueling log registration.",
-            'status' => 'supervisor_approved',
+            'status' => 'final_approved',
             'submitted_at' => Carbon::now()->subDays(5)->addHours(10),
             'verified_at' => Carbon::now()->subDays(4)->addHours(2),
-            'approved_at' => null,
+            'approved_at' => Carbon::now()->subDays(2)->addHours(6),
             'pjo_decided_at' => Carbon::now()->subDays(3)->addHours(4),
+            'training_centre_decided_at' => Carbon::now()->subDays(1)->addHours(8),
         ]);
 
         LogbookEvidence::create([
@@ -199,11 +147,11 @@ class OjtSeeder extends Seeder
 
         LogbookHistory::create([
             'ojt_logbook_id' => $log1->id,
-            'user_id' => $supervisor->id,
-            'action' => 'Approved by Supervisor',
+            'user_id' => $trainer->id,
+            'action' => 'Approved by Trainer',
             'from_status' => 'verified',
-            'to_status' => 'supervisor_approved',
-            'comment' => 'Disetujui Pengawas untuk diteruskan ke final approval Training Centre.',
+            'to_status' => 'final_approved',
+            'comment' => 'Disetujui untuk diteruskan ke final approval Training Centre.',
         ]);
 
         // Entry 2: Revision Requested
@@ -211,8 +159,6 @@ class OjtSeeder extends Seeder
             'logbook_number' => 'LOG-202607-0002',
             'trainee_id' => $trainee->id,
             'trainer_id' => $trainer->id,
-            'supervisor_id' => $supervisor->id,
-            'department_id' => $deptChcpp->id,
             'equipment_category_id' => $catHaulTruck->id,
             'equipment_id' => $eqHt7042->id,
             'date' => Carbon::now()->subDays(3)->format('Y-m-d'),
@@ -223,7 +169,6 @@ class OjtSeeder extends Seeder
             'hm_start' => 8910.0,
             'hm_end' => 8918.5,
             'total_hm' => 8.5,
-            'daily_activity' => "1. Night shift safety briefing and Golden Rules safety check.\n2. Hauling overburden material from Pit 3 West face to Disposal 4.\n3. Retarder braking testing during down-ramp loaded trips.\n4. Dumping maneuver at tipping point under spotter directions.",
             'status' => 'revision',
             'revision_notes' => "Mohon tambahkan rincian nomor form P2H dan bukti foto lembar checklist P2H shift malam serta konfirmasi catatan retarder brake test.",
             'submitted_at' => Carbon::now()->subDays(3)->addHours(11),
@@ -235,7 +180,7 @@ class OjtSeeder extends Seeder
             'action' => 'Revision Requested by Trainer',
             'from_status' => 'submitted',
             'to_status' => 'revision',
-            'comment' => 'Mohon lampirkan foto fisik lembar checklist P2H yang ditandatangani supervisor lapangan.',
+            'comment' => 'Mohon lampirkan foto fisik lembar checklist P2H yang ditandatangani.',
         ]);
 
         // Entry 3: Submitted (Pending Verification)
@@ -243,8 +188,6 @@ class OjtSeeder extends Seeder
             'logbook_number' => 'LOG-202607-0003',
             'trainee_id' => $trainee->id,
             'trainer_id' => $trainer->id,
-            'supervisor_id' => $supervisor->id,
-            'department_id' => $deptChcpp->id,
             'equipment_category_id' => $catExcavator->id,
             'equipment_id' => $eqEx2001->id,
             'date' => Carbon::now()->subDays(1)->format('Y-m-d'),
@@ -255,7 +198,6 @@ class OjtSeeder extends Seeder
             'hm_start' => 4529.0,
             'hm_end' => 4537.5,
             'total_hm' => 8.5,
-            'daily_activity' => "1. P2H inspection and fluid level checks on EX-2001.\n2. Selective mining and coal seam cleaning on Seam 14 Highwall.\n3. Loading coal haulers with zero dilution technique.\n4. Bench maintenance and slope stability observation.",
             'status' => 'submitted',
             'submitted_at' => Carbon::now()->subDays(1)->addHours(10),
         ]);
@@ -274,8 +216,6 @@ class OjtSeeder extends Seeder
             'logbook_number' => 'LOG-202607-0004',
             'trainee_id' => $trainee->id,
             'trainer_id' => $trainer->id,
-            'supervisor_id' => $supervisor->id,
-            'department_id' => $deptChcpp->id,
             'equipment_category_id' => $catDozer->id,
             'equipment_id' => $eqDz3015->id,
             'date' => Carbon::now()->format('Y-m-d'),
@@ -286,7 +226,6 @@ class OjtSeeder extends Seeder
             'hm_start' => 3105.0,
             'hm_end' => 3112.5,
             'total_hm' => 7.5,
-            'daily_activity' => "Draft activity: Spreading overburden dump, trimming safety crest embankment, and compaction practice on Disposal 4.",
             'status' => 'draft',
         ]);
     }

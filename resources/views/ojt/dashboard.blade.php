@@ -5,12 +5,12 @@
     <div class="mb-4 sm:mb-8 flex flex-col md:flex-row md:items-center md:justify-between bg-gradient-to-r from-[#1e3a8a] to-[#1d4ed8] p-4 sm:p-6 rounded-2xl shadow-md text-white border border-blue-900">
         <div>
             <div class="flex items-center space-x-2 text-blue-300 text-[10px] sm:text-xs font-semibold uppercase tracking-wider mb-1">
-                <span>DIGITAL OJT LOGBOOK</span>
+                <span>DIGITAL OJT FORM</span>
                 <span class="hidden sm:inline">•</span>
                 <span class="hidden sm:inline">OPERATOR COMPETENCY MONITORING</span>
             </div>
             <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white">Selamat Datang, {{ $user->name }}</h1>
-            <p class="text-blue-100 text-[10px] sm:text-xs mt-1">SID: {{ $user->sid }} | Departemen: {{ $user->department->name ?? 'Mining Operations' }}</p>
+            <p class="text-blue-100 text-[10px] sm:text-xs mt-1">SID: {{ $user->sid }}</p>
         </div>
         <div class="mt-3 sm:mt-4 flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
             @if($latestDraft)
@@ -35,12 +35,12 @@
                         <svg class="w-5 h-5 text-amber-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 01-6 0v-1m6 0H9"/></svg>
                     </div>
                     <div>
-                        <h3 class="text-[10px] sm:text-xs font-extrabold text-amber-900 uppercase tracking-wider">Pemberitahuan Revisi Logbook ({{ $kpi['revision'] }} Logbook Perlu Tindakan)</h3>
-                        <p class="text-[10px] sm:text-xs text-amber-800 mt-1">Trainer telah mengirimkan catatan perbaikan untuk logbook Anda. Silakan diperbaiki sebelum pengajuan ulang.</p>
+                        <h3 class="text-[10px] sm:text-xs font-extrabold text-amber-900 uppercase tracking-wider">Pemberitahuan Revisi({{ $kpi['revision'] }} Form OJT Perlu Tindakan)</h3>
+                        <p class="text-[10px] sm:text-xs text-amber-800 mt-1">Trainer telah mengirimkan catatan perbaikan untuk form Anda. Silakan diperbaiki sebelum pengajuan ulang.</p>
                     </div>
                 </div>
                 <a href="{{ route('ojt.logbooks.index', ['status' => 'revision']) }}" class="px-3.5 py-3 bg-amber-500 hover:bg-amber-600 text-gray-900 text-xs font-bold rounded-xl shadow-xs transition flex-shrink-0 min-h-[44px] inline-flex items-center justify-center">
-                    Buka Logbook Revisi
+                    Buka Form OJT Revisi
                 </a>
             </div>
         </div>
@@ -164,7 +164,7 @@
         <!-- Approved KPI -->
         <a href="{{ route('ojt.logbooks.index', ['status' => 'approved']) }}" class="bg-white p-3 sm:p-5 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-300 transition group">
             <div class="flex items-center justify-between">
-                <span class="text-[10px] sm:text-xs font-bold text-[#2563eb] uppercase tracking-wider">Approved Logbooks</span>
+                <span class="text-[10px] sm:text-xs font-bold text-[#2563eb] uppercase tracking-wider">Approved Form OJT</span>
                 <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
@@ -212,10 +212,10 @@
                         </div>
                     </div>
                     <div class="py-4 sm:py-6">
-                        <h3 class="text-base sm:text-lg font-bold text-slate-800 group-hover:text-[#1e3a8a] transition">Create Digital Logbook</h3>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-800 group-hover:text-[#1e3a8a] transition">Create Form OJT</h3>
                         <p class="text-xs sm:text-sm text-slate-500 mt-2 leading-relaxed">Catat HM awal, HM akhir, lokasi pit, dan isi checklist SOP harian.</p>
                     </div>
-                        <span class="inline-flex items-center border-t border-slate-100 pt-4 sm:pt-5 text-xs sm:text-sm font-bold text-[#2563eb]">Input Logbook<svg class="w-4 h-4 sm:w-5 sm:h-5 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></span>
+                        <span class="inline-flex items-center border-t border-slate-100 pt-4 sm:pt-5 text-xs sm:text-sm font-bold text-[#2563eb]">Input Form OJT<svg class="w-4 h-4 sm:w-5 sm:h-5 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></span>
                 </a>
 
                 <a href="{{ route('ojt.logbooks.index') }}" class="h-full p-5 sm:p-7 bg-white rounded-2xl shadow-sm border border-slate-200 hover:shadow-md hover:border-blue-400 transition group flex flex-col justify-between">
@@ -226,10 +226,10 @@
                         </div>
                     </div>
                     <div class="py-4 sm:py-6">
-                        <h3 class="text-base sm:text-lg font-bold text-slate-800 group-hover:text-blue-700 transition">My Logbook Directory</h3>
-                        <p class="text-xs sm:text-sm text-slate-500 mt-2 leading-relaxed">Kelola daftar seluruh riwayat logbook, status verifikasi, dan cetak PDF.</p>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-800 group-hover:text-blue-700 transition">My Form OJT Directory</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-2 leading-relaxed">Kelola daftar seluruh riwayat form OJT, status verifikasi, dan cetak PDF.</p>
                     </div>
-                    <span class="inline-flex items-center border-t border-slate-100 pt-4 sm:pt-5 text-xs sm:text-sm font-bold text-blue-600">Buka Tabel Logbook<svg class="w-4 h-4 sm:w-5 sm:h-5 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></span>
+                    <span class="inline-flex items-center border-t border-slate-100 pt-4 sm:pt-5 text-xs sm:text-sm font-bold text-blue-600">Buka Tabel Form OJT<svg class="w-4 h-4 sm:w-5 sm:h-5 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></span>
                 </a>
             </div>
 
@@ -265,7 +265,7 @@
                             @endif
                         </div>
                     @empty
-                        <p class="text-xs text-slate-400 py-4 text-center">Belum ada logbook yang dicatat.</p>
+                        <p class="text-xs text-slate-400 py-4 text-center">Belum ada form OJT yang dicatat.</p>
                     @endforelse
                 </div>
             </div>

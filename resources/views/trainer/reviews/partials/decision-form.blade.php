@@ -2,13 +2,13 @@
 <section class="mt-4 sm:mt-8 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" x-data="{ action: '{{ old('action', 'verify') }}' }">
     <div class="bg-[#1e3a8a] px-4 sm:px-6 py-3 sm:py-4 text-white">
         <p class="text-[10px] font-bold uppercase tracking-widest text-blue-300">Keputusan Trainer Evaluator</p>
-        <h2 class="mt-1 text-xs sm:text-sm font-bold">Approval Logbook</h2>
+        <h2 class="mt-1 text-xs sm:text-sm font-bold">Approval Form OJT</h2>
     </div>
 
     @if($logbook->status === 'verified')
         <div class="p-4 sm:p-6 text-xs text-blue-900">
             <div class="rounded-xl border border-blue-200 bg-blue-50 p-3 sm:p-4">
-                <p class="font-bold">Logbook telah diverifikasi.</p>
+                <p class="font-bold">Form OJT telah diverifikasi.</p>
                 @if($logbook->evaluation?->trainer_signature_path)
                     <img src="{{ asset('storage/'.$logbook->evaluation->trainer_signature_path) }}" alt="Tanda tangan trainer" class="mt-3 max-h-20 sm:max-h-24 w-auto object-contain bg-white rounded-lg border border-blue-200 p-2">
                     <a href="{{ asset('storage/'.$logbook->evaluation->trainer_signature_path) }}" target="_blank" class="mt-2 inline-flex font-bold text-[#1d4ed8] hover:underline">Lihat tanda tangan digital</a>
@@ -26,7 +26,7 @@
 
             <div class="grid grid-cols-1 gap-4 sm:gap-5">
                 <label class="block rounded-xl border border-blue-200 bg-blue-50 p-4 sm:p-5 cursor-pointer">
-                    <span class="flex items-center gap-2 text-xs font-bold text-[#1d4ed8]"><input type="radio" name="action" value="verify" x-model="action"> Setujui & Verifikasi Logbook</span>
+                    <span class="flex items-center gap-2 text-xs font-bold text-[#1d4ed8]"><input type="radio" name="action" value="verify" x-model="action"> Setujui & Verifikasi Form OJT</span>
                     <span class="mt-2 block text-[10px] sm:text-[11px] leading-relaxed text-blue-800">Tanda tangan dari My Profile akan dipakai otomatis saat approve.</span>
                     @if($trainer?->signature_path)
                             <img src="{{ asset('storage/'.$trainer->signature_path) }}" alt="Signature profile" class="mt-3 sm:mt-4 max-h-16 sm:max-h-20 w-auto object-contain bg-white rounded-lg border border-blue-200 p-2">
@@ -46,7 +46,7 @@
 
             <div x-show="action === 'revision'" x-cloak class="rounded-xl border border-amber-200 bg-amber-50 p-3 sm:p-4">
                 <label for="revision_instruction" class="text-xs font-bold text-amber-900">Instruksi Revisi <span class="font-normal text-amber-700">(wajib diisi saat meminta revisi)</span></label>
-                <textarea id="revision_instruction" name="revision_instruction" rows="4" class="mt-2 w-full rounded-xl border-amber-300 bg-white text-xs min-h-[44px]" placeholder="Jelaskan poin-poin yang harus diperbaiki trainee sebelum logbook disetujui...">{{ old('revision_instruction') }}</textarea>
+                <textarea id="revision_instruction" name="revision_instruction" rows="4" class="mt-2 w-full rounded-xl border-amber-300 bg-white text-xs min-h-[44px]"                     placeholder="Jelaskan poin-poin yang harus diperbaiki trainee sebelum form OJT disetujui...">{{ old('revision_instruction') }}</textarea>
             </div>
 
             <div>

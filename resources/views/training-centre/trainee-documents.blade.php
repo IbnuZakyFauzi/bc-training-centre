@@ -14,17 +14,17 @@
     </div>
 
     <div class="space-y-6">
-        <!-- Logbook Harian -->
+        <!-- Form OJT Harian -->
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="p-5 border-b border-slate-100">
-                <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Logbook Harian</h2>
-                <p class="text-xs text-slate-500 mt-1">Daftar logbook harian yang telah disahkan (Final Approved).</p>
+                <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Form OJT Harian</h2>
+                <p class="text-xs text-slate-500 mt-1">Daftar form OJT harian yang telah disahkan (Final Approved).</p>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs">
                     <thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500">
                         <tr>
-                            <th class="px-5 py-3">No. Logbook</th>
+                            <th class="px-5 py-3">No. Form OJT</th>
                             <th class="px-5 py-3">Tanggal</th>
                             <th class="px-5 py-3">Unit / Alat</th>
                             <th class="px-5 py-3">Shift</th>
@@ -41,7 +41,7 @@
                                 <td class="px-5 py-4 text-xs text-slate-600">{{ ucfirst($logbook->shift ?? '-') }}</td>
                                 <td class="px-5 py-4 text-xs text-slate-600">{{ $logbook->total_hm ?? 0 }}</td>
                                 <td class="px-5 py-4 text-right">
-                                    <a href="{{ route('ojt.logbooks.print', $logbook->id) }}" target="_blank" class="inline-flex items-center px-3 py-2 rounded-lg bg-[#1e3a8a] text-white hover:bg-[#172554] text-[11px] font-bold" title="Cetak Logbook Ini">
+                                    <a href="{{ route('ojt.logbooks.print', $logbook->id) }}" target="_blank" class="inline-flex items-center px-3 py-2 rounded-lg bg-[#1e3a8a] text-white hover:bg-[#172554] text-[11px] font-bold" title="Cetak Form OJT Ini">
                                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                                         Cetak
                                     </a>
@@ -49,7 +49,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-5 py-10 text-center text-xs text-slate-400">Belum ada logbook harian yang disahkan untuk trainee ini.</td>
+                                <td colspan="6" class="px-5 py-10 text-center text-xs text-slate-400">Belum ada form OJT harian yang disahkan untuk trainee ini.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -90,7 +90,7 @@
                                     @endif
                                 </td>
                                 <td class="px-5 py-4 text-right">
-                                    <a href="{{ route('final-evaluations.print', $ev->id) }}" target="_blank" class="inline-flex items-center px-3 py-2 rounded-lg bg-[#1e3a8a] text-white hover:bg-[#172554] text-[11px] font-bold" title="Cetak Form Evaluasi Ini">
+                                    <a href="{{ route('training-centre.final-evaluations.print', $ev->id) }}" target="_blank" class="inline-flex items-center px-3 py-2 rounded-lg bg-[#1e3a8a] text-white hover:bg-[#172554] text-[11px] font-bold" title="Cetak Form Evaluasi Ini">
                                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                                         Cetak
                                     </a>

@@ -16,7 +16,6 @@ class OjtLogbook extends Model
         'logbook_number',
         'trainee_id',
         'trainer_id',
-        'supervisor_id',
         'equipment_category_id',
         'equipment_id',
         'equipment_number',
@@ -26,7 +25,6 @@ class OjtLogbook extends Model
         'hm_start',
         'hm_end',
         'total_hm',
-        'daily_activity',
         'trainer_ratings',
         'sop_payload',
         'status',
@@ -77,11 +75,6 @@ class OjtLogbook extends Model
         return $this->belongsTo(User::class, 'trainer_id');
     }
 
-    public function supervisor(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'supervisor_id');
-    }
-
     public function pengawasTrainer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'pjo_id');
@@ -103,11 +96,6 @@ class OjtLogbook extends Model
     }
 
 
-
-    public function department(): BelongsTo
-    {
-        return $this->belongsTo(Department::class);
-    }
 
     public function equipmentCategory(): BelongsTo
     {

@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-slot name="title">{{ ($trainingCentreApproval ?? false) ? 'Final Approval Training Centre' : 'Detail Logbook' }} - {{ $logbook->logbook_number }}</x-slot>
+    <x-slot name="title">{{ ($trainingCentreApproval ?? false) ? 'Final Approval Training Centre' : 'Detail Form OJT' }} - {{ $logbook->logbook_number }}</x-slot>
     @php
         $trainerReview = $trainerReview ?? false;
         $trainingCentreApproval = $trainingCentreApproval ?? false;
@@ -9,7 +9,7 @@
     <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#2563eb] mb-1">
-                <a href="{{ $trainingCentreApproval ? route('training-centre.approvals.index') : ($trainerReview ? route('trainer.reviews.index') : route('ojt.logbooks.index')) }}" class="hover:underline">{{ $trainingCentreApproval ? 'Final Approval Training Centre' : ($trainerReview ? 'Trainer Review Queue' : 'My Logbook') }}</a>
+                <a href="{{ $trainingCentreApproval ? route('training-centre.approvals.index') : ($trainerReview ? route('trainer.reviews.index') : route('ojt.logbooks.index')) }}" class="hover:underline">{{ $trainingCentreApproval ? 'Final Approval Training Centre' : ($trainerReview ? 'Trainer Review Queue' : 'My Form OJT') }}</a>
                 <span>/</span>
                 <span class="text-slate-500">{{ $logbook->logbook_number }}</span>
             </div>
@@ -21,7 +21,7 @@
 
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
             @if($trainerReview && $logbook->status === 'submitted')
-                <a href="{{ route('trainer.reviews.edit', $logbook->id) }}" class="inline-flex items-center justify-center px-4 py-3 bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold text-xs rounded-xl shadow-xs transition min-h-[44px]">Edit Logbook</a>
+                <a href="{{ route('trainer.reviews.edit', $logbook->id) }}" class="inline-flex items-center justify-center px-4 py-3 bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold text-xs rounded-xl shadow-xs transition min-h-[44px]">Edit Form OJT</a>
             @endif
             @if($trainerReview && $logbook->status === 'verified')
                 <a href="{{ route('trainer.reviews.index') }}" class="inline-flex items-center justify-center px-4 py-3 bg-[#2563eb] hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow-xs transition min-h-[44px]">Approval Pengawas</a>
@@ -29,14 +29,14 @@
             @if(!$trainerReview && !$trainingCentreApproval && in_array($logbook->status, ['draft']) || (!$trainerReview && !$trainingCentreApproval && $logbook->status === 'revision' && empty($logbook->training_centre_decided_at)))
                 <a href="{{ route('ojt.logbooks.edit', $logbook->id) }}" class="inline-flex items-center justify-center px-4 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow-xs transition min-h-[44px]">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                    Edit Logbook
+                    Edit Form OJT
                 </a>
             @endif
 
             @if(auth()->user()?->isTrainingCentre() && $logbook->status === 'final_approved')
                 <a href="{{ route('ojt.logbooks.print', $logbook->id) }}" target="_blank" class="inline-flex items-center justify-center px-4 py-3 bg-[#1e3a8a] hover:bg-[#172554] text-white font-bold text-xs rounded-xl shadow-xs transition min-h-[44px]">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                    Cetak / Download PDF Logbook
+                    Cetak / Download PDF Form OJT
                 </a>
             @endif
         </div>
@@ -63,12 +63,12 @@
                     <p class="text-[10px] sm:text-xs text-amber-800 mt-1 leading-relaxed">{{ $logbook->revision_notes }}</p>
                     @if(!$trainerReview && !$revisionFromTc)<div class="mt-3">
                         <a href="{{ route('ojt.logbooks.edit', $logbook->id) }}" class="inline-flex items-center text-xs font-extrabold text-amber-900 bg-amber-200 hover:bg-amber-300 px-3 py-2.5 rounded-lg transition min-h-[44px]">
-                            Perbaiki Logbook Sekarang
+                            Perbaiki Form OJT Sekarang
                             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                         </a>
                     </div>@endif
                     @if($revisionFromTc && !$trainerReview)
-                        <p class="text-[10px] text-amber-700 mt-2 font-medium">Revisi ini akan ditangani oleh Trainer. Silakan tunggu hingga logbook dikirim kembali.</p>
+                        <p class="text-[10px] text-amber-700 mt-2 font-medium">Revisi ini akan ditangani oleh Trainer. Silakan tunggu hingga form OJT dikirim kembali.</p>
                     @endif
                 </div>
             </div>
@@ -79,56 +79,131 @@
         @include('trainer.reviews.partials.submitted-checklist')
     @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8 {{ $trainerReview ? 'mt-4 sm:mt-8' : '' }}">
+    <!-- Identity Section (full width, above main layout) -->
+    <div class="bg-white rounded-2xl border-2 border-slate-900 shadow-sm overflow-hidden mb-4 sm:mb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2">
+            <div class="border-b border-slate-900 lg:border-b-0 lg:border-r">
+                <div class="grid grid-cols-[120px_minmax(0,1fr)] gap-x-3 gap-y-0 text-[11px] text-slate-900">
+                    <div class="px-3 py-2 font-semibold border-b border-slate-900">NAMA</div>
+                    <div class="px-3 py-1.5 border-b border-slate-900">{{ $logbook->trainee->name }}</div>
 
-        <!-- Left 2 Columns: Logbook Details -->
-        <div class="lg:col-span-2 space-y-4 sm:space-y-8">
-            
-            <!-- Section A & General Info Card -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="bg-slate-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200">
-                    <h2 class="text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wide">Informasi General OJT Operations</h2>
-                </div>
-                <div class="p-4 sm:p-6 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 text-xs">
-                    <div>
-                        <span class="text-slate-400 font-medium block">Tanggal</span>
-                        <span class="font-bold text-slate-800 mt-1 block">{{ \Carbon\Carbon::parse($logbook->date)->format('d F Y') }}</span>
-                    </div>
+                    <div class="px-3 py-2 font-semibold border-b border-slate-900">HARI/ TANGGAL</div>
+                    <div class="px-3 py-1.5 border-b border-slate-900">{{ $logbook->date->format('d M Y') }}</div>
 
-                    <div>
-                        <span class="text-slate-400 font-medium block">Shift Kerja</span>
-                        <span class="font-bold text-slate-800 mt-1 block uppercase">Shift {{ $logbook->shift }}</span>
-                    </div>
+                    <div class="px-3 py-2 font-semibold border-b border-slate-900">SHIFT</div>
+                    <div class="px-3 py-1.5 border-b border-slate-900">{{ ucfirst($logbook->shift) }}</div>
 
-                    <div>
-                        <span class="text-slate-400 font-medium block">Departemen</span>
-                        <span class="font-bold text-slate-800 mt-1 block">{{ $logbook->department->name ?? 'Mining Operations' }}</span>
-                    </div>
+                    <div class="px-3 py-2 font-semibold border-b border-slate-900">LOKASI (OJT)</div>
+                    <div class="px-3 py-1.5 border-b border-slate-900">{{ $logbook->location }}</div>
 
-                    <div>
-                        <span class="text-slate-400 font-medium block">Lokasi Pit / Area</span>
-                        <span class="font-bold text-[#1e3a8a] mt-1 block">{{ $logbook->location }}</span>
-                    </div>
-
-                    <div class="col-span-2">
-                        <span class="text-slate-400 font-medium block">Unit Alat Berat</span>
-                        <span class="font-extrabold text-[#1e3a8a] text-xs sm:text-sm mt-1 block">
-                            {{ $logbook->equipment_number ?? $logbook->equipment?->unit_code ?? '-' }}{{ $logbook->equipment?->model_name ? ' - '.$logbook->equipment->model_name : '' }}
-                        </span>
-                    </div>
-
-                    <div>
-                        <span class="text-slate-400 font-medium block">Trainer Evaluator</span>
-                        <span class="font-bold text-slate-800 mt-1 block">{{ $logbook->trainer->name ?? '-' }}</span>
-                    </div>
-
-                    <div>
-                        <span class="text-slate-400 font-medium block">Supervisor Lapangan</span>
-                        <span class="font-bold text-slate-800 mt-1 block">{{ $logbook->supervisor->name ?? '-' }}</span>
-                    </div>
+                    <div class="px-3 py-2 font-semibold border-b border-slate-900">SERTIFIKASI</div>
+                    <div class="px-3 py-1.5 border-b border-slate-900">{{ data_get($logbook->sop_payload, 'meta.certification', '-') }}</div>
                 </div>
             </div>
 
+            <div>
+                <div class="grid grid-cols-[120px_minmax(0,1fr)] gap-x-3 gap-y-0 text-[11px] text-slate-900">
+                    <div class="px-3 py-2 font-semibold border-b border-slate-900">PERUSAHAAN</div>
+                    <div class="px-3 py-1.5 border-b border-slate-900">{{ data_get($logbook->sop_payload, 'meta.company', '-') }}</div>
+
+                    <div class="px-3 py-2 font-semibold border-b border-slate-900">TIPE ALAT</div>
+                    <div class="px-3 py-1.5 border-b border-slate-900">
+                        @php
+                            $categoryCode = $logbook->equipmentCategory->code ?? '-';
+                            $unitType = data_get($logbook->sop_payload, 'meta.unit_type');
+                            $categoryLabel = match($categoryCode) {
+                                'DZ' => 'Bulldozer (DZ) / Motor Grader (GR)',
+                                'HDT' => 'Heavy Dump Truck (HDT) / Light Dump Truck (LDT)',
+                                'SDT' => 'Semi Dump Trailler (SDT) / Articulated Dump Truck (ADT)',
+                                'EXC' => 'Heavy Excavator',
+                                'MG' => 'Motor Grader',
+                                'WL' => 'Wheel Loader',
+                                default => $logbook->equipmentCategory->name ?? '-',
+                            };
+                            if ($unitType && in_array($categoryCode, ['DZ', 'HDT', 'SDT'])) {
+                                $categoryLabel .= ' — ' . $unitType;
+                            }
+                        @endphp
+                        {{ $categoryLabel }}
+                    </div>
+
+                    <div class="px-3 py-2 font-semibold border-b border-slate-900">NO ALAT</div>
+                    <div class="px-3 py-1.5 border-b border-slate-900">{{ $logbook->equipment_number ?? '-' }}</div>
+
+                    <div class="px-3 py-2 font-semibold border-b border-slate-900">HM / KM AWAL</div>
+                    <div class="px-3 py-1 border-b border-slate-900">{{ number_format($logbook->hm_start, 1) }}</div>
+
+                    <div class="px-3 py-2 font-semibold border-b border-slate-900">HM / KM AKHIR</div>
+                    <div class="px-3 py-1 border-b border-slate-900">{{ number_format($logbook->hm_end, 1) }}</div>
+
+                    <div class="px-3 py-2 font-semibold border-b border-slate-900">EXPIRED DATE STIKER (SKO)</div>
+                    <div class="px-3 py-1.5 border-b border-slate-900">
+                        @php
+                            $stickerExpired = data_get($logbook->sop_payload, 'meta.sticker_expired_at');
+                        @endphp
+                        {{ $stickerExpired ? \Carbon\Carbon::parse($stickerExpired)->format('d M Y') : '-' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 border-t border-slate-900">
+            <div class="border-b border-slate-900 lg:border-b-0 lg:border-r p-2 sm:p-3 text-[10px] sm:text-[11px] text-slate-900">
+                <div class="font-semibold mb-1 sm:mb-2">Keterangan:</div>
+                <ol class="space-y-1 pl-4 list-decimal">
+                    <li>Pilih salah satu angka 1 - 4 pada kolom "Penilaian" yang sesuai</li>
+                    <li>Kolom "Trainee Feedback" memuat penjelasan item evaluasi terkait</li>
+                    <li>(1) Belum & (2) Cukup = (BK) Belum Kompeten, (3) Mampu & (4) Mahir = (K) Kompeten</li>
+                    <li>Knw: Knowledge, Skl: Skill, Atd: Attitude</li>
+                </ol>
+            </div>
+            <div class="p-2 sm:p-3 text-[10px] sm:text-[11px]">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <div class="font-semibold mb-2">Tahap Penilaian OJT</div>
+                        <div class="font-medium">
+                            {{ match(data_get($logbook->sop_payload, 'meta.assessment_mode')) {
+                                'pendampingan' => 'Pendampingan',
+                                'tanpa_pendampingan' => 'Tanpa Pendampingan',
+                                default => '-'
+                            } }}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="font-semibold mb-2">Tahap Tanpa Pendampingan Lanjutan</div>
+                        <div class="font-medium">
+                            {{ match(data_get($logbook->sop_payload, 'meta.assessment_stage')) {
+                                'bulanan' => 'Bulanan',
+                                '3_bulan_pertama' => '3 Bulan Pertama',
+                                '3_bulan_kedua' => '3 Bulan Kedua',
+                                default => '-'
+                            } }}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="font-semibold mb-2">Keterangan</div>
+                        <div class="font-medium">
+                            {{ match(data_get($logbook->sop_payload, 'meta.assessment_stage_detail')) {
+                                'bulan_1' => 'Bulan ke-1',
+                                'bulan_2' => 'Bulan ke-2',
+                                'bulan_3' => 'Bulan ke-3',
+                                'bulan_4' => 'Bulan ke-4',
+                                'bulan_5' => 'Bulan ke-5',
+                                'bulan_6' => 'Bulan ke-6',
+                                default => '-'
+                            } }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
+
+        <!-- Left 2 Columns: Form OJT Details -->
+        <div class="lg:col-span-2 space-y-4 sm:space-y-8">
+            
             @if($assignedPengawas->count() > 0 || $assignedOperators->count() > 0)
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                     <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
@@ -188,7 +263,7 @@
         <div class="flex flex-col gap-8">
             <!-- Audit Submission Timeline Widget -->
             <div class="flex flex-1 flex-col bg-white p-7 rounded-2xl shadow-sm border border-slate-200">
-                <h2 class="text-base font-bold text-slate-800 uppercase tracking-wide mb-7">Timeline Pengajuan Logbook</h2>
+                <h2 class="text-base font-bold text-slate-800 uppercase tracking-wide mb-7">Timeline Pengajuan Form OJT</h2>
 
                 <div class="relative flex-1 pl-7 space-y-7 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
                     @foreach($logbook->histories as $h)
@@ -199,7 +274,7 @@
                             <div>
                                 <span class="text-sm font-bold text-slate-800 block">{{ $h->action }}</span>
                                 <span class="text-xs text-slate-400 font-medium block mt-1">Oleh: {{ $h->user->name ?? 'System Trainee' }}</span>
-                                <span class="text-xs text-slate-400 block mt-0.5">{{ $h->created_at->format('d M Y - H:i') }} WITA</span>
+                                <span class="text-xs text-slate-400 block mt-0.5">{{ $h->created_at->format('d M Y H:i:s') }} WITA</span>
                                 
                                 @if($h->comment)
                                     <p class="text-xs text-slate-600 bg-slate-50 p-3.5 rounded-lg border border-slate-200 mt-3 italic leading-relaxed">
@@ -220,18 +295,18 @@
                 <div class="flex-1 p-5 bg-amber-50 rounded-xl border border-amber-200 flex items-center justify-between">
                     <div>
                         <span class="text-xs text-amber-700 font-bold uppercase block">Trainee Operator</span>
-                        <span class="text-sm font-bold text-slate-800 mt-1 block">{{ $logbook->trainee->name ?? 'Ahmad Rian Syahputra' }}</span>
+                        <span class="text-sm font-bold text-slate-800 mt-1 block">{{ $logbook->trainee->name ?? 'Belum Ditunjuk' }}</span>
                     </div>
                     <span class="px-3 py-1 bg-amber-600 text-white text-xs font-bold rounded">Tersimpan</span>
                 </div>
 
                 <!-- Trainer -->
-                <div class="flex-1 p-5 {{ in_array($logbook->status, ['verified', 'approved', 'supervisor_approved', 'final_approved']) ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-200' }} rounded-xl border flex items-center justify-between">
+                    <div class="flex-1 p-5 {{ in_array($logbook->status, ['verified', 'final_approved']) ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-200' }} rounded-xl border flex items-center justify-between">
                     <div>
                         @php
                             $trainerApproverTitle = 'Instruktur/ Pengawas/ Operator Pendamping';
-                            $trainerApproverName = $logbook->trainer->name ?? 'Bambang Hermawan';
-                            $trainerApproverSid = $logbook->trainer->sid ?? '-';
+                            $trainerApproverName = 'Belum Ditunjuk';
+                            $trainerApproverSid = '-';
 
                             if ($logbook->evaluation?->trainer_signature_path && $logbook->evaluation->trainer) {
                                 $trainerApprover = $logbook->evaluation->trainer;
@@ -242,15 +317,32 @@
                                 };
                                 $trainerApproverName = $trainerApprover->name;
                                 $trainerApproverSid = $trainerApprover->sid;
+                            } elseif ($logbook->trainer) {
+                                $trainerApproverName = $logbook->trainer->name;
+                                $trainerApproverSid = $logbook->trainer->sid;
+                            } elseif (!empty($logbook->selected_pengawas_ids)) {
+                                $pengawas = \App\Models\User::find($logbook->selected_pengawas_ids[0]);
+                                if ($pengawas) {
+                                    $trainerApproverTitle = 'Pengawas';
+                                    $trainerApproverName = $pengawas->name;
+                                    $trainerApproverSid = $pengawas->sid;
+                                }
+                            } elseif (!empty($logbook->selected_operator_pendamping_ids)) {
+                                $operator = \App\Models\User::find($logbook->selected_operator_pendamping_ids[0]);
+                                if ($operator) {
+                                    $trainerApproverTitle = 'Operator Pendamping';
+                                    $trainerApproverName = $operator->name;
+                                    $trainerApproverSid = $operator->sid;
+                                }
                             }
                         @endphp
                         <span class="text-xs text-slate-500 font-bold uppercase block">{{ $trainerApproverTitle }}</span>
                         <span class="text-sm font-bold text-slate-800 mt-1 block">{{ $trainerApproverName }}</span>
                         @if($logbook->evaluation?->trainer_signature_path)
-                            <img src="{{ asset('storage/'.$logbook->evaluation->trainer_signature_path) }}" alt="Trainer signature" class="mt-2 max-h-12 w-auto object-contain bg-white rounded-lg border border-amber-200 p-1">
+                            <img src="{{ asset('storage/'.$logbook->evaluation->trainer_signature_path) }}" alt="Trainer signature" style="max-height: 48px; max-width: 100%; height: auto; width: auto; object-fit: contain; display: block; margin: 8px auto 0;">
                         @endif
                     </div>
-                    @if(in_array($logbook->status, ['verified', 'approved', 'supervisor_approved', 'final_approved']))
+                    @if(in_array($logbook->status, ['verified', 'final_approved']))
                         <span class="px-3 py-1 bg-amber-600 text-white text-xs font-bold rounded">Verified</span>
                     @else
                         <span class="px-3 py-1 bg-slate-200 text-slate-600 text-xs font-bold rounded">Pending</span>
@@ -258,15 +350,15 @@
                 </div>
 
                 @if($logbook->pjo_decided_at || $trainingCentreApproval)
-                    <div class="flex-1 p-5 {{ in_array($logbook->status, ['verified', 'approved', 'supervisor_approved', 'final_approved']) ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-200' }} rounded-xl border flex items-center justify-between">
+                <div class="flex-1 p-5 {{ in_array($logbook->status, ['verified', 'final_approved']) ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-200' }} rounded-xl border flex items-center justify-between">
                     <div>
                         <span class="text-xs text-slate-500 font-bold uppercase block">Pengawas Trainer</span>
                         <span class="text-sm font-bold text-slate-800 mt-1 block">{{ $logbook->pengawasTrainer->name ?? 'Menunggu Approval Pengawas' }}</span>
                         @if($logbook->pjo_signature_path)
-                            <img src="{{ asset('storage/'.$logbook->pjo_signature_path) }}" alt="Pengawas signature" class="mt-2 max-h-12 w-auto object-contain bg-white rounded-lg border border-amber-200 p-1">
+                            <img src="{{ asset('storage/'.$logbook->pjo_signature_path) }}" alt="Pengawas signature" style="max-height: 48px; max-width: 100%; height: auto; width: auto; object-fit: contain; display: block; margin: 8px auto 0;">
                         @endif
                     </div>
-                        <span class="px-3 py-1 {{ in_array($logbook->status, ['verified', 'approved', 'supervisor_approved', 'final_approved']) ? 'bg-amber-600 text-white' : 'bg-slate-200 text-slate-600' }} text-xs font-bold rounded">{{ in_array($logbook->status, ['verified', 'approved', 'supervisor_approved', 'final_approved']) ? 'Approved' : 'Pending' }}</span>
+                        <span class="px-3 py-1 {{ in_array($logbook->status, ['verified', 'final_approved']) ? 'bg-amber-600 text-white' : 'bg-slate-200 text-slate-600' }} text-xs font-bold rounded">{{ in_array($logbook->status, ['verified', 'final_approved']) ? 'Approved' : 'Pending' }}</span>
                     </div>
                 @endif
 
@@ -274,7 +366,7 @@
                     <div class="flex-1 p-5 {{ $logbook->training_centre_decided_at ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-200' }} rounded-xl border flex items-center justify-between">
                         <div><span class="text-xs text-slate-500 font-bold uppercase block">Kabag Training Centre</span><span class="text-sm font-bold text-slate-800 mt-1 block">{{ $logbook->trainingCentre->name ?? 'Menunggu Final Approval' }}</span></div>
                         @if($logbook->training_centre_signature_path)
-                            <img src="{{ asset('storage/'.$logbook->training_centre_signature_path) }}" alt="Training centre signature" class="mt-2 max-h-12 w-auto object-contain bg-white rounded-lg border border-amber-200 p-1">
+                            <img src="{{ asset('storage/'.$logbook->training_centre_signature_path) }}" alt="Training centre signature" style="max-height: 48px; max-width: 100%; height: auto; width: auto; object-fit: contain; display: block; margin: 8px auto 0;">
                         @endif
                         <span class="px-3 py-1 {{ $logbook->training_centre_decided_at ? 'bg-amber-600 text-white' : 'bg-slate-200 text-slate-600' }} text-xs font-bold rounded">{{ $logbook->training_centre_decided_at ? 'Approved' : 'Pending' }}</span>
                     </div>
@@ -373,7 +465,7 @@
         <div class="mt-6">
             <a href="{{ route('trainer.reviews.edit', $logbook->id) }}" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-[#1e3a8a] text-white hover:bg-[#172554] text-xs font-bold shadow-sm">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                Edit & Revisi Logbook
+                Edit & Revisi Form OJT
             </a>
         </div>
     @endif
@@ -384,7 +476,7 @@
 
     @if($trainingCentreApproval && !($isPending ?? false))
         <section class="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-5 text-xs text-slate-600">
-            Logbook ini hanya dapat dilihat oleh role Anda. Persetujuan dilakukan oleh Trainer.
+            Form OJT ini hanya dapat dilihat oleh role Anda. Persetujuan dilakukan oleh Trainer.
         </section>
     @endif
 

@@ -5,7 +5,7 @@
     <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
             <h1 class="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">Submission History</h1>
-            <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Complete chronological audit trail of all OJT logbook submissions and trainer verification logs.</p>
+            <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Complete chronological audit trail of all OJT form submissions and trainer verification logs.</p>
         </div>
     </div>
 
@@ -17,7 +17,7 @@
             
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="bg-slate-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 flex items-center justify-between">
-                    <h2 class="text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wide">Daftar Pengajuan Logbook</h2>
+                    <h2 class="text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wide">Daftar Pengajuan Form OJT</h2>
                     <span class="text-[10px] sm:text-xs font-semibold text-slate-500">Chronological Order</span>
                 </div>
 
@@ -26,7 +26,7 @@
                         <thead>
                             <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
                                 <th class="py-3.5 px-5">Submission Date</th>
-                                <th class="py-3.5 px-4">Logbook & Equipment</th>
+                                <th class="py-3.5 px-4">Form OJT & Equipment</th>
                                 <th class="py-3.5 px-4">Trainer</th>
                                 <th class="py-3.5 px-4 text-center">Revision Count</th>
                                 <th class="py-3.5 px-4">Current Status</th>
@@ -45,7 +45,7 @@
                                         <span class="text-[10px] text-slate-400 block mt-0.5">Shift {{ ucfirst($log->shift) }}</span>
                                     </td>
 
-                                    <!-- Equipment & Logbook Number -->
+                                    <!-- Equipment & Form OJT Number -->
                                     <td class="py-4 px-4">
                                         <a href="{{ route('ojt.logbooks.show', $log->id) }}" class="font-bold text-slate-900 hover:text-[#2563eb] block">
                                             {{ $log->logbook_number }}
@@ -91,7 +91,7 @@
                             @empty
                                 <tr>
                                     <td colspan="7" class="py-12 text-center text-slate-400">
-                                        Belum ada riwayat pengajuan logbook.
+                                        Belum ada riwayat pengajuan form OJT.
                                     </td>
                                 </tr>
                             @endforelse

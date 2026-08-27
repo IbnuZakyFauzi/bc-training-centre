@@ -73,7 +73,14 @@ class EvaluationFlowController extends Controller
             'tc_approved_by' => $user->id,
             'tc_approved_at' => now(),
             'tc_notes' => $request->input('tc_notes'),
+            'kabag_signature_path' => $user->signature_path,
         ]);
+
+        \App\Models\User::where('role', 'pjo')->get()->each(fn ($pjo) => $pjo->notify(new \App\Notifications\LogbookApprovedNotification([
+            'title' => 'Evaluasi Menunggu Persetujuan PJO',
+            'message' => "Evaluasi final untuk {$evaluation->nama_operator} telah disetujui Admin TC dan menunggu persetujuan Anda.",
+            'url' => route('pjo.final-evaluations.show', $evaluation->id),
+        ])));
 
         return redirect()->back()->with('success', 'Evaluasi disetujui oleh Admin TC.');
     }
@@ -119,7 +126,14 @@ class EvaluationFlowController extends Controller
             'pjo_approved_by' => $user->id,
             'pjo_approved_at' => now(),
             'pjo_notes' => $request->input('pjo_notes'),
+            'penanggung_jawab_signature_path' => $user->signature_path,
         ]);
+
+        \App\Models\User::where('role', 'hse_ct')->get()->each(fn ($hse) => $hse->notify(new \App\Notifications\LogbookApprovedNotification([
+            'title' => 'Evaluasi Menunggu Persetujuan HSE CT',
+            'message' => "Evaluasi final untuk {$evaluation->nama_operator} telah disetujui PJO dan menunggu persetujuan Anda.",
+            'url' => route('hse-ct.final-evaluations.show', $evaluation->id),
+        ])));
 
         return redirect()->back()->with('success', 'Evaluasi disetujui oleh PJO.');
     }
@@ -169,6 +183,7 @@ class EvaluationFlowController extends Controller
             'hse_approved_at' => now(),
             'hse_notes' => $request->input('hse_notes'),
             'completed_at' => now(),
+            'hse_signature_path' => $user->signature_path,
         ]);
 
         if ($trainee && $nextPhase) {
@@ -183,10 +198,26 @@ class EvaluationFlowController extends Controller
             ]);
         }
 
+        if ($trainee) {
+            $traineeUrl = $evaluation->logbook ? route('ojt.logbooks.show', $evaluation->logbook->id) : route('ojt.dashboard');
+
+            $trainee->notify(new \App\Notifications\LogbookApprovedNotification([
+                'title' => 'Evaluasi Telah Disetujui Final',
+                'message' => "Evaluasi final fase {$fromPhase} telah disetujui final oleh HSE CT.",
+                'url' => $traineeUrl,
+            ]));
+
+            $trainee->assignedTrainers()->get()->each(fn ($trainer) => $trainer->notify(new \App\Notifications\LogbookApprovedNotification([
+                'title' => 'Evaluasi Trainee Telah Final',
+                'message' => "Evaluasi final untuk {$trainee->name} telah disetujui final oleh HSE CT.",
+                'url' => route('trainer.final-evaluations.show', $evaluation->id),
+            ])));
+        }
+
         return redirect()->back()->with('success', 'Evaluasi disetujui final oleh HSE CT. Trainee dipindahkan ke fase berikutnya.');
     }
 
-    // ===================== REJECT =====================
+    // ===================== REJECT / REVISI =====================
     public function reject(Request $request, $id)
     {
         $user = Auth::user();
@@ -200,16 +231,46 @@ class EvaluationFlowController extends Controller
         ]);
 
         if ($user->isTrainingCentre() && $evaluation->status === 'submitted') {
-            $evaluation->update(['status' => 'rejected', 'tc_notes' => $request->input('reject_notes')]);
+            $evaluation->update([
+                'status' => 'submitted',
+                'tc_notes' => $request->input('reject_notes'),
+                'tc_approved_at' => null,
+                'tc_approved_by' => null,
+            ]);
         } elseif ($user->isPjo() && $evaluation->status === 'tc_approved') {
-            $evaluation->update(['status' => 'rejected', 'pjo_notes' => $request->input('reject_notes')]);
+            $evaluation->update([
+                'status' => 'submitted',
+                'pjo_notes' => $request->input('reject_notes'),
+                'pjo_approved_at' => null,
+                'pjo_approved_by' => null,
+                'tc_approved_at' => null,
+                'tc_approved_by' => null,
+            ]);
         } elseif ($user->isHseCt() && $evaluation->status === 'pjo_approved') {
-            $evaluation->update(['status' => 'rejected', 'hse_notes' => $request->input('reject_notes')]);
+            $evaluation->update([
+                'status' => 'submitted',
+                'hse_notes' => $request->input('reject_notes'),
+                'hse_approved_at' => null,
+                'hse_approved_by' => null,
+                'pjo_approved_at' => null,
+                'pjo_approved_by' => null,
+                'tc_approved_at' => null,
+                'tc_approved_by' => null,
+            ]);
         } else {
             abort(403);
         }
 
-        return redirect()->back()->with('success', 'Evaluasi ditolak dan dikembalikan ke Trainer.');
+        $trainee = $this->resolveTrainee($evaluation);
+        if ($trainee) {
+            $trainee->assignedTrainers()->get()->each(fn ($trainer) => $trainer->notify(new \App\Notifications\LogbookRevisionRequestedNotification([
+                'title' => 'Evaluasi Dikembalikan untuk Revisi',
+                'message' => "Evaluasi final untuk {$trainee->name} telah dikembalikan untuk revisi. Silakan perbaiki sesuai catatan.",
+                'url' => route('trainer.final-evaluations.show', $evaluation->id),
+            ])));
+        }
+
+        return redirect()->back()->with('success', 'Evaluasi dikembalikan untuk revisi ke Trainer.');
     }
 
     // ===================== MONITORING (Trainer & Admin TC) =====================

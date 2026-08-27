@@ -58,6 +58,7 @@
                         <th class="px-5 py-3">Email</th>
                         <th class="px-5 py-3">Role</th>
                         <th class="px-5 py-3">Tipe Trainer</th>
+                        <th class="px-5 py-3">Fase Evaluasi</th>
                         <th class="px-5 py-3 text-right">Aksi</th>
                     </tr>
                 </thead>
@@ -70,31 +71,31 @@
                             </td>
                             <td class="px-5 py-4 text-xs text-slate-600">{{ $user->email }}</td>
                             <td class="px-5 py-4">
-                                <span class="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-bold
-                                    {{ $user->role === 'trainee' ? 'bg-blue-50 text-blue-700' : '' }}
-                                    {{ $user->role === 'trainer' ? 'bg-blue-50 text-blue-700' : '' }}
-                                    {{ $user->role === 'admin' ? 'bg-violet-50 text-violet-700' : '' }}
-                                ">
-                                    {{ match($user->role) {
+                                @php
+                                    $roleBadge = match($user->role) {
+                                        'trainee' => 'bg-blue-50 text-blue-700',
+                                        'trainer' => 'bg-blue-50 text-blue-700',
+                                        'admin'   => 'bg-violet-50 text-violet-700',
+                                        'pjo'     => 'bg-indigo-50 text-indigo-700',
+                                        'hse_ct'  => 'bg-amber-50 text-amber-700',
+                                        default   => 'bg-slate-100 text-slate-700',
+                                    };
+                                    $roleLabel = match($user->role) {
                                         'trainee' => 'Trainee',
                                         'trainer' => 'Trainer',
-                                        'admin' => 'Admin TC',
-                                        default => $user->role,
-                                    } }}
+                                        'admin'   => 'Admin TC',
+                                        'pjo'     => 'PJO',
+                                        'hse_ct'  => 'HSE CT',
+                                        default   => $user->role,
+                                    };
+                                @endphp
+                                <span class="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-bold {{ $roleBadge }}">
+                                    {{ $roleLabel }}
                                 </span>
                             </td>
                             <td class="px-5 py-4">
-                                <span class="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-bold
-                                    {{ $user->role === 'trainee' ? 'bg-blue-50 text-blue-700' : '' }}
-                                    {{ $user->role === 'trainer' ? 'bg-blue-50 text-blue-700' : '' }}
-                                    {{ $user->role === 'admin' ? 'bg-violet-50 text-violet-700' : '' }}
-                                ">
-                                    {{ match($user->role) {
-                                        'trainee' => 'Trainee',
-                                        'trainer' => 'Trainer',
-                                        'admin' => 'Admin TC',
-                                        default => $user->role,
-                                    } }}
+                                <span class="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-bold {{ $roleBadge }}">
+                                    {{ $roleLabel }}
                                 </span>
                                 @if($user->role === 'trainer' && $user->trainer_type)
                                     <span class="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 text-slate-700 ml-1">
@@ -107,6 +108,23 @@
                                     </span>
                                 @endif
                             </td>
+                            <td class="px-5 py-4">
+                                @if($user->role === 'trainee')
+                                    <form method="POST" action="{{ route('training-centre.users.assign-phase', $user->id) }}" class="flex items-center gap-2">
+                                        @csrf
+                                        <select name="phase" class="text-[11px] rounded-lg border-slate-300 bg-white px-2 py-1.5 focus:border-brand-500 focus:ring-brand-500 min-h-[36px]">
+                                            @foreach(\App\Services\PhaseService::sequence($user->certification ?? 'Green') as $phase)
+                                                <option value="{{ $phase['key'] }}" {{ ($user->current_phase ?? \App\Services\PhaseService::firstPhase($user->certification ?? 'Green')) === $phase['key'] ? 'selected' : '' }}>
+                                                    {{ $phase['label'] }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-[#2563eb] text-white text-[10px] font-bold hover:bg-blue-600 transition min-h-[36px]">Set</button>
+                                    </form>
+                                @else
+                                    <span class="text-[11px] text-slate-400">-</span>
+                                @endif
+                            </td>
                             <td class="px-5 py-4 text-right">
                                 @if($user->isSuperAdmin() && !auth()->user()->isSuperAdmin())
                                     <span class="text-[10px] text-slate-400">Super Admin</span>
@@ -114,23 +132,23 @@
                                     <div class="flex items-center justify-end gap-2">
                                         <a href="{{ route('training-centre.users.edit', $user->id) }}" class="inline-flex px-3 py-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs font-bold">Edit</a>
                                         @if($user->id !== auth()->id())
-                                                <form method="POST" action="{{ route('training-centre.users.destroy', $user->id) }}" onsubmit="return confirm('Hapus pengguna {{ $user->name }} ({{ $user->sid }})? Tindakan ini tidak dapat dibatalkan.')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="inline-flex px-3 py-2 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 text-xs font-bold">Hapus</button>
-                                            </form>
-                                            <form method="POST" action="{{ route('training-centre.users.reset-password', $user->id) }}" onsubmit="return confirm('Reset password {{ $user->name }} ({{ $user->sid }}) ke default (password)?')">
-                                                @csrf
-                                                <button type="submit" class="inline-flex px-3 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-bold">Reset Password</button>
-                                            </form>
-                                        @endif
+                                                 <form method="POST" action="{{ route('training-centre.users.destroy', $user->id) }}" onsubmit="return confirm('Hapus pengguna {{ $user->name }} ({{ $user->sid }})? Tindakan ini tidak dapat dibatalkan.')">
+                                                 @csrf
+                                                 @method('DELETE')
+                                                 <button type="submit" class="inline-flex px-3 py-2 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 text-xs font-bold">Hapus</button>
+                                             </form>
+                                             <form method="POST" action="{{ route('training-centre.users.reset-password', $user->id) }}" onsubmit="return confirm('Reset password {{ $user->name }} ({{ $user->sid }}) ke default (password)?')">
+                                                 @csrf
+                                                 <button type="submit" class="inline-flex px-3 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-bold">Reset Password</button>
+                                             </form>
+                                         @endif
                                     </div>
                                 @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-5 py-12 text-center text-sm text-slate-400">Belum ada pengguna terdaftar.</td>
+                            <td colspan="6" class="px-5 py-12 text-center text-sm text-slate-400">Belum ada pengguna terdaftar.</td>
                         </tr>
                     @endforelse
                 </tbody>

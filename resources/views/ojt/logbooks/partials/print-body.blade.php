@@ -8,12 +8,29 @@
         }
 
         $checklist = $payload[$family] ?? [];
-        $certification = data_get($payload, 'meta.certification', 'Green');
-        $company = data_get($payload, 'meta.company', 'PT BERAU COAL / PT MTL');
-        $stickerExp = data_get($payload, 'meta.sticker_expired_at');
+        $certification = data_get($payload, 'meta.certification') ?: ($logbook->trainee->certification ?? 'Green');
+        $company = data_get($payload, 'meta.company') ?: ($logbook->trainee->company ?? 'PT BERAU COAL / PT MTL');
+        $stickerExp = data_get($payload, 'meta.sticker_expired_at') ?: ($logbook->trainee->sticker_expired_at ?: null);
         $assessmentMode = data_get($payload, 'meta.assessment_mode', '');
         $assessmentStage = data_get($payload, 'meta.assessment_stage', '');
         $assessmentStageDetail = data_get($payload, 'meta.assessment_stage_detail', '');
+
+        if (!$assessmentMode || !$assessmentStage) {
+            $traineeCert = $logbook->trainee->certification ?? 'Green';
+            $traineePhase = $logbook->trainee->current_phase ?? \App\Services\PhaseService::firstPhase($traineeCert);
+            $phaseMeta = \App\Services\PhaseService::meta($traineeCert, $traineePhase);
+
+            if (!$assessmentMode) {
+                $assessmentMode = ($phaseMeta && ($phaseMeta['type'] ?? '') === 'bulanan') ? 'tanpa_pendampingan' : 'pendampingan';
+            }
+            if (!$assessmentStage && ($phaseMeta && ($phaseMeta['type'] ?? '') === 'bulanan')) {
+                $assessmentStage = 'bulanan';
+            }
+            if (!$assessmentStageDetail && ($phaseMeta && ($phaseMeta['type'] ?? '') === 'bulanan')) {
+                $bulananIndex = (int) str_replace('bulanan_', '', $traineePhase);
+                $assessmentStageDetail = 'bulan_' . max(1, min(6, $bulananIndex - 4));
+            }
+        }
 
         $definition = \App\Support\ChecklistTemplate::structure($family);
         $stored = $payload[$family] ?? [];
@@ -68,7 +85,7 @@
             <tr>
                 <td class="logo-cell">
                     <div style="text-align: center; padding: 1px 2px;">
-                        <img src="{{ asset('images/berau_coal_logo.svg') }}" alt="Berau Coal Logo" class="logo-img">
+                        <img src="{{ asset('images/berau_coal_logo.png') }}" alt="Berau Coal Logo" class="logo-img">
                     </div>
                 </td>
                 <td>
@@ -84,9 +101,9 @@
             <tr>
                 <td style="width: 50%;">
                     <table style="width: 100%; border-collapse: collapse;">
-                        <tr><td class="meta-label">NAMA</td><td>: {{ $logbook->trainee->name ?? 'Ahmad Rian Syahputra' }}</td></tr>
+                        <tr><td class="meta-label">NAMA</td><td>: {{ $logbook->trainee->name ?? 'Belum Ditunjuk' }}</td></tr>
                         <tr><td class="meta-label">HARI/ TANGGAL</td><td>: {{ \Carbon\Carbon::parse($logbook->date)->translatedFormat('l, d F Y') }}</td></tr>
-                        <tr><td class="meta-label">SHIFT</td><td>: Shift {{ ucfirst($logbook->shift) }} ({{ $logbook->shift === 'day' ? 'Siang: 07.00 - 17.00' : 'Malam: 19.00 - 05.00' }})</td></tr>
+                        <tr><td class="meta-label">SHIFT</td><td>: Shift {{ ucfirst($logbook->shift) }} ({{ $logbook->shift === 'day' ? 'Siang' : 'Malam' }})</td></tr>
                         <tr><td class="meta-label">LOKASI (OJT)</td><td>: {{ $logbook->location }}</td></tr>
                         <tr><td class="meta-label">SERTIFIKASI</td><td>: 
                             <span style="{{ $certification === 'Green' ? 'font-weight:bold; text-decoration: underline;' : 'color: #888;' }}">Green</span> / 
@@ -109,7 +126,7 @@
                          @endif
                         <tr><td class="meta-label">NO ALAT</td><td>: {{ $logbook->unit_code }}</td></tr>
                          <tr><td class="meta-label">HM/ KM AWAL</td><td>: {{ number_format($logbook->hm_start, 1) }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>HM/ KM AKHIR:</b> {{ number_format($logbook->hm_end, 1) }}</td></tr>
-                         <tr><td class="meta-label">EXPIRED DATE STIKER (SKO)</td><td>: {{ $stickerExp ? \Carbon\Carbon::parse($stickerExp)->format('d/m/Y') : '......................20....' }}</td></tr>
+                          <tr><td class="meta-label">EXPIRED DATE STIKER (SKO)</td><td>: {{ $stickerExp ? \Carbon\Carbon::parse($stickerExp)->format('d/m/Y') : '......................20....' }}</td></tr>
                     </table>
                 </td>
             </tr>
@@ -147,7 +164,6 @@
                                 <div class="checkbox-item"><span class="checkbox-rect">{!! $detailValue === 'bulan_4' ? '✓' : '&nbsp;' !!}</span> Bulan ke-4</div>
                                 <div class="checkbox-item"><span class="checkbox-rect">{!! $detailValue === 'bulan_5' ? '✓' : '&nbsp;' !!}</span> Bulan ke-5</div>
                                 <div class="checkbox-item"><span class="checkbox-rect">{!! $detailValue === 'bulan_6' ? '✓' : '&nbsp;' !!}</span> Bulan ke-6</div>
-                                <div class="checkbox-item"><span class="checkbox-rect">{!! $detailValue === '-' ? '✓' : '&nbsp;' !!}</span> -</div>
                             </td>
                         </tr>
                     </table>
@@ -163,7 +179,7 @@
         {{--
             Dokumen akhir tetap memakai kolom K / BK.
             Nilai skala pengisian dikonversi otomatis oleh App\Support\CompetencyScale:
-            1 (Belum) & 2 (Cukup) => BK, 3 (Bisa) & 4 (Mahir) => K.
+            1 (Belum) & 2 (Cukup) => BK, 3 (Mampu) & 4 (Mahir) => K.
         --}}
         <!-- Main Evaluation Table -->
         <table class="eval-table">
@@ -259,7 +275,7 @@
                 <td style="width: 65%;">
                     <div style="font-weight: bold; text-transform: uppercase; margin-bottom: 4px;">Catatan Instruktur:</div>
                     <div style="font-size: 9.5px; line-height: 1.5; min-height: 60px; white-space: pre-line;">
-{{ $logbook->evaluation?->trainer_comment ?? $logbook->daily_activity }}
+{{ $logbook->evaluation?->trainer_comment ?? '' }}
                     </div>
                 </td>
                 <td style="width: 35%;">
@@ -326,8 +342,8 @@
                 <td style="width: 33.33%;" class="sig-title">
                     @php
                         $approverTitle = 'Instruktur/ Pengawas/ Operator Pendamping';
-                        $approverName = $logbook->trainer->name ?? $logbook->supervisor->name ?? '-';
-                        $approverSid = $logbook->trainer->sid ?? $logbook->supervisor->sid ?? '-';
+                        $approverName = $logbook->trainer->name ?? '-';
+                        $approverSid = $logbook->trainer->sid ?? '-';
                         $approverSig = null;
 
                         if ($logbook->evaluation?->trainer_signature_path) {
@@ -358,7 +374,7 @@
                             <img src="{{ asset('storage/'.$logbook->trainee->signature_path) }}" alt="Trainee signature" class="sig-img">
                         @endif
                     </div>
-                    <div class="sig-name">{{ $logbook->trainee->name ?? 'Ahmad Rian Syahputra' }}</div>
+                    <div class="sig-name">{{ $logbook->trainee->name ?? 'Belum Ditunjuk' }}</div>
                     <div class="sig-sid">No. SID : {{ $logbook->trainee->sid ?? '-' }}</div>
                 </td>
                 <td>

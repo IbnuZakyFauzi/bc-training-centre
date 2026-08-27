@@ -5,6 +5,8 @@
         'trainee' => 'Trainee',
         'trainer' => 'Trainer',
         'admin' => 'Admin TC',
+        'pjo' => 'PJO',
+        'hse_ct' => 'HSE CT',
     ];
 
     $role = $user?->role;
@@ -52,14 +54,32 @@
                 </div>
                 <div class="max-h-80 overflow-y-auto">
                     <?php $__empty_1 = true; $__currentLoopData = $unreadNotifications; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $n): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                        <a href="<?php echo e(route('notifications.read', $n->id)); ?>" class="flex gap-3 px-4 py-3 hover:bg-blue-50/60 border-b border-slate-50 transition">
+                        <?php
+                            $title = $n->data['title'] ?? 'Notifikasi';
+                            $message = $n->data['message'] ?? $title;
+                            $url = $n->data['url'] ?? route('notifications.read', $n->id);
+                            $type = $n->data['type'] ?? $n->type;
+                        ?>
+                        <a href="<?php echo e(route('notifications.read', $n->id)); ?>" class="flex gap-3 px-4 py-3 hover:bg-blue-50/60 border-b border-slate-50 transition relative">
                             <div class="w-8 h-8 rounded-lg bg-[#2563eb]/10 text-[#2563eb] flex items-center justify-center flex-shrink-0">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <?php if(str_contains($type, 'LogbookSubmitted')): ?>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                <?php elseif(str_contains($type, 'LogbookApproved')): ?>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <?php elseif(str_contains($type, 'LogbookRevision')): ?>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                <?php elseif(str_contains($type, 'HmThreshold')): ?>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <?php else: ?>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 01-6 0v-1m6 0H9"/></svg>
+                                <?php endif; ?>
                             </div>
-                            <div class="min-w-0">
-                                <p class="text-xs font-semibold text-slate-800 leading-snug"><?php echo e($n->data['message'] ?? 'Notifikasi'); ?></p>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-xs font-semibold text-slate-800 leading-snug"><?php echo e($title); ?></p>
+                                <p class="text-[11px] text-slate-500 mt-0.5 leading-snug"><?php echo e($message); ?></p>
                                 <p class="text-[10px] text-slate-400 mt-1"><?php echo e($n->created_at->diffForHumans()); ?></p>
                             </div>
+                            <div class="w-2 h-2 rounded-full bg-[#2563eb] flex-shrink-0 mt-1" title="Belum dibaca"></div>
                         </a>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <p class="px-4 py-6 text-center text-xs text-slate-400">Belum ada notifikasi.</p>

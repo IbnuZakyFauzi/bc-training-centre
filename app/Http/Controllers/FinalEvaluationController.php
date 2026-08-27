@@ -78,7 +78,7 @@ class FinalEvaluationController extends Controller
         $certifications = \App\Services\PhaseService::CERTIFICATIONS;
         $selectedTraineeId = $request->query('trainee');
 
-        return view('final-evaluations.create', compact('trainees', 'locations', 'certifications', 'selectedTraineeId'));
+        return view('final-evaluations.create', compact('trainees', 'locations', 'certifications'));
     }
 
     public function storeStandalone(Request $request)
@@ -97,6 +97,7 @@ class FinalEvaluationController extends Controller
             'tanggal_penilaian' => ['required', 'date'],
             'tahap_penilaian' => ['required', 'in:pendampingan,tanpa_pendampingan'],
             'sub_tahap' => ['nullable', 'string', 'max:255'],
+            'sub_tahap_keterangan' => ['nullable', 'string', 'max:255'],
             'p2h_status' => ['required', 'in:K,BK'],
             'teknik_pengoperasian_status' => ['required', 'in:K,BK'],
             'kepatuhan_status' => ['required', 'in:K,BK'],
@@ -106,12 +107,28 @@ class FinalEvaluationController extends Controller
 
         $validated['trainer_id'] = $user->id;
         $validated['ojt_logbook_id'] = null;
+        $validated['instruktur_signature_path'] = $user->signature_path;
         $trainee = User::where('name', $request->input('nama_operator'))->where('role', 'trainee')->first();
+        if ($trainee) {
+            $validated['nama_operator'] = $trainee->name;
+            $validated['perusahaan'] = $trainee->company ?? '';
+            $validated['jenis_unit_a2b'] = $trainee->equipmentCategory->name ?? '';
+            $validated['jenis_sertifikasi'] = $trainee->certification ?? 'Green';
+            $validated['operator_pendamping'] = '';
+        }
         $validated['phase'] = $trainee ? $trainee->currentPhaseKey() : \App\Services\PhaseService::firstPhase($request->input('jenis_sertifikasi'));
         $validated['status'] = 'submitted';
         $validated['kesimpulan'] = in_array($validated['p2h_status'], ['BK']) || in_array($validated['teknik_pengoperasian_status'], ['BK']) || in_array($validated['kepatuhan_status'], ['BK']) || in_array($validated['kedisiplinan_status'], ['BK']) ? 'belum_kompeten' : 'kompeten';
 
         $evaluation = FinalEvaluation::create($validated);
+
+        \App\Models\User::where('role', 'admin')->get()->each(function ($adminTc) use ($evaluation) {
+            $adminTc->notify(new \App\Notifications\LogbookSubmittedNotification([
+                'title' => 'Evaluasi Baru Menunggu Persetujuan',
+                'message' => "Evaluasi final untuk {$evaluation->nama_operator} telah disubmit dan menunggu persetujuan Anda.",
+                'url' => route('training-centre.final-evaluations.show', $evaluation->id),
+            ]));
+        });
 
         return redirect()->route('trainer.final-evaluations.index')->with('success', 'Formulir evaluasi berhasil disimpan.');
     }
@@ -134,6 +151,7 @@ class FinalEvaluationController extends Controller
             'tanggal_penilaian' => ['required', 'date'],
             'tahap_penilaian' => ['required', 'in:pendampingan,tanpa_pendampingan'],
             'sub_tahap' => ['nullable', 'string', 'max:255'],
+            'sub_tahap_keterangan' => ['nullable', 'string', 'max:255'],
             'p2h_status' => ['required', 'in:K,BK'],
             'teknik_pengoperasian_status' => ['required', 'in:K,BK'],
             'kepatuhan_status' => ['required', 'in:K,BK'],
@@ -142,6 +160,16 @@ class FinalEvaluationController extends Controller
         ]);
 
         $validated['kesimpulan'] = in_array($validated['p2h_status'], ['BK']) || in_array($validated['teknik_pengoperasian_status'], ['BK']) || in_array($validated['kepatuhan_status'], ['BK']) || in_array($validated['kedisiplinan_status'], ['BK']) ? 'belum_kompeten' : 'kompeten';
+        $validated['instruktur_signature_path'] = $user->signature_path;
+
+        $trainee = User::where('name', $validated['nama_operator'] ?? '')->where('role', 'trainee')->first();
+        if ($trainee) {
+            $validated['nama_operator'] = $trainee->name;
+            $validated['perusahaan'] = $trainee->company ?? '';
+            $validated['jenis_unit_a2b'] = $trainee->equipmentCategory->name ?? '';
+            $validated['jenis_sertifikasi'] = $trainee->certification ?? 'Green';
+            $validated['operator_pendamping'] = '';
+        }
 
         $evaluation->update($validated);
 
@@ -160,9 +188,9 @@ class FinalEvaluationController extends Controller
     public function print($id)
     {
         $user = Auth::user();
-        abort_unless($user && ($user->isTrainer() || $user->isTrainingCentre() || $user->isPjo() || $user->isHseCt() || $user->isSuperAdmin()), 403);
+        abort_unless($user && $user->isTrainingCentre(), 403);
 
-        $evaluation = FinalEvaluation::with(['logbook.trainee', 'logbook.equipmentCategory', 'trainer'])->findOrFail($id);
+        $evaluation = FinalEvaluation::with(['logbook.trainee', 'logbook.equipmentCategory', 'trainer', 'tcApprover', 'pjoApprover', 'hseApprover'])->findOrFail($id);
 
         return view('final-evaluations.print', compact('evaluation'));
     }

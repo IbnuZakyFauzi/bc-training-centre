@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-slot name="title">Edit Logbook - {{ $logbook->logbook_number }}</x-slot>
+    <x-slot name="title">Edit Form OJT - {{ $logbook->logbook_number }}</x-slot>
 
     <!-- Trainer Revision Callout (If Status is Revision) -->
     @if($logbook->status === 'revision' && $logbook->revision_notes)

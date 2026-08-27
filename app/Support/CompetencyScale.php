@@ -11,7 +11,7 @@ namespace App\Support;
  *
  *   1 (Belum)  -> BK
  *   2 (Cukup)  -> BK
- *   3 (Bisa)   -> K
+ *   3 (Mampu)   -> K
  *   4 (Mahir)  -> K
  *
  * Data lama yang masih menyimpan string 'K' / 'BK' tetap didukung (backward
@@ -40,7 +40,7 @@ class CompetencyScale
         return [
             self::SCALE_BELUM => 'Belum',
             self::SCALE_CUKUP => 'Cukup',
-            self::SCALE_BISA => 'Bisa',
+            self::SCALE_BISA => 'Mampu',
             self::SCALE_MAHIR => 'Mahir',
         ];
     }
@@ -125,7 +125,7 @@ class CompetencyScale
     }
 
     /**
-     * Label skala, contoh: 3 => "Bisa".
+     * Label skala, contoh: 3 => "Mampu".
      */
     public static function label($value): ?string
     {

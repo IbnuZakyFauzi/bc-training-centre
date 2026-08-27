@@ -57,17 +57,17 @@
                 <div class="space-y-3 sm:space-y-4">
                     <div>
                         <label class="text-xs font-bold text-slate-700">Password Saat Ini</label>
-                        <input type="password" name="current_password" class="mt-2 w-full rounded-xl border-slate-300 text-sm min-h-[44px]" placeholder="Wajib diisi jika ingin ganti password">
+                        <input type="password" name="current_password" autocomplete="off" class="mt-2 w-full rounded-xl border-slate-300 text-sm min-h-[44px]" placeholder="Wajib diisi jika ingin ganti password">
                         @error('current_password')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label class="text-xs font-bold text-slate-700">Password Baru</label>
-                        <input type="password" name="new_password" class="mt-2 w-full rounded-xl border-slate-300 text-sm min-h-[44px]" placeholder="Minimal 6 karakter">
+                        <input type="password" name="new_password" autocomplete="off" class="mt-2 w-full rounded-xl border-slate-300 text-sm min-h-[44px]" placeholder="Minimal 6 karakter">
                         @error('new_password')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label class="text-xs font-bold text-slate-700">Konfirmasi Password Baru</label>
-                        <input type="password" name="new_password_confirmation" class="mt-2 w-full rounded-xl border-slate-300 text-sm min-h-[44px]" placeholder="Ulangi password baru">
+                        <input type="password" name="new_password_confirmation" autocomplete="off" class="mt-2 w-full rounded-xl border-slate-300 text-sm min-h-[44px]" placeholder="Ulangi password baru">
                     </div>
                 </div>
             </div>
@@ -90,10 +90,6 @@
                         <span class="font-semibold text-slate-800">{{ strtoupper($user->role) }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-4">
-                        <span class="text-slate-500 text-xs">Department</span>
-                        <span class="font-semibold text-slate-800">{{ $user->department->name ?? '-' }}</span>
-                    </div>
-                    <div class="flex items-center justify-between gap-4">
                         <span class="text-slate-500 text-xs">Status Password</span>
                         <span class="font-semibold {{ $user->must_change_password ? 'text-amber-600' : 'text-amber-600' }}">
                             {{ $user->must_change_password ? 'Harus diganti' : 'Sudah diganti' }}
@@ -110,7 +106,7 @@
                         <p class="mt-3 text-[11px] text-slate-500">Dipakai otomatis saat approval.</p>
                     @else
                         <p class="text-sm text-slate-500">Belum ada tanda tangan tersimpan.</p>
-                        <p class="mt-2 text-[11px] text-slate-500">Upload sekali dari halaman ini agar approval berikutnya bisa langsung klik approve.</p>
+                        <p class="mt-2 text-[11px] text-slate-500">Upload sekali dari halaman ini agar approval berikutnya mampu langsung klik approve.</p>
                     @endif
                 </div>
             </div>

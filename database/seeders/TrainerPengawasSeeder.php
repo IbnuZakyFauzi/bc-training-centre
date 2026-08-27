@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Department;
 use App\Models\CompetencyEvaluation;
 use App\Models\LogbookHistory;
 use App\Models\OjtLogbook;
@@ -22,7 +21,6 @@ class TrainerPengawasSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'role' => 'trainer',
                 'trainer_type' => 'pengawas',
-                'department_id' => Department::where('code', 'CHCPP')->value('id'),
                 'phone' => '+62 812-9988-7766',
             ]
         );

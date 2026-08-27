@@ -22,6 +22,7 @@ class FinalEvaluation extends Model
         'tanggal_penilaian',
         'tahap_penilaian',
         'sub_tahap',
+        'sub_tahap_keterangan',
         'phase',
         'status',
         'p2h_status',

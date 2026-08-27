@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Dokumen Logbook - {{ $trainee->name }}</title>
+    <title>Dokumen Form OJT - {{ $trainee->name }}</title>
     <style>
         @page {
             size: A4 portrait;
@@ -105,6 +105,7 @@
             html, body { width: 100%; margin: 0; padding: 0; background: #fff; }
             .no-print { display: none !important; }
             .form-container { border: 1px solid #000 !important; }
+            .evaluation-page { padding: 6mm !important; }
             * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
@@ -113,16 +114,20 @@
 
     <div class="no-print">
         <button onclick="window.print()" class="btn-print">
-            🖨️ Cetak / Download PDF Semua Logbook
+            🖨️ Cetak / Download PDF Semua Dokumen
         </button>
-        <p style="font-size: 11px; color: #555; margin-top: 6px;">
-            Dokumen ini berisi {{ $logbooks->count() }} logbook final approved untuk <strong>{{ $trainee->name }}</strong>.
-        </p>
+            <p style="font-size: 11px; color: #555; margin-top: 6px;">
+                Dokumen ini berisi {{ $combined->count() }} halaman (logbook & evaluasi) untuk <strong>{{ $trainee->name }}</strong>.
+            </p>
     </div>
 
-    @foreach($logbooks as $logbook)
-        <div class="logbook-page">
-            @include('ojt.logbooks.partials.print-body')
+    @foreach($combined as $item)
+        <div class="logbook-page {{ $item['type'] === 'evaluation' ? 'evaluation-page' : '' }}">
+            @if($item['type'] === 'logbook')
+                @include('ojt.logbooks.partials.print-body', ['logbook' => $item['model']])
+            @else
+                @include('final-evaluations.partials.print-body', ['evaluation' => $item['model']])
+            @endif
         </div>
     @endforeach
 

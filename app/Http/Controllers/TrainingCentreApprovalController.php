@@ -22,7 +22,7 @@ class TrainingCentreApprovalController extends Controller
     private function pendingQuery()
     {
         $reviewer = $this->reviewer();
-        return OjtLogbook::with(['trainee.department', 'trainer', 'equipment', 'evaluation', 'assignedTc'])
+        return OjtLogbook::with(['trainee', 'trainer', 'equipment', 'evaluation', 'assignedTc'])
             ->where('status', 'verified')
             ->whereNull('training_centre_decided_at');
     }
@@ -32,7 +32,7 @@ class TrainingCentreApprovalController extends Controller
         $reviewer = $this->reviewer();
         $activeStatus = $request->get('status', 'pending');
 
-        $query = OjtLogbook::with(['trainee.department', 'trainer', 'equipment', 'evaluation', 'assignedTc']);
+        $query = OjtLogbook::with(['trainee', 'trainer', 'equipment', 'evaluation', 'assignedTc']);
 
         if ($activeStatus === 'finalized') {
             $query->where('status', 'final_approved')->whereNotNull('training_centre_decided_at');
@@ -53,7 +53,9 @@ class TrainingCentreApprovalController extends Controller
 
         $groupedFinalized = collect();
         if ($activeStatus === 'finalized') {
-            $groupedFinalized = OjtLogbook::with(['trainee', 'trainer'])
+            $groupedFinalized = OjtLogbook::query()
+                ->select('id', 'trainee_id', 'trainer_id', 'status', 'training_centre_decided_at', 'updated_at')
+                ->with(['trainee' => fn ($q) => $q->select('id', 'name', 'sid'), 'trainer' => fn ($q) => $q->select('id', 'name')])
                 ->where('status', 'final_approved')
                 ->whereNotNull('training_centre_decided_at')
                 ->latest('updated_at')
@@ -69,7 +71,7 @@ class TrainingCentreApprovalController extends Controller
 
         $counts = [
             'pending' => $this->pendingQuery()->count(),
-            'finalized' => OjtLogbook::where('status', 'final_approved')->whereNotNull('training_centre_decided_at')->distinct('trainee_id')->count('trainee_id'),
+            'finalized' => OjtLogbook::where('status', 'final_approved')->whereNotNull('training_centre_decided_at')->distinct()->count('trainee_id'),
             'revision' => OjtLogbook::where('status', 'revision')->whereNotNull('training_centre_decided_at')->count(),
         ];
 
@@ -124,7 +126,7 @@ class TrainingCentreApprovalController extends Controller
     public function show($id)
     {
         $reviewer = $this->reviewer();
-        $logbook = OjtLogbook::with(['trainee', 'trainer', 'supervisor', 'department', 'equipmentCategory', 'equipment', 'histories.user', 'evaluation.trainer', 'trainingCentre', 'assignedTc'])->findOrFail($id);
+        $logbook = OjtLogbook::with(['trainee', 'trainer', 'equipmentCategory', 'equipment', 'histories.user', 'evaluation.trainer', 'trainingCentre', 'assignedTc'])->findOrFail($id);
         $isPending = $logbook->status === 'verified' && !$logbook->training_centre_decided_at;
         abort_unless($isPending || $logbook->training_centre_decided_at, 403);
         $assignedPengawas = collect($logbook->selected_pengawas_ids ?? [])->map(fn ($id) => User::find($id))->filter();
@@ -148,6 +150,25 @@ class TrainingCentreApprovalController extends Controller
             $logbook->update(['status' => $approved ? 'final_approved' : 'revision', 'training_centre_id' => $reviewer->id, 'training_centre_notes' => $data['approval_notes'] ?? null, 'training_centre_decided_at' => now(), 'approved_at' => $approved ? now() : null, 'revision_notes' => $approved ? null : $data['approval_notes'], 'training_centre_signature_path' => $approved ? $reviewer->signature_path : null]);
             LogbookHistory::create(['ojt_logbook_id' => $logbook->id, 'user_id' => $reviewer->id, 'action' => $approved ? 'Approved by Head of Training Centre' : 'Revision Requested by Head of Training Centre', 'from_status' => $previousStatus, 'to_status' => $approved ? 'final_approved' : 'revision', 'comment' => $data['approval_notes'] ?? null]);
         });
+
+        if ($approved) {
+            $logbook->trainee?->notify(new \App\Notifications\LogbookApprovedNotification([
+                'title' => 'Form OJT Telah Disahkan',
+                'message' => "Form OJT {$logbook->logbook_number} telah disahkan oleh Kabag Training Centre.",
+                'url' => route('ojt.logbooks.show', $logbook->id),
+            ]));
+            $logbook->trainer?->notify(new \App\Notifications\LogbookApprovedNotification([
+                'title' => 'Form OJT Telah Disahkan',
+                'message' => "Form OJT {$logbook->logbook_number} dari {$logbook->trainee->name} telah disahkan oleh Kabag Training Centre.",
+                'url' => route('trainer.reviews.show', $logbook->id),
+            ]));
+        } else {
+            $logbook->trainer?->notify(new \App\Notifications\LogbookRevisionRequestedNotification([
+                'title' => 'Form OJT Dikembalikan untuk Revisi',
+                'message' => "Form OJT {$logbook->logbook_number} dari {$logbook->trainee->name} dikembalikan untuk revisi oleh Kabag Training Centre.",
+                'url' => route('trainer.reviews.show', $logbook->id),
+            ]));
+        }
         return redirect()->route('training-centre.approvals.index')->with('success', $approved ? 'Logbook telah disahkan oleh Kabag Training Centre.' : 'Logbook dikembalikan untuk revisi.');
     }
 

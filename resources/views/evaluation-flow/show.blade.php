@@ -7,6 +7,12 @@
             <h1 class="text-xl font-extrabold text-slate-800 mt-1">Evaluasi Akhir A2B · {{ $evaluation->nama_operator }}</h1>
             <p class="text-xs text-slate-500 mt-1">Fase: {{ $evaluation->phase }} · Sertifikasi: {{ $evaluation->jenis_sertifikasi }} · Status: {{ \Illuminate\Support\Str::title(str_replace('_', ' ', $evaluation->status)) }}</p>
         </div>
+        @if(auth()->user()->isTrainingCentre())
+        <a href="{{ route('training-centre.final-evaluations.print', $evaluation->id) }}" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-[#1e3a8a] text-white hover:bg-[#172554] text-xs font-bold transition min-h-[44px]">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 002 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            Cetak
+        </a>
+        @endif
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
@@ -77,7 +83,7 @@
                     <textarea name="tc_notes" placeholder="Catatan (opsional)" class="w-full text-xs rounded-xl border-slate-300 focus:border-brand-500 focus:ring-brand-500 min-h-[44px]"></textarea>
                     <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                         <button class="flex-1 px-3 py-3 rounded-xl bg-[#2563eb] text-white text-xs font-bold min-h-[44px]">Setujui (TC)</button>
-                        <button formaction="{{ route('training-centre.final-evaluations.tc-reject', $evaluation->id) }}" class="px-3 py-3 rounded-xl bg-red-100 text-red-700 text-xs font-bold min-h-[44px]">Tolak</button>
+                        <button formaction="{{ route('training-centre.final-evaluations.tc-reject', $evaluation->id) }}" class="px-3 py-3 rounded-xl bg-red-100 text-red-700 text-xs font-bold min-h-[44px]">Revisi</button>
                     </div>
                 </form>
             @elseif(auth()->user()->isPjo() && $evaluation->isPendingPjo())
@@ -86,7 +92,7 @@
                     <textarea name="pjo_notes" placeholder="Catatan (opsional)" class="w-full text-xs rounded-xl border-slate-300 focus:border-brand-500 focus:ring-brand-500 min-h-[44px]"></textarea>
                     <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                         <button class="flex-1 px-3 py-3 rounded-xl bg-[#2563eb] text-white text-xs font-bold min-h-[44px]">Setujui (PJO)</button>
-                        <button formaction="{{ route('pjo.final-evaluations.reject', $evaluation->id) }}" class="px-3 py-3 rounded-xl bg-red-100 text-red-700 text-xs font-bold min-h-[44px]">Tolak</button>
+                        <button formaction="{{ route('pjo.final-evaluations.reject', $evaluation->id) }}" class="px-3 py-3 rounded-xl bg-red-100 text-red-700 text-xs font-bold min-h-[44px]">Revisi</button>
                     </div>
                 </form>
             @elseif(auth()->user()->isHseCt() && $evaluation->isPendingHse())
@@ -95,7 +101,7 @@
                     <textarea name="hse_notes" placeholder="Catatan (opsional)" class="w-full text-xs rounded-xl border-slate-300 focus:border-brand-500 focus:ring-brand-500 min-h-[44px]"></textarea>
                     <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                         <button class="flex-1 px-3 py-3 rounded-xl bg-[#2563eb] text-white text-xs font-bold min-h-[44px]">Setujui Final (HSE CT)</button>
-                        <button formaction="{{ route('hse-ct.final-evaluations.reject', $evaluation->id) }}" class="px-3 py-3 rounded-xl bg-red-100 text-red-700 text-xs font-bold min-h-[44px]">Tolak</button>
+                        <button formaction="{{ route('hse-ct.final-evaluations.reject', $evaluation->id) }}" class="px-3 py-3 rounded-xl bg-red-100 text-red-700 text-xs font-bold min-h-[44px]">Revisi</button>
                     </div>
                     <p class="text-[10px] text-slate-400">Setelah disetujui, trainee otomatis naik ke fase berikutnya.</p>
                 </form>

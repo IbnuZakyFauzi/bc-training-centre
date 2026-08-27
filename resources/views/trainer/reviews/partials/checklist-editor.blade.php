@@ -7,7 +7,7 @@
 <form method="POST" action="{{ route('trainer.reviews.checklist.update', $logbook->id) }}" class="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
     @csrf
     @method('PUT')
-    <div class="mb-4"><h2 class="text-sm font-bold text-slate-800">Edit Penilaian Item Evaluasi (Skala 1 - 4)</h2><p class="mt-1 text-[11px] text-slate-500">Trainer dapat menyesuaikan level nilai sebelum approval. 1 (Belum) &amp; 2 (Cukup) = BK, 3 (Bisa) &amp; 4 (Mahir) = K pada dokumen akhir.</p></div>
+    <div class="mb-4"><h2 class="text-sm font-bold text-slate-800">Edit Penilaian Item Evaluasi (Skala 1 - 4)</h2><p class="mt-1 text-[11px] text-slate-500">Trainer dapat menyesuaikan level nilai sebelum approval. 1 (Belum) &amp; 2 (Cukup) = BK, 3 (Mampu) &amp; 4 (Mahir) = K pada dokumen akhir.</p></div>
     @foreach(data_get($checklist, 'groups', []) as $groupIndex => $group)
         <div class="mb-5 overflow-hidden rounded-xl border border-slate-200">
             <div class="bg-[#1e3a8a] px-4 py-3 text-xs font-bold uppercase text-white">{{ $group['title'] ?? 'Checklist' }}</div>

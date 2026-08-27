@@ -32,8 +32,8 @@ class ProfileController extends Controller
             ],
             'phone' => ['required', 'string', 'max:30'],
             'signature' => ['nullable', 'file', 'mimes:png,jpg,jpeg', 'max:2048'],
-            'current_password' => ['nullable', 'required_with:new_password', 'current_password'],
-            'new_password' => ['nullable', 'required_with:current_password', 'string', 'min:6', 'confirmed'],
+            'current_password' => ['nullable', 'current_password'],
+            'new_password' => ['nullable', 'string', 'min:6', 'confirmed'],
         ]);
 
         $signaturePath = $user->signature_path;
@@ -51,11 +51,11 @@ class ProfileController extends Controller
             'email' => $data['email'],
             'phone' => $data['phone'] ?? null,
             'signature_path' => $signaturePath,
+            'must_change_password' => false,
         ];
 
         if (!empty($data['new_password'])) {
             $updateData['password'] = bcrypt($data['new_password']);
-            $updateData['must_change_password'] = false;
         }
 
         $user->update($updateData);

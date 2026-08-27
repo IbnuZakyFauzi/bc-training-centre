@@ -3,7 +3,7 @@
 
     Menggantikan toggle K / BK dengan skala angka 1-4:
         1 (Belum) & 2 (Cukup) -> ekivalen BK pada dokumen akhir
-        3 (Bisa)  & 4 (Mahir) -> ekivalen K pada dokumen akhir
+        3 (Mampu)  & 4 (Mahir) -> ekivalen K pada dokumen akhir
 
     Parameter (pilih salah satu cara pakai):
       A. Form logbook (sop_payload):

@@ -10,7 +10,6 @@ use App\Http\Controllers\OjtLogbookController;
 use App\Http\Controllers\SubmissionHistoryController;
 use App\Http\Controllers\TrainerReviewController;
 use App\Http\Controllers\TrainingCentreApprovalController;
-use App\Http\Controllers\SupervisorApprovalController;
 
 Route::get('/', function () {
     return Auth::check()
@@ -58,12 +57,14 @@ Route::middleware(['auth', 'must.change.password', 'role:admin'])->prefix('train
     Route::put('/users/{id}', ['App\Http\Controllers\UserManagementController', 'update'])->name('users.update');
     Route::delete('/users/{id}', ['App\Http\Controllers\UserManagementController', 'destroy'])->name('users.destroy');
     Route::post('/users/{id}/reset-password', ['App\Http\Controllers\UserManagementController', 'resetPassword'])->name('users.reset-password');
+    Route::post('/users/{id}/assign-phase', ['App\Http\Controllers\UserManagementController', 'assignPhase'])->name('users.assign-phase');
 
     // Final Evaluation approval flow (Admin TC stage)
     Route::get('/final-evaluations', ['App\Http\Controllers\EvaluationFlowController', 'tcIndex'])->name('final-evaluations.index');
     Route::get('/final-evaluations/{id}', ['App\Http\Controllers\EvaluationFlowController', 'show'])->name('final-evaluations.show');
+    Route::get('/final-evaluations/{id}/print', ['App\Http\Controllers\FinalEvaluationController', 'print'])->name('final-evaluations.print');
     Route::post('/final-evaluations/{id}/tc-approve', ['App\Http\Controllers\EvaluationFlowController', 'tcApprove'])->name('final-evaluations.tc-approve');
-    Route::post('/final-evaluations/{id}/reject', ['App\Http\Controllers\EvaluationFlowController', 'reject'])->name('final-evaluations.tc-reject');
+    Route::post('/final-evaluations/{id}/reject', ['App\Http\Controllers\EvaluationFlowController', 'reject'])->name('final-evaluations.reject');
     Route::get('/monitoring', ['App\Http\Controllers\EvaluationFlowController', 'monitoring'])->name('monitoring');
     Route::get('/trainees/{traineeId}/documents', ['App\Http\Controllers\TrainingCentreApprovalController', 'traineeDocuments'])->name('trainee-documents');
 });
@@ -89,13 +90,6 @@ Route::middleware(['auth', 'must.change.password', 'role:trainer'])->prefix('tra
         Route::put('/final-evaluations/{id}', 'App\Http\Controllers\FinalEvaluationController@update')->name('final-evaluations.update');
         Route::get('/monitoring', ['App\Http\Controllers\EvaluationFlowController', 'monitoring'])->name('monitoring');
     });
-
-Route::middleware(['auth', 'must.change.password', 'role:trainer'])->prefix('supervisor')->name('supervisor.')->group(function () {
-    Route::get('/dashboard', [SupervisorApprovalController::class, 'index'])->name('dashboard');
-    Route::get('/approvals', [SupervisorApprovalController::class, 'index'])->name('approvals.index');
-    Route::get('/approvals/{id}', [SupervisorApprovalController::class, 'show'])->name('approvals.show');
-    Route::post('/approvals/{id}/decide', [SupervisorApprovalController::class, 'decide'])->name('approvals.decide');
-});
 
 // OJT Trainee Module Routes
 Route::middleware(['auth', 'must.change.password', 'role:trainee'])->prefix('ojt')->name('ojt.')->group(function () {
