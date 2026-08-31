@@ -81,6 +81,34 @@ class FinalEvaluationController extends Controller
         return view('final-evaluations.create', compact('trainees', 'locations', 'certifications'));
     }
 
+    public function edit($id)
+    {
+        $user = Auth::user();
+        abort_unless($user && $user->isTrainer(), 403);
+
+        $evaluation = FinalEvaluation::where('trainer_id', $user->id)->findOrFail($id);
+        $trainees = User::where('role', 'trainee')
+            ->with(['equipmentCategory', 'assignedOperatorPendamping'])
+            ->get()
+            ->map(fn ($trainee) => [
+                'id' => $trainee->id,
+                'name' => $trainee->name,
+                'company' => $trainee->company,
+                'equipment_category_name' => $trainee->equipmentCategory->name ?? '',
+                'certification' => $trainee->certification,
+                'operator_pendamping' => $trainee->assignedOperatorPendamping->pluck('name')->join(', '),
+                'current_phase' => $trainee->currentPhaseKey(),
+                'current_phase_label' => $trainee->currentPhaseMeta()['label'] ?? '',
+                'eligible' => $trainee->isPhaseEligible(),
+            ])
+            ->values();
+
+        $locations = ['BMO 1', 'BMO 2', 'BMO 3', 'GMO', 'LMO'];
+        $certifications = \App\Services\PhaseService::CERTIFICATIONS;
+
+        return view('final-evaluations.create', compact('evaluation', 'trainees', 'locations', 'certifications'));
+    }
+
     public function storeStandalone(Request $request)
     {
         $user = Auth::user();
@@ -114,7 +142,7 @@ class FinalEvaluationController extends Controller
             $validated['perusahaan'] = $trainee->company ?? '';
             $validated['jenis_unit_a2b'] = $trainee->equipmentCategory->name ?? '';
             $validated['jenis_sertifikasi'] = $trainee->certification ?? 'Green';
-            $validated['operator_pendamping'] = '';
+            $validated['operator_pendamping'] = $trainee->assignedOperatorPendamping->pluck('name')->join(', ');
         }
         $validated['phase'] = $trainee ? $trainee->currentPhaseKey() : \App\Services\PhaseService::firstPhase($request->input('jenis_sertifikasi'));
         $validated['status'] = 'submitted';
@@ -168,12 +196,33 @@ class FinalEvaluationController extends Controller
             $validated['perusahaan'] = $trainee->company ?? '';
             $validated['jenis_unit_a2b'] = $trainee->equipmentCategory->name ?? '';
             $validated['jenis_sertifikasi'] = $trainee->certification ?? 'Green';
-            $validated['operator_pendamping'] = '';
+            $validated['operator_pendamping'] = $trainee->assignedOperatorPendamping->pluck('name')->join(', ');
         }
 
         $evaluation->update($validated);
 
-        return redirect()->route('trainer.final-evaluations.index')->with('success', 'Formulir evaluasi berhasil diperbarui.');
+        $evaluation->update([
+            'status' => 'submitted',
+            'tc_approved_at' => null,
+            'tc_approved_by' => null,
+            'tc_notes' => null,
+            'pjo_approved_at' => null,
+            'pjo_approved_by' => null,
+            'pjo_notes' => null,
+            'hse_approved_at' => null,
+            'hse_approved_by' => null,
+            'hse_notes' => null,
+        ]);
+
+        \App\Models\User::where('role', 'admin')->get()->each(function ($adminTc) use ($evaluation) {
+            $adminTc->notify(new \App\Notifications\LogbookSubmittedNotification([
+                'title' => 'Evaluasi Revisi Menunggu Persetujuan',
+                'message' => "Evaluasi final untuk {$evaluation->nama_operator} telah diperbarui dan menunggu persetujuan Anda.",
+                'url' => route('training-centre.final-evaluations.show', $evaluation->id),
+            ]));
+        });
+
+        return redirect()->route('trainer.final-evaluations.index')->with('success', 'Formulir evaluasi berhasil diperbarui dan dikirim ke Admin TC.');
     }
 
     public function show($id)

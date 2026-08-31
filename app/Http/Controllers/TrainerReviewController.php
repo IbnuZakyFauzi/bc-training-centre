@@ -22,6 +22,7 @@ class TrainerReviewController extends Controller
         $trainer = auth()->user();
         abort_unless($trainer && $trainer->isTrainer(), 403);
 
+        // OJT Logbook Review Queue
         $query = OjtLogbook::with(['trainee', 'equipment', 'evaluation'])
             ->whereHas('assignments', function ($q) use ($trainer) {
                 $q->where('user_id', $trainer->id)
@@ -81,7 +82,37 @@ class TrainerReviewController extends Controller
             ->where('eligible', true)
             ->values();
 
-        return view('trainer.reviews.index', compact('trainer', 'logbooks', 'counts', 'activeStatus', 'eligibleTrainees'));
+        // Evaluation Queue for Trainer
+        $evaluationQuery = \App\Models\FinalEvaluation::with(['trainer', 'trainee'])
+            ->where('trainer_id', $trainer->id)
+            ->whereNotIn('status', ['hse_approved']);
+
+        $evaluationStatus = $request->get('eval_status', 'submitted');
+
+        if ($evaluationStatus === 'rejected') {
+            $evaluationQuery->where('status', 'rejected');
+        } elseif ($evaluationStatus === 'tc_approved') {
+            $evaluationQuery->where('status', 'tc_approved');
+        } elseif ($evaluationStatus === 'pjo_approved') {
+            $evaluationQuery->where('status', 'pjo_approved');
+        } else {
+            $evaluationStatus = 'submitted';
+            $evaluationQuery->where('status', 'submitted');
+        }
+
+        $evaluationQueue = $evaluationQuery->latest()->paginate(10, ['*'], 'eval_page')->withQueryString();
+
+        $evaluationCounts = [
+            'submitted' => \App\Models\FinalEvaluation::where('trainer_id', $trainer->id)->where('status', 'submitted')->count(),
+            'rejected' => \App\Models\FinalEvaluation::where('trainer_id', $trainer->id)->where('status', 'rejected')->count(),
+            'tc_approved' => \App\Models\FinalEvaluation::where('trainer_id', $trainer->id)->where('status', 'tc_approved')->count(),
+            'pjo_approved' => \App\Models\FinalEvaluation::where('trainer_id', $trainer->id)->where('status', 'pjo_approved')->count(),
+        ];
+
+        return view('trainer.reviews.index', compact(
+            'trainer', 'logbooks', 'counts', 'activeStatus', 'eligibleTrainees',
+            'evaluationQueue', 'evaluationCounts', 'evaluationStatus'
+        ));
     }
 
     public function show($id)

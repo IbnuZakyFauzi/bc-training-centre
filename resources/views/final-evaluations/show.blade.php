@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Evaluasi - {{ $evaluation->logbook->logbook_number }}</title>
+    <title>Detail Evaluasi - {{ $evaluation->logbook?->logbook_number ?? $evaluation->id }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -132,6 +132,11 @@
                 <a href="{{ route('trainer.reviews.index') }}" class="px-4 sm:px-6 py-3 rounded-lg border border-slate-300 text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-50 text-center min-h-[44px] inline-flex items-center justify-center">
                     Kembali
                 </a>
+                @if(auth()->user()?->isTrainer() && $evaluation->status === 'rejected')
+                    <a href="{{ route('trainer.final-evaluations.edit', $evaluation->id) }}" class="px-4 sm:px-6 py-3 rounded-lg bg-[#2563eb] text-white text-xs sm:text-sm font-bold hover:bg-blue-600 text-center min-h-[44px] inline-flex items-center justify-center">
+                        Edit Revisi
+                    </a>
+                @endif
             </div>
         </div>
     </div>

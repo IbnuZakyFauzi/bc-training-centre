@@ -66,6 +66,94 @@
         </div>
     <?php endif; ?>
 
+    <!-- Evaluation Queue for Trainer -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-4 sm:mb-7">
+        <div class="p-4 sm:p-5 border-b border-slate-100">
+            <h2 class="font-bold text-slate-800 text-sm sm:text-base">Antrean Form Evaluasi OJT A2B</h2>
+            <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Evaluasi yang sedang menunggu persetujuan atau memerlukan revisi.</p>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+            <?php $__currentLoopData = [
+                ['submitted', 'Menunggu TC', $evaluationCounts['submitted'] ?? 0, 'blue'],
+                ['tc_approved', 'Sudah TC', $evaluationCounts['tc_approved'] ?? 0, 'purple'],
+                ['pjo_approved', 'Sudah PJO', $evaluationCounts['pjo_approved'] ?? 0, 'amber'],
+                ['rejected', 'Revisi', $evaluationCounts['rejected'] ?? 0, 'red'],
+            ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as [$key, $label, $value, $color]): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <a href="<?php echo e(route('trainer.reviews.index', array_merge(request()->query(), ['eval_status' => $key]))); ?>" class="block bg-slate-50 rounded-xl border transition-all p-3 sm:p-4 hover:shadow-md <?php echo e(($evaluationStatus ?? 'submitted') === $key ? 'ring-2 ring-[#2563eb] border-[#2563eb]' : 'border-slate-200'); ?>">
+                    <p class="text-[10px] sm:text-xs font-bold uppercase tracking-wide text-<?php echo e($color); ?>-600"><?php echo e($label); ?></p>
+                    <p class="mt-1 text-xl sm:text-2xl font-extrabold text-slate-800"><?php echo e($value); ?></p>
+                </a>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500">
+                    <tr>
+                        <th class="px-5 py-3">Nama Operator</th>
+                        <th class="px-5 py-3">Evaluasi Ke-</th>
+                        <th class="px-5 py-3">Status</th>
+                        <th class="px-5 py-3 text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    <?php $__empty_1 = true; $__currentLoopData = $evaluationQueue; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $evaluation): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                        <tr class="hover:bg-blue-50/30">
+                            <td class="px-5 py-4">
+                                <p class="text-xs font-bold text-slate-800"><?php echo e($evaluation->nama_operator); ?></p>
+                                <p class="text-[11px] text-slate-500 mt-1"><?php echo e($evaluation->perusahaan); ?></p>
+                            </td>
+                            <td class="px-5 py-4 text-xs text-slate-600">
+                                <?php echo e(format_phase_label($evaluation->phase, $evaluation->jenis_sertifikasi)); ?>
+
+                            </td>
+                            <td class="px-5 py-4">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold
+                                    <?php echo e($evaluation->status === 'submitted' ? 'bg-blue-50 text-blue-700 border border-blue-200' : ''); ?>
+
+                                    <?php echo e($evaluation->status === 'tc_approved' ? 'bg-purple-50 text-purple-700 border border-purple-200' : ''); ?>
+
+                                    <?php echo e($evaluation->status === 'pjo_approved' ? 'bg-amber-50 text-amber-700 border border-amber-200' : ''); ?>
+
+                                    <?php echo e($evaluation->status === 'rejected' ? 'bg-red-50 text-red-700 border border-red-200' : ''); ?>">
+                                    <?php echo e(match($evaluation->status) {
+                                        'submitted' => 'Menunggu TC',
+                                        'tc_approved' => 'Disetujui TC',
+                                        'pjo_approved' => 'Disetujui PJO',
+                                        'rejected' => 'Revisi',
+                                        default => str_replace('_', ' ', ucfirst($evaluation->status))
+                                    }); ?>
+
+                                </span>
+                            </td>
+                            <td class="px-5 py-4 text-right">
+                                <div class="inline-flex items-center space-x-2">
+                                    <?php if($evaluation->status === 'rejected'): ?>
+                                        <a href="<?php echo e(route('trainer.final-evaluations.edit', $evaluation->id)); ?>" class="inline-flex px-3 py-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs font-bold">
+                                            Edit Revisi
+                                        </a>
+                                    <?php endif; ?>
+                                    <a href="<?php echo e(route('trainer.final-evaluations.show', $evaluation->id)); ?>" class="inline-flex px-3 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-bold">
+                                        Detail
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                        <tr>
+                            <td colspan="4" class="px-5 py-12 text-center text-sm text-slate-400">Tidak ada form evaluasi pada kategori ini.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php if($evaluationQueue->hasPages()): ?>
+            <div class="p-5 border-t border-slate-100">
+                <?php echo e($evaluationQueue->links()); ?>
+
+            </div>
+        <?php endif; ?>
+    </div>
+
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4">
             <div>

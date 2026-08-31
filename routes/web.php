@@ -86,8 +86,9 @@ Route::middleware(['auth', 'must.change.password', 'role:trainer'])->prefix('tra
     Route::get('/final-evaluations', 'App\Http\Controllers\FinalEvaluationController@index')->name('final-evaluations.index');
     Route::post('/final-evaluation', 'App\Http\Controllers\FinalEvaluationController@storeStandalone')->name('final-evaluations.store');
     Route::get('/final-evaluations/{id}', 'App\Http\Controllers\FinalEvaluationController@show')->name('final-evaluations.show');
-        Route::get('/final-evaluations/{id}/print', 'App\Http\Controllers\FinalEvaluationController@print')->name('final-evaluations.print');
-        Route::put('/final-evaluations/{id}', 'App\Http\Controllers\FinalEvaluationController@update')->name('final-evaluations.update');
+    Route::get('/final-evaluations/{id}/edit', 'App\Http\Controllers\FinalEvaluationController@edit')->name('final-evaluations.edit');
+    Route::get('/final-evaluations/{id}/print', 'App\Http\Controllers\FinalEvaluationController@print')->name('final-evaluations.print');
+    Route::put('/final-evaluations/{id}', 'App\Http\Controllers\FinalEvaluationController@update')->name('final-evaluations.update');
         Route::get('/monitoring', ['App\Http\Controllers\EvaluationFlowController', 'monitoring'])->name('monitoring');
     });
 

@@ -426,7 +426,7 @@
         });
     </script>
 
-    <form action="{{ $isTrainerEditing ? route('trainer.reviews.update', $logbook->id) : ($isEditing ? route('ojt.logbooks.update', $logbook->id) : route('ojt.logbooks.store')) }}" method="POST"
+    <form id="logbookForm" action="{{ $isTrainerEditing ? route('trainer.reviews.update', $logbook->id) : ($isEditing ? route('ojt.logbooks.update', $logbook->id) : route('ojt.logbooks.store')) }}" method="POST"
       x-data="logbookFormData()"
         x-init="$nextTick(() => { fillExistingChecklist(); initSelectedTrainers(); })"
         class="space-y-3 sm:space-y-3 pb-6 sm:pb-10">
@@ -1675,7 +1675,7 @@
 
 <script>
 (function() {
-    const form = document.querySelector('form[x-data*="logbookFormData"]');
+    const form = document.getElementById('logbookForm');
     if (!form) return;
 
     const jsonInput = document.getElementById('trainer_ratings_json');

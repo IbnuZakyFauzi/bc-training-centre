@@ -17,7 +17,7 @@ class PhaseService
     public const PHASES = [
         'Green' => [
             ['key' => 'evaluasi_3', 'label' => 'Evaluasi 3', 'type' => 'evaluasi', 'total_hm' => 72, 'day_hm' => 56, 'night_hm' => 16],
-            ['key' => 'evaluasi_4', 'label' => 'Evaluasi 4', 'type' => 'evaluasi', 'total_hm' => 172, 'day_hm' => null, 'night_hm' => null],
+            ['key' => 'evaluasi_4', 'label' => 'Evaluasi 4', 'type' => 'evaluasi', 'total_hm' => 172, 'day_hm' => 172, 'night_hm' => 0],
             ['key' => 'bulanan_5', 'label' => 'Evaluasi Bulanan 5', 'type' => 'bulanan'],
             ['key' => 'bulanan_6', 'label' => 'Evaluasi Bulanan 6', 'type' => 'bulanan'],
             ['key' => 'bulanan_7', 'label' => 'Evaluasi Bulanan 7', 'type' => 'bulanan'],
@@ -27,7 +27,7 @@ class PhaseService
         ],
         'Skill-up' => [
             ['key' => 'evaluasi_3', 'label' => 'Evaluasi 3', 'type' => 'evaluasi', 'total_hm' => 32, 'day_hm' => 16, 'night_hm' => 16],
-            ['key' => 'evaluasi_4', 'label' => 'Evaluasi 4', 'type' => 'evaluasi', 'total_hm' => 56, 'day_hm' => null, 'night_hm' => null],
+            ['key' => 'evaluasi_4', 'label' => 'Evaluasi 4', 'type' => 'evaluasi', 'total_hm' => 56, 'day_hm' => 56, 'night_hm' => 0],
             ['key' => 'bulanan_5', 'label' => 'Evaluasi Bulanan 5', 'type' => 'bulanan'],
             ['key' => 'bulanan_6', 'label' => 'Evaluasi Bulanan 6', 'type' => 'bulanan'],
             ['key' => 'bulanan_7', 'label' => 'Evaluasi Bulanan 7', 'type' => 'bulanan'],
@@ -97,11 +97,18 @@ class PhaseService
         return self::meta($trainee->certification ?? 'Green', self::currentPhaseKey($trainee));
     }
 
-    public static function hmProgress(User $trainee): array
+    public static function hmProgress(User $trainee, ?string $phase = null): array
     {
-        $approved = OjtLogbook::where('trainee_id', $trainee->id)
-            ->whereIn('status', ['verified', 'final_approved'])
-            ->get();
+        $phase = $phase ?? self::currentPhaseKey($trainee);
+        $query = OjtLogbook::where('trainee_id', $trainee->id)
+            ->whereIn('status', ['verified', 'final_approved']);
+
+        $startDate = self::currentPhaseStartDate($trainee, $phase);
+        if ($startDate) {
+            $query->where('created_at', '>=', $startDate);
+        }
+
+        $approved = $query->get();
 
         $day = (float) $approved->where('shift', 'day')->sum('total_hm');
         $night = (float) $approved->where('shift', 'night')->sum('total_hm');
@@ -111,6 +118,30 @@ class PhaseService
             'night' => $night,
             'total' => $day + $night,
         ];
+    }
+
+    public static function currentPhaseStartDate(User $trainee, ?string $phase = null): ?\Carbon\Carbon
+    {
+        $phase = $phase ?? self::currentPhaseKey($trainee);
+
+        $history = \App\Models\TraineePhaseHistory::where('user_id', $trainee->id)
+            ->where('to_phase', $phase)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if ($history) {
+            return $history->created_at;
+        }
+
+        $firstLogbook = OjtLogbook::where('trainee_id', $trainee->id)
+            ->orderBy('created_at', 'asc')
+            ->first();
+
+        if ($firstLogbook && $firstLogbook->created_at) {
+            return $firstLogbook->created_at->startOfDay();
+        }
+
+        return null;
     }
 
     public static function isEligible(User $trainee, ?string $phase = null): bool
@@ -126,7 +157,7 @@ class PhaseService
             return true;
         }
 
-        $progress = self::hmProgress($trainee);
+        $progress = self::hmProgress($trainee, $phase);
 
         if ($progress['total'] < (float) ($meta['total_hm'] ?? 0)) {
             return false;
@@ -145,7 +176,7 @@ class PhaseService
     {
         $phase = $phase ?? self::currentPhaseKey($trainee);
         $meta = self::meta($trainee->certification ?? 'Green', $phase);
-        $progress = self::hmProgress($trainee);
+        $progress = self::hmProgress($trainee, $phase);
 
         if (! $meta || $meta['type'] === 'bulanan') {
             return ['total' => 100, 'day' => 100, 'night' => 100, 'eligible' => true];

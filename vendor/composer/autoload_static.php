@@ -124,6 +124,7 @@ class ComposerStaticInitba9691ddd468d2efadbeaa5f916ab3bd
         'ce9671a430e4846b44e1c68c7611f9f5' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery.php',
         'a1cfe24d14977df6878b9bf804af2d1c' => __DIR__ . '/..' . '/nunomaduro/collision/src/Adapters/Phpunit/Autoload.php',
         'ec07570ca5a812141189b1fa81503674' => __DIR__ . '/..' . '/phpunit/phpunit/src/Framework/Assert/Functions.php',
+        'e873dbffaff83f199cf77600d8f6d86f' => __DIR__ . '/../..' . '/app/helpers.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -138,7 +139,6 @@ class ComposerStaticInitba9691ddd468d2efadbeaa5f916ab3bd
         'T' =>
         array (
             'TijsVerkoyen\\CssToInlineStyles\\' => 31,
-            'Tests\\' => 6,
             'Termwind\\' => 9,
         ),
         'S' =>
@@ -282,10 +282,6 @@ class ComposerStaticInitba9691ddd468d2efadbeaa5f916ab3bd
         'TijsVerkoyen\\CssToInlineStyles\\' =>
         array (
             0 => __DIR__ . '/..' . '/tijsverkoyen/css-to-inline-styles/src',
-        ),
-        'Tests\\' =>
-        array (
-            0 => __DIR__ . '/../..' . '/tests',
         ),
         'Termwind\\' =>
         array (
@@ -649,7 +645,6 @@ class ComposerStaticInitba9691ddd468d2efadbeaa5f916ab3bd
         'App\\Http\\Controllers\\OjtLogbookController' => __DIR__ . '/../..' . '/app/Http/Controllers/OjtLogbookController.php',
         'App\\Http\\Controllers\\ProfileController' => __DIR__ . '/../..' . '/app/Http/Controllers/ProfileController.php',
         'App\\Http\\Controllers\\SubmissionHistoryController' => __DIR__ . '/../..' . '/app/Http/Controllers/SubmissionHistoryController.php',
-        'App\\Http\\Controllers\\SupervisorApprovalController' => __DIR__ . '/../..' . '/app/Http/Controllers/SupervisorApprovalController.php',
         'App\\Http\\Controllers\\TrainerReviewController' => __DIR__ . '/../..' . '/app/Http/Controllers/TrainerReviewController.php',
         'App\\Http\\Controllers\\TrainingCentreApprovalController' => __DIR__ . '/../..' . '/app/Http/Controllers/TrainingCentreApprovalController.php',
         'App\\Http\\Controllers\\UserManagementController' => __DIR__ . '/../..' . '/app/Http/Controllers/UserManagementController.php',
@@ -667,6 +662,7 @@ class ComposerStaticInitba9691ddd468d2efadbeaa5f916ab3bd
         'App\\Models\\LogbookHistory' => __DIR__ . '/../..' . '/app/Models/LogbookHistory.php',
         'App\\Models\\OjtLogbook' => __DIR__ . '/../..' . '/app/Models/OjtLogbook.php',
         'App\\Models\\TraineePhaseHistory' => __DIR__ . '/../..' . '/app/Models/TraineePhaseHistory.php',
+        'App\\Models\\TrainerRatingSummary' => __DIR__ . '/../..' . '/app/Models/TrainerRatingSummary.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Notifications\\HmThresholdReachedNotification' => __DIR__ . '/../..' . '/app/Notifications/HmThresholdReachedNotification.php',
         'App\\Notifications\\LogbookApprovedNotification' => __DIR__ . '/../..' . '/app/Notifications/LogbookApprovedNotification.php',
@@ -807,6 +803,7 @@ class ComposerStaticInitba9691ddd468d2efadbeaa5f916ab3bd
         'Database\\Seeders\\EquipmentCategorySeeder' => __DIR__ . '/../..' . '/database/seeders/EquipmentCategorySeeder.php',
         'Database\\Seeders\\OjtSeeder' => __DIR__ . '/../..' . '/database/seeders/OjtSeeder.php',
         'Database\\Seeders\\TrainerPengawasSeeder' => __DIR__ . '/../..' . '/database/seeders/TrainerPengawasSeeder.php',
+        'Database\\Seeders\\TrainerRatingSummarySeeder' => __DIR__ . '/../..' . '/database/seeders/TrainerRatingSummarySeeder.php',
         'Database\\Seeders\\TrainerReviewSampleSeeder' => __DIR__ . '/../..' . '/database/seeders/TrainerReviewSampleSeeder.php',
         'Database\\Seeders\\TrainingCentreSeeder' => __DIR__ . '/../..' . '/database/seeders/TrainingCentreSeeder.php',
         'DateError' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateError.php',

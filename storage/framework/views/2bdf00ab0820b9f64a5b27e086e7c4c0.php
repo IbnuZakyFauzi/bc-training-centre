@@ -185,7 +185,6 @@
                     <tr>
                         <th class="px-5 py-3">Trainer</th>
                         <th class="px-5 py-3 text-center">Rata-rata Rating</th>
-                        <th class="px-5 py-3 text-center">Jumlah Penilaian</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -197,22 +196,21 @@
                                     <div class="inline-flex items-center gap-1">
                                         <?php for($i = 1; $i <= 5; $i++): ?>
                                             <?php if($row['avg'] >= $i): ?>
-                                                <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.26.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.176 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.063 9.384c-.783-.55-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.957z"/></svg>
+                                                <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.26.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.176 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.063 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.951-.69l1.286-3.957z"/></svg>
                                             <?php elseif($row['avg'] >= $i - 0.5): ?>
-                                                <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><defs><linearGradient id="half-<?php echo e($row['name']); ?>-<?php echo e($i); ?>"><stop offset="50%" stop-color="currentColor"/><stop offset="50%" stop-color="#d1d5db"/></linearGradient></defs><path fill="url(#half-<?php echo e($row['name']); ?>-<?php echo e($i); ?>)" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.26.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.176 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.063 9.384c-.783-.55-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.957z"/></svg>
+                                                <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><defs><linearGradient id="half-<?php echo e($row['name']); ?>-<?php echo e($i); ?>"><stop offset="50%" stop-color="currentColor"/><stop offset="50%" stop-color="#d1d5db"/></linearGradient></defs><path fill="url(#half-<?php echo e($row['name']); ?>-<?php echo e($i); ?>)" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.26.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.176 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.063 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.951-.69l1.286-3.957z"/></svg>
                                             <?php else: ?>
-                                                <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.26.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.176 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.063 9.384c-.783-.55-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.957z"/></svg>
+                                                <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.26.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.176 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.063 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.951-.69l1.286-3.957z"/></svg>
                                             <?php endif; ?>
                                         <?php endfor; ?>
                                         <span class="ml-1 text-[11px] font-bold text-slate-700"><?php echo e($row['avg']); ?></span>
                                     </div>
                                 </td>
-                                <td class="px-5 py-4 text-center text-xs text-slate-600"><?php echo e($row['count']); ?> penilaian</td>
-                            </tr>
+                             </tr>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="3" class="px-5 py-10 text-center text-xs text-slate-400">Belum ada penilaian trainer dari trainee.</td>
+                            <td colspan="2" class="px-5 py-10 text-center text-xs text-slate-400">Belum ada penilaian trainer dari trainee.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
@@ -255,7 +253,7 @@
                     <div class="flex items-center justify-between px-5 py-3">
                         <div>
                             <p class="text-sm font-bold text-slate-800"><?php echo e($ev->nama_operator); ?></p>
-                            <p class="text-[11px] text-slate-500"><?php echo e($ev->phase); ?> · Trainer: <?php echo e($ev->trainer->name ?? '-'); ?></p>
+                            <p class="text-[11px] text-slate-500"><?php echo e(format_phase_label($ev->phase, $ev->jenis_sertifikasi)); ?> · Trainer: <?php echo e($ev->trainer->name ?? '-'); ?></p>
                         </div>
                         <a href="<?php echo e(route('training-centre.final-evaluations.show', $ev->id)); ?>" class="px-3 py-1.5 rounded-lg bg-[#1e3a8a] text-white text-[11px] font-bold">Review</a>
                     </div>

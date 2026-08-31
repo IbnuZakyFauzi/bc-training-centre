@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\LogbookHistory;
 use App\Models\LogbookAssignment;
 use App\Models\FinalEvaluation;
+use App\Models\TrainerRatingSummary;
 use App\Http\Requests\StoreLogbookRequest;
 use App\Http\Requests\UpdateLogbookRequest;
 use App\Support\CompetencyScale;
@@ -140,6 +141,11 @@ class OjtLogbookController extends Controller
 
         if (!empty($ratings)) {
             $logbook->update(['trainer_ratings' => $ratings]);
+        }
+
+        $newTrainerIds = collect($ratings)->filter(fn ($r) => isset($r['user_id']))->pluck('user_id')->unique()->filter()->values()->all();
+        if (!empty($newTrainerIds)) {
+            $this->updateTrainerRatingSummaries($newTrainerIds);
         }
 
         if ($status === 'submitted') {
@@ -284,6 +290,16 @@ class OjtLogbookController extends Controller
         if (!empty($ratings)) {
             $logbook->update(['trainer_ratings' => $ratings]);
         }
+
+        $oldRatings = is_array($logbook->trainer_ratings) ? $logbook->trainer_ratings : [];
+        $oldTrainerIds = collect($oldRatings)->filter(fn ($r) => isset($r['user_id']))->pluck('user_id')->unique()->filter()->values()->all();
+        $newTrainerIds = collect($ratings)->filter(fn ($r) => isset($r['user_id']))->pluck('user_id')->unique()->filter()->values()->all();
+        $trainerIds = array_unique(array_merge($oldTrainerIds, $newTrainerIds));
+
+        if (!empty($trainerIds)) {
+            $this->updateTrainerRatingSummaries($trainerIds);
+        }
+
         if ($newStatus === 'submitted') {
             LogbookAssignment::where('ojt_logbook_id', $logbook->id)->delete();
             $assignments = [];
@@ -461,5 +477,32 @@ class OjtLogbookController extends Controller
         abort_if($combined->isEmpty(), 404, 'Tidak ada dokumen final untuk trainee ini.');
 
         return view('ojt.logbooks.print-trainee', compact('trainee', 'combined'));
+    }
+
+    protected function updateTrainerRatingSummaries(array $trainerIds): void
+    {
+        if (empty($trainerIds)) {
+            return;
+        }
+
+        $allRatings = OjtLogbook::whereNotNull('trainer_ratings')
+            ->get()
+            ->filter(fn ($logbook) => !empty($logbook->trainer_ratings))
+            ->flatMap(fn ($logbook) => collect($logbook->trainer_ratings ?? []))
+            ->filter(fn ($r) => isset($r['user_id'], $r['rating']))
+            ->groupBy('user_id');
+
+        foreach ($trainerIds as $trainerId) {
+            $items = $allRatings->get($trainerId, collect());
+            $ratingsList = $items->pluck('rating')->filter()->map(fn ($r) => (int) $r);
+
+            TrainerRatingSummary::updateOrCreate(
+                ['user_id' => $trainerId],
+                [
+                    'average_rating' => $ratingsList->isNotEmpty() ? round($ratingsList->avg(), 1) : 0,
+                    'rating_count' => $ratingsList->count(),
+                ]
+            );
+        }
     }
 }

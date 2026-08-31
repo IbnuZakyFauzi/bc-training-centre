@@ -80,7 +80,7 @@
                             <tr class="hover:bg-blue-50/30">
                                 <td class="px-5 py-4 text-xs text-slate-600">{{ \Carbon\Carbon::parse($ev->tanggal_penilaian)->format('d M Y') ?? '-' }}</td>
                                 <td class="px-5 py-4 text-xs text-slate-600">{{ $ev->jenis_unit_a2b ?? '-' }}</td>
-                                <td class="px-5 py-4 text-xs text-slate-600">{{ $ev->phase ?? '-' }}</td>
+                                <td class="px-5 py-4 text-xs text-slate-600">{{ format_phase_label($ev->phase, $ev->jenis_sertifikasi ?? null) }}</td>
                                 <td class="px-5 py-4 text-xs text-slate-600">{{ $ev->trainer->name ?? '-' }}</td>
                                 <td class="px-5 py-4 text-xs">
                                     @if($ev->kesimpulan === 'kompeten')

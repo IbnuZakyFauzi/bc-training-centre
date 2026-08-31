@@ -79,7 +79,7 @@
                         <th class="py-3.5 px-5">Nama Operator</th>
                         <th class="py-3.5 px-4">Unit A2B</th>
                         <th class="py-3.5 px-4">Tanggal Penilaian</th>
-                        <th class="py-3.5 px-4">Tahap</th>
+                        <th class="py-3.5 px-4">Evaluasi Ke-</th>
                         <th class="py-3.5 px-4">Kesimpulan</th>
                         <th class="py-3.5 px-4 text-right">Aksi</th>
                     </tr>
@@ -107,12 +107,9 @@
                                 <span class="font-bold text-slate-700 block">{{ \Carbon\Carbon::parse($evaluation->tanggal_penilaian)->format('d M Y') }}</span>
                             </td>
 
-                            <!-- Tahap Penilaian -->
+                            <!-- Evaluasi Ke- -->
                             <td class="py-4 px-4 text-slate-600 text-[11px]">
-                                {{ ucfirst(str_replace('_', ' ', $evaluation->tahap_penilaian)) }}
-                                @if($evaluation->sub_tahap)
-                                    <span class="text-[10px] text-slate-400 block">{{ ucfirst(str_replace('_', ' ', $evaluation->sub_tahap)) }}</span>
-                                @endif
+                                {{ format_phase_label($evaluation->phase, $evaluation->jenis_sertifikasi) }}
                             </td>
 
                             <!-- Kesimpulan -->
@@ -128,10 +125,11 @@
                                     <a href="{{ route('trainer.final-evaluations.show', $evaluation->id) }}" class="inline-flex px-3 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-bold transition">
                                         Detail
                                     </a>
-                                    <a href="{{ route('trainer.final-evaluations.print', $evaluation->id) }}" target="_blank" class="inline-flex items-center px-3 py-2 rounded-lg bg-[#1e3a8a] text-white hover:bg-[#172554] text-xs font-bold transition">
-                                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                                        Cetak
-                                    </a>
+                                    @if($evaluation->status === 'rejected')
+                                        <a href="{{ route('trainer.final-evaluations.edit', $evaluation->id) }}" class="inline-flex px-3 py-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs font-bold transition">
+                                            Edit Revisi
+                                        </a>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

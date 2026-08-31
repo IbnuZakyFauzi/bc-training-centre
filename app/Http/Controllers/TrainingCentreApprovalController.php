@@ -93,28 +93,16 @@ class TrainingCentreApprovalController extends Controller
             ->map(fn ($g) => $g->count())
             ->sortKeys();
 
-        $trainerRatingRows = OjtLogbook::whereNotNull('trainer_ratings')
+        $trainerRatings = OjtLogbook::whereNotNull('trainer_ratings')
             ->get()
-            ->filter(fn ($logbook) => !empty($logbook->trainer_ratings))
             ->flatMap(fn ($logbook) => collect($logbook->trainer_ratings ?? []))
             ->filter(fn ($r) => isset($r['user_id'], $r['rating']))
             ->groupBy('user_id')
-            ->map(function ($items) {
-                $ratings = $items->pluck('rating')->filter()->map(fn ($r) => (int) $r);
-                return [
-                    'avg' => $ratings->isNotEmpty() ? $ratings->avg() : 0,
-                    'count' => $ratings->count(),
-                ];
-            });
-
-        $trainerRatings = User::whereIn('id', $trainerRatingRows->keys())
-            ->get()
-            ->mapWithKeys(fn ($user) => [
-                $user->id => [
-                    'name' => $user->name,
-                    'avg' => round($trainerRatingRows->get($user->id)['avg'], 1),
-                    'count' => $trainerRatingRows->get($user->id)['count'],
-                ],
+            ->filter(fn ($items, $userId) => User::find($userId) !== null)
+            ->map(fn ($items, $userId) => [
+                'name' => User::find($userId)->name,
+                'avg' => round($items->avg(fn ($r) => (int) $r['rating']), 1),
+                'count' => $items->count(),
             ])
             ->sortByDesc('avg')
             ->values()

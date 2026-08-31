@@ -73,6 +73,7 @@
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'training-centre.dashboard', 'match' => 'training-centre.dashboard'],
                 ['label' => 'Manajemen Pengguna', 'route' => 'training-centre.users.index', 'match' => 'training-centre.users.*'],
+                ['label' => 'Persetujuan Evaluasi', 'route' => 'training-centre.final-evaluations.index', 'match' => 'training-centre.final-evaluations.*'],
             ],
         ],
         'pjo' => [

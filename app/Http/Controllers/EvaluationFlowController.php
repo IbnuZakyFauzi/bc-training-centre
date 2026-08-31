@@ -30,7 +30,7 @@ class EvaluationFlowController extends Controller
             403
         );
 
-        $evaluation = FinalEvaluation::with(['trainer', 'tcApprover', 'pjoApprover', 'hseApprover', 'histories.approver'])->findOrFail($id);
+        $evaluation = FinalEvaluation::with(['trainer', 'tcApprover', 'pjoApprover', 'hseApprover', 'histories.approver', 'logbook'])->findOrFail($id);
 
         return view('evaluation-flow.show', compact('evaluation'));
     }
@@ -227,20 +227,22 @@ class EvaluationFlowController extends Controller
         abort_unless(in_array($evaluation->status, ['submitted', 'tc_approved', 'pjo_approved'], true), 404);
 
         $request->validate([
-            'reject_notes' => ['required', 'string', 'max:2000'],
+            'tc_notes' => ['nullable', 'string', 'max:2000'],
+            'pjo_notes' => ['nullable', 'string', 'max:2000'],
+            'hse_notes' => ['nullable', 'string', 'max:2000'],
         ]);
 
         if ($user->isTrainingCentre() && $evaluation->status === 'submitted') {
             $evaluation->update([
-                'status' => 'submitted',
-                'tc_notes' => $request->input('reject_notes'),
+                'status' => 'rejected',
+                'tc_notes' => $request->input('tc_notes'),
                 'tc_approved_at' => null,
                 'tc_approved_by' => null,
             ]);
         } elseif ($user->isPjo() && $evaluation->status === 'tc_approved') {
             $evaluation->update([
-                'status' => 'submitted',
-                'pjo_notes' => $request->input('reject_notes'),
+                'status' => 'rejected',
+                'pjo_notes' => $request->input('pjo_notes'),
                 'pjo_approved_at' => null,
                 'pjo_approved_by' => null,
                 'tc_approved_at' => null,
@@ -248,8 +250,8 @@ class EvaluationFlowController extends Controller
             ]);
         } elseif ($user->isHseCt() && $evaluation->status === 'pjo_approved') {
             $evaluation->update([
-                'status' => 'submitted',
-                'hse_notes' => $request->input('reject_notes'),
+                'status' => 'rejected',
+                'hse_notes' => $request->input('hse_notes'),
                 'hse_approved_at' => null,
                 'hse_approved_by' => null,
                 'pjo_approved_at' => null,
@@ -266,11 +268,11 @@ class EvaluationFlowController extends Controller
             $trainee->assignedTrainers()->get()->each(fn ($trainer) => $trainer->notify(new \App\Notifications\LogbookRevisionRequestedNotification([
                 'title' => 'Evaluasi Dikembalikan untuk Revisi',
                 'message' => "Evaluasi final untuk {$trainee->name} telah dikembalikan untuk revisi. Silakan perbaiki sesuai catatan.",
-                'url' => route('trainer.final-evaluations.show', $evaluation->id),
+                'url' => route('trainer.final-evaluations.edit', $evaluation->id),
             ])));
         }
 
-        return redirect()->back()->with('success', 'Evaluasi dikembalikan untuk revisi ke Trainer.');
+        return redirect()->back()->with('success', 'Form telah dikembalikan untuk direvisi ke Trainer.');
     }
 
     // ===================== MONITORING (Trainer & Admin TC) =====================

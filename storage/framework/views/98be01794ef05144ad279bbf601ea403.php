@@ -409,7 +409,7 @@
 
             </div>
 
-            <?php if($trainingCentreApproval && !empty($logbook->trainer_ratings)): ?>
+            <?php if(!empty($logbook->trainer_ratings)): ?>
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                     <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
                         <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Penilaian Trainer oleh Trainee</h2>
