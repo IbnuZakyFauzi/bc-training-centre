@@ -59,7 +59,7 @@ class UserManagementController extends Controller
         $data = $request->validate([
             'sid' => ['required', 'string', 'max:50', 'unique:users,sid'],
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'email' => ['nullable', 'email', 'max:255', 'unique:users,email'],
             'role' => ['required', Rule::in(['trainee', 'trainer', 'admin', 'pjo', 'hse_ct'])],
             'trainer_type' => ['nullable', Rule::in(['instruktur', 'pengawas', 'operator_pendamping'])],
             'assigned_trainers' => ['nullable', 'array'],
@@ -72,7 +72,6 @@ class UserManagementController extends Controller
             'certification' => ['nullable', Rule::in(['Green', 'Skill-up', 'Experience_internal', 'Experience_external'])],
             'company' => ['nullable', 'string', 'max:255'],
             'equipment_category_id' => ['nullable', 'exists:equipment_categories,id'],
-            'sticker_expired_at' => ['nullable', 'date'],
         ]);
 
         if ($data['role'] !== 'trainer') {
@@ -127,7 +126,7 @@ class UserManagementController extends Controller
         $data = $request->validate([
             'sid' => ['required', 'string', 'max:50', Rule::unique('users', 'sid')->ignore($user->id)],
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'email' => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'role' => ['required', Rule::in(['trainee', 'trainer', 'admin', 'pjo', 'hse_ct'])],
             'trainer_type' => ['nullable', Rule::in(['instruktur', 'pengawas', 'operator_pendamping'])],
             'assigned_trainers' => ['nullable', 'array'],
@@ -140,7 +139,6 @@ class UserManagementController extends Controller
             'certification' => ['nullable', Rule::in(['Green', 'Skill-up', 'Experience_internal', 'Experience_external'])],
             'company' => ['nullable', 'string', 'max:255'],
             'equipment_category_id' => ['nullable', 'exists:equipment_categories,id'],
-            'sticker_expired_at' => ['nullable', 'date'],
         ]);
 
         if ($data['role'] !== 'trainer') {

@@ -26,8 +26,8 @@
                     @error('name')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Email <span class="text-rose-500">*</span></label>
-                    <input type="email" name="email" value="{{ old('email') }}" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="contoh@beraucoal.co.id">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Email (opsional)</label>
+                    <input type="email" name="email" value="{{ old('email') }}" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="contoh@beraucoal.co.id">
                     @error('email')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
                 </div>
                 <div>
@@ -119,11 +119,6 @@
                                 @endforeach
                             </select>
                             @error('equipment_category_id')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Expired Date Stiker (SKO)</label>
-                            <input type="date" name="sticker_expired_at" value="{{ old('sticker_expired_at') }}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
-                            @error('sticker_expired_at')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
                         </div>
                     </div>
                 </div>

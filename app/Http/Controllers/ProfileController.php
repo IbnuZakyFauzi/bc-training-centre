@@ -24,7 +24,7 @@ class ProfileController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => [
-                'required',
+                'nullable',
                 'string',
                 'email',
                 'max:255',
@@ -48,7 +48,7 @@ class ProfileController extends Controller
 
         $updateData = [
             'name' => $data['name'],
-            'email' => $data['email'],
+            'email' => $data['email'] ?: null,
             'phone' => $data['phone'] ?? null,
             'signature_path' => $signaturePath,
             'must_change_password' => false,

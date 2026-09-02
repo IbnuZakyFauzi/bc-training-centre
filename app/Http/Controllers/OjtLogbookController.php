@@ -64,7 +64,29 @@ class OjtLogbookController extends Controller
             $query->whereDate('date', '<=', $request->date_to);
         }
 
-        $logbooks = $query->orderBy('date', 'desc')->paginate(10)->withQueryString();
+        // Sorting
+        $sortBy = $request->get('sort_by', 'date');
+        $sortDir = $request->get('sort_dir', 'desc');
+
+        if ($sortBy === 'hm_start') {
+            $query->orderBy('hm_start', $sortDir)->orderBy('date', 'desc');
+        } elseif ($sortBy === 'status') {
+            $statusOrder = match ($sortDir) {
+                'asc' => ['revision', 'submitted', 'draft', 'verified', 'final_approved'],
+                'desc' => ['final_approved', 'verified', 'submitted', 'draft', 'revision'],
+                default => ['revision', 'submitted', 'draft', 'verified', 'final_approved'],
+            };
+
+            $query->orderByRaw("CASE WHEN status IN ('" . implode("','", $statusOrder) . "') THEN 0 ELSE 1 END")
+                ->orderByRaw("FIELD(status, '" . implode("','", $statusOrder) . "')")
+                ->orderBy('date', 'desc');
+        } elseif ($sortBy === 'logbook_number') {
+            $query->orderBy('logbook_number', $sortDir);
+        } else {
+            $query->orderBy('date', $sortDir);
+        }
+
+        $logbooks = $query->paginate(10)->withQueryString();
 
         $allPengawasIds = $logbooks->flatMap(fn ($log) => $log->selected_pengawas_ids ?? [])->filter()->unique()->values();
         $allOperatorIds = $logbooks->flatMap(fn ($log) => $log->selected_operator_pendamping_ids ?? [])->filter()->unique()->values();

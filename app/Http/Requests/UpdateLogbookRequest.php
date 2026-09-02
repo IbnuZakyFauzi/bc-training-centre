@@ -50,6 +50,7 @@ class UpdateLogbookRequest extends FormRequest
             'trainer_ratings.*.rating' => ['required_with:trainer_ratings', 'integer', 'min:0', 'max:5'],
             'sop_payload' => ['nullable', 'array'],
             'sop_payload.meta.unit_type' => ['nullable', 'string', 'in:DZ,GR,HDT,LDT,SDT,ADT', Rule::requiredIf(fn () => in_array($this->input('sop_payload.meta.unit_family'), ['track', 'dumptruck', 'semidump']))],
+            'sop_payload.meta.sticker_expired_at' => [$isDraft ? 'nullable' : 'required', 'date'],
             'sop_payload.*.groups.*.items.*.status' => ['nullable', 'integer', 'between:1,4'],
             'sop_payload.*.groups.*.items.*.trainee_feedback' => ['nullable', 'string'],
             'sop_payload.*.compliance.*.status' => ['nullable', 'integer', 'between:1,4'],
@@ -67,6 +68,8 @@ class UpdateLogbookRequest extends FormRequest
         return [
             'sop_payload.meta.unit_type.required' => 'Pilih tipe unit (DZ/GR, HDT/LDT, atau SDT/ADT) sesuai kategori alat.',
             'sop_payload.meta.unit_type.in' => 'Tipe unit yang dipilih tidak valid.',
+            'sop_payload.meta.sticker_expired_at.required' => 'Expired date stiker (SKO) wajib diisi.',
+            'sop_payload.meta.sticker_expired_at.date' => 'Format expired date stiker (SKO) tidak valid.',
             'sop_payload.*.groups.*.items.*.status.integer' => $scaleMessage,
             'sop_payload.*.groups.*.items.*.status.between' => $scaleMessage,
             'sop_payload.*.compliance.*.status.integer' => $scaleMessage,

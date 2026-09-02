@@ -48,6 +48,20 @@ class TrainerReviewController extends Controller
 
         $logbooks = $query->latest('submitted_at')->paginate(10)->withQueryString();
 
+        $logbooks->getCollection()->transform(function ($logbook) {
+            $blockingLogbook = OjtLogbook::where('trainee_id', $logbook->trainee_id)
+                ->where('date', '<', $logbook->date)
+                ->whereIn('status', ['submitted', 'revision'])
+                ->orderBy('date', 'asc')
+                ->orderBy('created_at', 'asc')
+                ->first();
+
+            $logbook->blocking_logbook = $blockingLogbook;
+            $logbook->is_locked = (bool) $blockingLogbook;
+
+            return $logbook;
+        });
+
         $baseQuery = OjtLogbook::whereHas('assignments', function ($q) use ($trainer) {
             $q->where('user_id', $trainer->id)->where('status', 'pending');
         });
@@ -122,7 +136,16 @@ class TrainerReviewController extends Controller
         abort_unless($logbook->status !== 'draft', 403);
         abort_unless($logbook->assignments()->where('user_id', $trainer->id)->where('status', 'pending')->exists(), 403);
 
-        return view('ojt.logbooks.show', ['logbook' => $logbook, 'trainerReview' => true, 'assignedPengawas' => collect($logbook->selected_pengawas_ids ?? [])->map(fn ($id) => User::find($id))->filter(), 'assignedOperators' => collect($logbook->selected_operator_pendamping_ids ?? [])->map(fn ($id) => User::find($id))->filter()]);
+        $blockingLogbook = OjtLogbook::where('trainee_id', $logbook->trainee_id)
+            ->where('date', '<', $logbook->date)
+            ->whereIn('status', ['submitted', 'revision'])
+            ->orderBy('date', 'asc')
+            ->orderBy('created_at', 'asc')
+            ->first();
+
+        $locked = (bool) $blockingLogbook;
+
+        return view('ojt.logbooks.show', array_merge(['trainerReview' => true, 'assignedPengawas' => collect($logbook->selected_pengawas_ids ?? [])->map(fn ($id) => User::find($id))->filter(), 'assignedOperators' => collect($logbook->selected_operator_pendamping_ids ?? [])->map(fn ($id) => User::find($id))->filter()], compact('logbook', 'locked', 'blockingLogbook')));
     }
 
     public function edit($id)
@@ -258,6 +281,17 @@ class TrainerReviewController extends Controller
         $logbook = OjtLogbook::findOrFail($id);
         abort_unless($logbook->assignments()->where('user_id', $trainer->id)->where('status', 'pending')->exists(), 403);
         abort_unless($logbook->status === 'submitted', 422, 'Logbook ini sudah selesai diproses.');
+
+        $blockingLogbook = OjtLogbook::where('trainee_id', $logbook->trainee_id)
+            ->where('date', '<', $logbook->date)
+            ->whereIn('status', ['submitted', 'revision'])
+            ->orderBy('date', 'asc')
+            ->orderBy('created_at', 'asc')
+            ->first();
+
+        if ($blockingLogbook && $request->input('action') === 'verify') {
+            return redirect()->route('trainer.reviews.show', $logbook->id)->with('error', 'Anda harus menyelesaikan approval logbook tanggal ' . $blockingLogbook->date->format('d-m-Y') . ' terlebih dahulu sebelum dapat mengapprove logbook ini.');
+        }
 
         $data = $request->validate([
             'action' => ['required', 'in:verify,revision'],

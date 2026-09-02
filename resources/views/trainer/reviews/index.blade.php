@@ -157,7 +157,14 @@
         </div>
         <div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500"><tr>                        <th class="px-5 py-3">Form OJT / Trainee</th><th class="px-5 py-3">Unit & Shift</th><th class="px-5 py-3">Dikirim</th><th class="px-5 py-3">Status</th><th class="px-5 py-3"></th></tr></thead><tbody class="divide-y divide-slate-100">
         @forelse($logbooks as $logbook)
-                        <tr class="hover:bg-blue-50/30"><td class="px-5 py-4"><p class="text-xs font-bold text-slate-800">{{ $logbook->logbook_number }}</p><p class="text-[11px] text-slate-500 mt-1">{{ $logbook->trainee->name }} · {{ $logbook->trainee->sid }}</p></td><td class="px-5 py-4 text-xs"><p class="font-semibold text-slate-700">{{ $logbook->unit_code }}</p><p class="text-[11px] text-slate-500 mt-1">{{ ucfirst($logbook->shift) }} · {{ $logbook->total_hm }} HM</p></td><td class="px-5 py-4 text-xs text-slate-600">{{ optional($logbook->submitted_at)->format('d M Y') ?? '-' }}</td><td class="px-5 py-4"><x-badge :status="$logbook->status" /></td>                    <td class="px-5 py-4 text-right">
+                        <tr class="hover:bg-blue-50/30">
+                            <td class="px-5 py-4">
+                                <p class="text-xs font-bold text-slate-800">{{ $logbook->logbook_number }}</p>
+                                <p class="text-[11px] text-slate-500 mt-1">{{ $logbook->trainee->name }} · {{ $logbook->trainee->sid }}</p>
+                                @if($logbook->is_locked ?? false)
+                                    <p class="text-[10px] text-red-600 font-bold mt-1">🔒 Di-lock oleh logbook {{ $logbook->blocking_logbook->logbook_number ?? '' }} ({{ $logbook->blocking_logbook->date->format('d-m-Y') ?? '' }})</p>
+                                @endif
+                            </td><td class="px-5 py-4 text-xs"><p class="font-semibold text-slate-700">{{ $logbook->unit_code }}</p><p class="text-[11px] text-slate-500 mt-1">{{ ucfirst($logbook->shift) }} · {{ $logbook->total_hm }} HM</p></td><td class="px-5 py-4 text-xs text-slate-600">{{ optional($logbook->submitted_at)->format('d M Y') ?? '-' }}</td><td class="px-5 py-4"><x-badge :status="$logbook->status" /></td>                    <td class="px-5 py-4 text-right">
                         <div class="inline-flex items-center space-x-2">
                             @if($logbook->status === 'revision')
                                 <a href="{{ route('trainer.reviews.edit', $logbook->id) }}" class="inline-flex px-3 py-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs font-bold">

@@ -47,6 +47,9 @@
             @if(request('status'))
                 <input type="hidden" name="status" value="{{ request('status') }}">
             @endif
+            @if(request('search'))
+                <input type="hidden" name="search" value="{{ request('search') }}">
+            @endif
 
             <!-- Equipment Filter -->
             <div>
@@ -76,14 +79,30 @@
                 <button type="submit" class="px-4 py-2.5 bg-[#1e3a8a] hover:bg-[#172554] text-white font-bold text-xs rounded-xl shadow-xs transition min-h-[44px]">
                     Filter
                 </button>
-                @if(request()->hasAny(['search', 'equipment_id', 'date_from', 'date_to']))
-                    <a href="{{ route('ojt.logbooks.index') }}" class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition min-h-[44px] inline-flex items-center justify-center">
+                @if(request()->hasAny(['search', 'equipment_id', 'date_from', 'date_to', 'sort_by', 'sort_dir']))
+                    <a href="{{ route('ojt.logbooks.index', ['status' => request('status')]) }}" class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition min-h-[44px] inline-flex items-center justify-center">
                         Reset
                     </a>
                 @endif
             </div>
 
         </form>
+
+        <!-- Sort Controls -->
+        <div class="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2">
+            <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Urutkan:</label>
+            <div class="inline-flex rounded-xl border border-slate-200 overflow-hidden">
+                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'date', 'sort_dir' => request('sort_by') === 'date' && request('sort_dir') === 'asc' ? 'desc' : 'asc']) }}" class="px-3 py-1.5 text-xs font-bold {{ request('sort_by') !== 'hm_start' && request('sort_by') !== 'status' ? 'bg-[#1e3a8a] text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100' }}">
+                    Tanggal @if(request('sort_by') === 'date')<span>{{ request('sort_dir') === 'asc' ? '↑' : '↓' }}</span>@endif
+                </a>
+                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'hm_start', 'sort_dir' => request('sort_by') === 'hm_start' && request('sort_dir') === 'asc' ? 'desc' : 'asc']) }}" class="px-3 py-1.5 text-xs font-bold {{ request('sort_by') === 'hm_start' ? 'bg-[#1e3a8a] text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100' }}">
+                    HM Awal @if(request('sort_by') === 'hm_start')<span>{{ request('sort_dir') === 'asc' ? '↑' : '↓' }}</span>@endif
+                </a>
+                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'status', 'sort_dir' => request('sort_by') === 'status' && request('sort_dir') === 'asc' ? 'desc' : 'asc']) }}" class="px-3 py-1.5 text-xs font-bold {{ request('sort_by') === 'status' ? 'bg-[#1e3a8a] text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100' }}">
+                    Status @if(request('sort_by') === 'status')<span>{{ request('sort_dir') === 'asc' ? '↑' : '↓' }}</span>@endif
+                </a>
+            </div>
+        </div>
     </div>
 
     <!-- Responsive Enterprise Table -->
@@ -92,13 +111,32 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
-                        <th class="py-3.5 px-5">Form OJT Number</th>
-                        <th class="py-3.5 px-4">Date</th>
-                        <th class="py-3.5 px-4">Category</th>
-                        <th class="py-3.5 px-4">Instruktur</th>
-                        <th class="py-3.5 px-4">Pengawas</th>
-                        <th class="py-3.5 px-4">Operator Pendamping</th>
-                        <th class="py-3.5 px-4">Status</th>
+                        <th class="py-3.5 px-5">
+                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'logbook_number', 'sort_dir' => request('sort_by') === 'logbook_number' && request('sort_dir') === 'asc' ? 'desc' : 'asc']) }}" class="hover:text-slate-700 transition">
+                        Form OJT Number @if(request('sort_by') === 'logbook_number')<span>{{ request('sort_dir') === 'asc' ? '↑' : '↓' }}</span>@endif
+                    </a>
+                </th>
+                <th class="py-3.5 px-4">
+                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'date', 'sort_dir' => request('sort_by') === 'date' && request('sort_dir') === 'asc' ? 'desc' : 'asc']) }}" class="hover:text-slate-700 transition">
+                        Date @if(request('sort_by') === 'date')<span>{{ request('sort_dir') === 'asc' ? '↑' : '↓' }}</span>@endif
+                    </a>
+                </th>
+                <th class="py-3.5 px-4">Nomor Alat</th>
+                <th class="py-3.5 px-4">Category</th>
+                <th class="py-3.5 px-4">Instruktur</th>
+                <th class="py-3.5 px-4">Pengawas</th>
+                <th class="py-3.5 px-4">Operator Pendamping</th>
+                <th class="py-3.5 px-4 text-center">
+                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'hm_start', 'sort_dir' => request('sort_by') === 'hm_start' && request('sort_dir') === 'asc' ? 'desc' : 'asc']) }}" class="hover:text-slate-700 transition">
+                        HM Awal @if(request('sort_by') === 'hm_start')<span>{{ request('sort_dir') === 'asc' ? '↑' : '↓' }}</span>@endif
+                    </a>
+                </th>
+                <th class="py-3.5 px-4 text-center">HM Akhir</th>
+                <th class="py-3.5 px-4">
+                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'status', 'sort_dir' => request('sort_by') === 'status' && request('sort_dir') === 'asc' ? 'desc' : 'asc']) }}" class="hover:text-slate-700 transition">
+                        Status @if(request('sort_by') === 'status')<span>{{ request('sort_dir') === 'asc' ? '↑' : '↓' }}</span>@endif
+                    </a>
+                </th>
                         <th class="py-3.5 px-4">Last Updated</th>
                         <th class="py-3.5 px-4 text-right">Actions</th>
                     </tr>
@@ -120,6 +158,11 @@
                                 <span class="inline-flex items-center text-[10px] font-semibold text-slate-500 mt-0.5 uppercase">
                                     Shift {{ ucfirst($log->shift) }}
                                 </span>
+                            </td>
+
+                            <!-- Nomor Alat -->
+                            <td class="py-4 px-4">
+                                <span class="font-mono text-xs font-bold text-slate-700">{{ $log->equipment_number ?? '-' }}</span>
                             </td>
 
                             <!-- Equipment Category -->
@@ -163,6 +206,16 @@
                                 @endif
                             </td>
 
+                            <!-- HM Awal -->
+                            <td class="py-4 px-4 text-center font-mono text-xs text-slate-700">
+                                {{ $log->hm_start ?? '-' }}
+                            </td>
+
+                            <!-- HM Akhir -->
+                            <td class="py-4 px-4 text-center font-mono text-xs text-slate-700">
+                                {{ $log->hm_end ?? '-' }}
+                            </td>
+
                             <!-- Status Badge -->
                             <td class="py-4 px-4">
                                 <x-badge :status="$log->status" />
@@ -190,7 +243,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="py-12 text-center text-slate-400">
+                            <td colspan="12" class="py-12 text-center text-slate-400">
                                 <svg class="w-12 h-12 mx-auto text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                 <p class="text-sm font-semibold text-slate-600">Tidak ada data form OJT yang ditemukan.</p>
                                 <p class="text-xs text-slate-400 mt-1">Coba sesuaikan kata kunci pencarian atau buat form OJT baru.</p>

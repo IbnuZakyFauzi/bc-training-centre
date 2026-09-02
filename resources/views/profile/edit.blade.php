@@ -35,7 +35,7 @@
 
             <div>
                 <label class="text-xs font-bold text-slate-700">Email</label>
-                <input type="email" name="email" value="{{ old('email', $user->email) }}" class="mt-2 w-full rounded-xl border-slate-300 text-sm min-h-[44px]" required>
+                <input type="email" name="email" value="{{ old('email', $user->email) }}" class="mt-2 w-full rounded-xl border-slate-300 text-sm min-h-[44px]">
                 @error('email')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
             </div>
 
