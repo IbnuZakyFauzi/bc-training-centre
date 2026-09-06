@@ -1,6 +1,15 @@
 <x-app-layout>
     <x-slot name="title">Admin Training Centre</x-slot>
 
+    <svg width="0" height="0" style="position: absolute;">
+        <defs>
+            <linearGradient id="half-star">
+                <stop offset="50%" stop-color="currentColor"/>
+                <stop offset="50%" stop-color="#d1d5db"/>
+            </linearGradient>
+        </defs>
+    </svg>
+
     <div class="mb-4 sm:mb-8 bg-gradient-to-r from-[#1e3a8a] to-[#1d4ed8] p-4 sm:p-6 rounded-2xl shadow-md text-white border border-blue-900 flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4">
         <div>
             <p class="text-blue-300 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1">Admin Training Centre</p>
@@ -138,51 +147,6 @@
         @if($activeStatus !== 'finalized')
             <div class="p-5 border-t border-slate-100">{{ $logbooks->links() }}</div>
         @endif
-    </div>
-
-    <!-- Rating Trainer -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-4 sm:mb-7">
-        <div class="p-4 sm:p-5 border-b border-slate-100">
-            <h3 class="text-xs sm:text-sm font-bold text-slate-800">Rating Trainer</h3>
-            <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Akumulasi rating bintang dari trainee untuk setiap trainer.</p>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-                <thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500">
-                    <tr>
-                        <th class="px-5 py-3">Trainer</th>
-                        <th class="px-5 py-3 text-center">Rata-rata Rating</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @if(!empty($trainerRatings))
-                        @foreach($trainerRatings as $row)
-                            <tr class="hover:bg-blue-50/30">
-                                <td class="px-5 py-4 text-xs font-bold text-slate-800">{{ $row['name'] }}</td>
-                                <td class="px-5 py-4 text-center">
-                                    <div class="inline-flex items-center gap-1">
-                                        @for($i = 1; $i <= 5; $i++)
-                                            @if($row['avg'] >= $i)
-                                                <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.26.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.176 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.063 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.951-.69l1.286-3.957z"/></svg>
-                                            @elseif($row['avg'] >= $i - 0.5)
-                                                <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><defs><linearGradient id="half-{{ $row['name'] }}-{{ $i }}"><stop offset="50%" stop-color="currentColor"/><stop offset="50%" stop-color="#d1d5db"/></linearGradient></defs><path fill="url(#half-{{ $row['name'] }}-{{ $i }})" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.26.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.176 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.063 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.951-.69l1.286-3.957z"/></svg>
-                                            @else
-                                                <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.26.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.176 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.063 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.951-.69l1.286-3.957z"/></svg>
-                                            @endif
-                                        @endfor
-                                        <span class="ml-1 text-[11px] font-bold text-slate-700">{{ $row['avg'] }}</span>
-                                    </div>
-                                </td>
-                             </tr>
-                        @endforeach
-                    @else
-                        <tr>
-                            <td colspan="2" class="px-5 py-10 text-center text-xs text-slate-400">Belum ada penilaian trainer dari trainee.</td>
-                        </tr>
-                    @endif
-                </tbody>
-            </table>
-        </div>
     </div>
 
     <!-- OJT Multi-Phase Monitoring -->

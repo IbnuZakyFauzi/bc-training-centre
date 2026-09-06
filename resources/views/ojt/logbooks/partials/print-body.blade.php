@@ -105,10 +105,10 @@
                         <tr><td class="meta-label">HARI/ TANGGAL</td><td>: {{ \Carbon\Carbon::parse($logbook->date)->translatedFormat('l, d F Y') }}</td></tr>
                         <tr><td class="meta-label">SHIFT</td><td>: Shift {{ ucfirst($logbook->shift) }} ({{ $logbook->shift === 'day' ? 'Siang' : 'Malam' }})</td></tr>
                         <tr><td class="meta-label">LOKASI (OJT)</td><td>: {{ $logbook->location }}</td></tr>
-                        <tr><td class="meta-label">SERTIFIKASI</td><td>: 
+                         <tr><td class="meta-label">SERTIFIKASI</td><td>: 
                             <span style="{{ $certification === 'Green' ? 'font-weight:bold; text-decoration: underline;' : 'color: #888;' }}">Green</span> / 
                             <span style="{{ $certification === 'Skill-up' ? 'font-weight:bold; text-decoration: underline;' : 'color: #888;' }}">Skill-up</span> / 
-                            <span style="{{ $certification === 'Experience' ? 'font-weight:bold; text-decoration: underline;' : 'color: #888;' }}">Experience</span> 
+                            <span style="{{ in_array($certification, ['Experience_internal', 'Experience_external']) ? 'font-weight:bold; text-decoration: underline;' : 'color: #888;' }}">Experience</span> 
                             <span style="font-size: 7.5px; font-style: italic;">(Coret yang tidak sesuai)</span>
                         </td></tr>
                     </table>
@@ -124,9 +124,19 @@
                           @endphp
                          <tr><td class="meta-label">UNIT TYPE</td><td>: {{ $unitTypeLabel }}</td></tr>
                          @endif
-                        <tr><td class="meta-label">NO ALAT</td><td>: {{ $logbook->unit_code }}</td></tr>
+                         <tr><td class="meta-label">NO ALAT</td><td>: {{ $logbook->unit_code }}</td></tr>
                          <tr><td class="meta-label">HM/ KM AWAL</td><td>: {{ number_format($logbook->hm_start, 1) }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>HM/ KM AKHIR:</b> {{ number_format($logbook->hm_end, 1) }}</td></tr>
-                          <tr><td class="meta-label">EXPIRED DATE STIKER (SKO)</td><td>: {{ $stickerExp ? \Carbon\Carbon::parse($stickerExp)->format('d/m/Y') : '......................20....' }}</td></tr>
+                         @php
+                             $initialHmDay = (float) ($logbook->trainee->initial_hm_day ?? 0);
+                             $initialHmNight = (float) ($logbook->trainee->initial_hm_night ?? 0);
+                             $cumulativeHmDay = $initialHmDay + $logbook->hm_day;
+                             $cumulativeHmNight = $initialHmNight + $logbook->hm_night;
+                             $cumulativeHm = $initialHmDay + $initialHmNight + $logbook->total_hm;
+                         @endphp
+                         @if($initialHmDay > 0 || $initialHmNight > 0)
+                         <tr><td class="meta-label">HM AWAL (Initial)</td><td>: Siang {{ number_format($initialHmDay, 1) }} + Malam {{ number_format($initialHmNight, 1) }} &nbsp;&nbsp; <b>TOTAL KUMULATIF:</b> {{ number_format($cumulativeHm, 1) }}</td></tr>
+                         @endif
+                         <tr><td class="meta-label">EXPIRED DATE STIKER (SKO)</td><td>: {{ $stickerExp ? \Carbon\Carbon::parse($stickerExp)->format('d/m/Y') : '......................20....' }}</td></tr>
                     </table>
                 </td>
             </tr>

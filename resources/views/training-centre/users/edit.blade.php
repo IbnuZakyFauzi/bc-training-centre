@@ -119,6 +119,18 @@
                             </select>
                             @error('equipment_category_id')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
                         </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">HM Siang Awal</label>
+                            <input type="number" name="initial_hm_day" value="{{ old('initial_hm_day', $user->initial_hm_day ?? 0) }}" step="0.1" min="0" placeholder="Contoh: 16.0" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
+                            <p class="text-[10px] text-slate-400 mt-1">Jam kerja shift siang sebelum didaftarkan (default: 0)</p>
+                            @error('initial_hm_day')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">HM Malam Awal</label>
+                            <input type="number" name="initial_hm_night" value="{{ old('initial_hm_night', $user->initial_hm_night ?? 0) }}" step="0.1" min="0" placeholder="Contoh: 8.0" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
+                            <p class="text-[10px] text-slate-400 mt-1">Jam kerja shift malam sebelum didaftarkan (default: 0)</p>
+                            @error('initial_hm_night')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
+                        </div>
                     </div>
                 </div>
             </div>

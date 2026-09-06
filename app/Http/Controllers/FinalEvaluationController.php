@@ -74,7 +74,7 @@ class FinalEvaluationController extends Controller
             ])
             ->values();
 
-        $locations = ['BMO 1', 'BMO 2', 'BMO 3', 'GMO', 'LMO'];
+        $locations = ['BMO 1', 'BMO 2', 'BMO 3', 'GMO', 'LMO', 'SMO'];
         $certifications = \App\Services\PhaseService::CERTIFICATIONS;
         $selectedTraineeId = $request->query('trainee');
 
@@ -103,7 +103,7 @@ class FinalEvaluationController extends Controller
             ])
             ->values();
 
-        $locations = ['BMO 1', 'BMO 2', 'BMO 3', 'GMO', 'LMO'];
+        $locations = ['BMO 1', 'BMO 2', 'BMO 3', 'GMO', 'LMO', 'SMO'];
         $certifications = \App\Services\PhaseService::CERTIFICATIONS;
 
         return view('final-evaluations.create', compact('evaluation', 'trainees', 'locations', 'certifications'));

@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Login OJT Form</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{{ asset('images/icon-prima.png') }}">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -96,6 +100,14 @@
                         alt="Operator alat berat di area pertambangan"
                         class="h-full w-full object-cover object-left"
                     >
+                    
+                    <div class="absolute top-4 right-4 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center space-x-2">
+                        <img src="{{ asset('images/icon-prima.png') }}" alt="PRIMA Logo" class="h-6 w-6 object-contain">
+                        <span class="text-xs font-semibold text-white">PRIMA Training Centre</span>
+                    </div>
+                </div>
+            </section>
+        </main>
 
     <script>
         const togglePasswordButton = document.getElementById('togglePassword');
@@ -107,6 +119,6 @@
             });
         }
     </script>
-</body>
+    </body>
 </html>
 

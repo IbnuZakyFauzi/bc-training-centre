@@ -32,7 +32,7 @@
                         </div>
                         <div>
                             <p class="text-base font-extrabold text-slate-800">{{ $t['name'] }}</p>
-                            <p class="text-xs text-slate-500">{{ $t['sid'] }} · {{ $t['certification'] }} · Fase Saat Ini: <span class="font-bold text-[#1e3a8a]">{{ $t['current_phase_label'] }}</span></p>
+                            <p class="text-xs text-slate-500">{{ $t['sid'] }} · {{ $t['certification'] === 'Green' ? 'Green' : ($t['certification'] === 'Skill-up' ? 'Skill-up' : ($t['certification'] === 'Experience_internal' ? 'Experience Internal' : ($t['certification'] === 'Experience_external' ? 'Experience External' : '-'))) }} · Fase Saat Ini: <span class="font-bold text-[#1e3a8a]">{{ $t['current_phase_label'] }}</span></p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-4">

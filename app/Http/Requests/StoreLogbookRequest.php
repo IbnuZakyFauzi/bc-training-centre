@@ -45,10 +45,6 @@ class StoreLogbookRequest extends FormRequest
             'location' => [$isDraft ? 'nullable' : 'required', 'string', 'max:255'],
             'hm_start' => [$isDraft ? 'nullable' : 'required', 'numeric', 'min:0'],
             'hm_end' => [$isDraft ? 'nullable' : 'required', 'numeric', 'gte:hm_start'],
-            'trainer_ratings' => ['nullable', 'array'],
-            'trainer_ratings.*.user_id' => ['required_with:trainer_ratings', 'exists:users,id'],
-            'trainer_ratings.*.rating' => ['required_with:trainer_ratings', 'integer', 'min:0', 'max:5'],
-            'trainer_ratings.*.role_type' => ['nullable', 'string', 'in:instruktur,pengawas,operator_pendamping'],
             'sop_payload' => [$isDraft ? 'nullable' : 'required', 'array'],
             'sop_payload.meta.unit_type' => ['nullable', 'string', 'in:DZ,GR,HDT,LDT,SDT,ADT', Rule::requiredIf(fn () => in_array($this->input('sop_payload.meta.unit_family'), ['track', 'dumptruck', 'semidump']))],
             'sop_payload.meta.sticker_expired_at' => [$isDraft ? 'nullable' : 'required', 'date'],
@@ -84,22 +80,6 @@ class StoreLogbookRequest extends FormRequest
     {
         if ($this->action_type !== 'submit') {
             return;
-        }
-
-        $ratings = $this->input('trainer_ratings', []);
-        if (empty($ratings)) {
-            $validator->errors()->add('trainer_ratings', 'Penilaian trainer wajib diisi sebelum submit.');
-        } else {
-            $hasRating = false;
-            foreach ($ratings as $rating) {
-                if (!empty($rating['rating']) && (int) $rating['rating'] > 0) {
-                    $hasRating = true;
-                    break;
-                }
-            }
-            if (!$hasRating) {
-                $validator->errors()->add('trainer_ratings', 'Penilaian trainer wajib diisi sebelum submit.');
-            }
         }
 
         $validator->after(function ($validator) {

@@ -135,6 +135,23 @@
                         <span class="text-2xl font-black text-[#f59e0b] mt-1 block">{{ number_format($logbook->total_hm, 1) }} <span class="text-xs text-white">Jam</span></span>
                     </div>
                 </div>
+                @php
+                    $initialHmDay = (float) ($logbook->trainee->initial_hm_day ?? 0);
+                    $initialHmNight = (float) ($logbook->trainee->initial_hm_night ?? 0);
+                @endphp
+                @if($initialHmDay > 0 || $initialHmNight > 0)
+                <div class="px-4 sm:px-6 pb-4 sm:pb-6">
+                    <div class="rounded-xl bg-blue-50 border border-blue-200 p-3 flex flex-wrap items-center gap-4 text-xs">
+                        @if($initialHmDay > 0)
+                        <span class="font-bold text-blue-800">HM Siang Awal: <span class="text-blue-600">{{ number_format($initialHmDay, 1) }} jam</span></span>
+                        @endif
+                        @if($initialHmNight > 0)
+                        <span class="font-bold text-blue-800">HM Malam Awal: <span class="text-blue-600">{{ number_format($initialHmNight, 1) }} jam</span></span>
+                        @endif
+                        <span class="font-bold text-blue-800">Total Kumulatif: <span class="text-amber-600">{{ number_format($initialHmDay + $initialHmNight + $logbook->total_hm, 1) }} jam</span></span>
+                    </div>
+                </div>
+                @endif
             </div>
 
         </div>
@@ -255,85 +272,6 @@
             </div>
 
             </div>
-
-            @if(!empty($logbook->trainer_ratings))
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
-                        <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Penilaian Trainer oleh Trainee</h2>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        @php
-                            $ratings = is_array($logbook->trainer_ratings) ? $logbook->trainer_ratings : [];
-                            $instrukturRatings = array_filter($ratings, fn($r) => ($r['role_type'] ?? '') === 'instruktur');
-                            $pengawasRatings = array_filter($ratings, fn($r) => ($r['role_type'] ?? '') === 'pengawas');
-                            $operatorRatings = array_filter($ratings, fn($r) => ($r['role_type'] ?? '') === 'operator_pendamping');
-                        @endphp
-
-                        @if(!empty($instrukturRatings))
-                            <div>
-                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Instruktur</p>
-                                <div class="space-y-2">
-                                    @foreach($instrukturRatings as $rating)
-                                        @php $user = \App\Models\User::find($rating['user_id'] ?? null); @endphp
-                                        @if($user)
-                                            <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
-                                                <span class="text-xs font-semibold text-slate-700">{{ $user->name }}</span>
-                                                <div class="flex items-center gap-0.5">
-                                                    @for($i = 1; $i <= 5; $i++)
-                                                        <svg class="w-4 h-4 {{ ($rating['rating'] ?? 0) >= $i ? 'text-amber-400' : 'text-slate-200' }}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                                    @endfor
-                                                </div>
-                                            </div>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
-
-                        @if(!empty($pengawasRatings))
-                            <div>
-                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Pengawas</p>
-                                <div class="space-y-2">
-                                    @foreach($pengawasRatings as $rating)
-                                        @php $user = \App\Models\User::find($rating['user_id'] ?? null); @endphp
-                                        @if($user)
-                                            <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
-                                                <span class="text-xs font-semibold text-slate-700">{{ $user->name }}</span>
-                                                <div class="flex items-center gap-0.5">
-                                                    @for($i = 1; $i <= 5; $i++)
-                                                        <svg class="w-4 h-4 {{ ($rating['rating'] ?? 0) >= $i ? 'text-amber-400' : 'text-slate-200' }}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                                    @endfor
-                                                </div>
-                                            </div>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
-
-                        @if(!empty($operatorRatings))
-                            <div>
-                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Operator Pendamping</p>
-                                <div class="space-y-2">
-                                    @foreach($operatorRatings as $rating)
-                                        @php $user = \App\Models\User::find($rating['user_id'] ?? null); @endphp
-                                        @if($user)
-                                            <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
-                                                <span class="text-xs font-semibold text-slate-700">{{ $user->name }}</span>
-                                                <div class="flex items-center gap-0.5">
-                                                    @for($i = 1; $i <= 5; $i++)
-                                                        <svg class="w-4 h-4 {{ ($rating['rating'] ?? 0) >= $i ? 'text-amber-400' : 'text-slate-200' }}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                                    @endfor
-                                                </div>
-                                            </div>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            @endif
 
         </div>
 

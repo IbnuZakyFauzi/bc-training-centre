@@ -33,6 +33,7 @@
                 .evaluation-print-wrapper { margin: 0 !important; }
             }
         </style>
+    </div>
     @php
         $trainee = $evaluation->logbook->trainee ?? null;
         $equipmentCategory = $evaluation->logbook->equipmentCategory ?? null;
@@ -313,8 +314,15 @@
             </td>
             <td style="width: 50%; border: 1px solid #000; padding: 2px 4px; font-size: 8px; text-align: right;">
                 <strong>Tanggal Efektif :</strong> 17 April 2023<br>
-                <strong>Halaman:</strong> 1 dari 1
+                <strong>Halaman:</strong> 1
             </td>
         </tr>
     </table>
+
+    </div>
+</div>
+
+@php
+    unset($evaluation);
+@endphp
 </div>

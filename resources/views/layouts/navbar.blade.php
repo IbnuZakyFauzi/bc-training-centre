@@ -24,9 +24,8 @@
             </svg>
         </button>
 
-        <div class="flex items-center space-x-2 text-xs">
-            <span class="font-bold text-white">PT BERAU COAL / PT MTL</span>
-            <span class="text-blue-300 hidden sm:inline">/</span>
+        <div class="flex items-center space-x-3">
+            <img src="{{ asset('images/logo-prima.jpg') }}" alt="PRIMA Training Centre Logo" class="h-9 w-auto object-contain">
             <span class="text-blue-200 font-medium hidden sm:inline">{{ $roleLabel }} Dashboard</span>
         </div>
     </div>

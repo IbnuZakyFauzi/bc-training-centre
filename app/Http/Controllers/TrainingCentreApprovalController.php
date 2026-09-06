@@ -93,22 +93,7 @@ class TrainingCentreApprovalController extends Controller
             ->map(fn ($g) => $g->count())
             ->sortKeys();
 
-        $trainerRatings = OjtLogbook::whereNotNull('trainer_ratings')
-            ->get()
-            ->flatMap(fn ($logbook) => collect($logbook->trainer_ratings ?? []))
-            ->filter(fn ($r) => isset($r['user_id'], $r['rating']))
-            ->groupBy('user_id')
-            ->filter(fn ($items, $userId) => User::find($userId) !== null)
-            ->map(fn ($items, $userId) => [
-                'name' => User::find($userId)->name,
-                'avg' => round($items->avg(fn ($r) => (int) $r['rating']), 1),
-                'count' => $items->count(),
-            ])
-            ->sortByDesc('avg')
-            ->values()
-            ->all();
-
-        return view('training-centre.approvals.index', compact('reviewer', 'logbooks', 'counts', 'activeStatus', 'groupedFinalized', 'pendingEvaluations', 'evalCounts', 'phaseRecap', 'trainerRatings'));
+        return view('training-centre.approvals.index', compact('reviewer', 'logbooks', 'counts', 'activeStatus', 'groupedFinalized', 'pendingEvaluations', 'evalCounts', 'phaseRecap'));
     }
 
     public function show($id)

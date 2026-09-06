@@ -99,12 +99,7 @@
                                 </span>
                                 @if($user->role === 'trainer' && $user->trainer_type)
                                     <span class="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 text-slate-700 ml-1">
-                                        {{ match($user->trainer_type) {
-                                            'instruktur' => 'Instruktur',
-                                            'pengawas' => 'Pengawas',
-                                            'operator_pendamping' => 'Operator Pendamping',
-                                            default => $user->trainer_type,
-                                        } }}
+                                         {{ $user->trainer_type === 'instruktur' ? 'Instruktur' : ($user->trainer_type === 'pengawas' ? 'Pengawas' : ($user->trainer_type === 'operator_pendamping' ? 'Operator Pendamping' : $user->trainer_type)) }}
                                     </span>
                                 @endif
                             </td>

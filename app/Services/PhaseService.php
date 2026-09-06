@@ -112,11 +112,15 @@ class PhaseService
 
         $day = (float) $approved->where('shift', 'day')->sum('total_hm');
         $night = (float) $approved->where('shift', 'night')->sum('total_hm');
+        $initialHmDay = (float) ($trainee->initial_hm_day ?? 0);
+        $initialHmNight = (float) ($trainee->initial_hm_night ?? 0);
 
         return [
-            'day' => $day,
-            'night' => $night,
-            'total' => $day + $night,
+            'day' => $day + $initialHmDay,
+            'night' => $night + $initialHmNight,
+            'total' => $day + $night + $initialHmDay + $initialHmNight,
+            'initial_hm_day' => $initialHmDay,
+            'initial_hm_night' => $initialHmNight,
         ];
     }
 

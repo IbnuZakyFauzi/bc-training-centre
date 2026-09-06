@@ -11,14 +11,14 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        html, body { background: #fff; width: 100%; }
+        html, body { background: #fff; width: 100%; padding: 0 !important; margin: 0 !important; }
 
         body {
             font-family: Arial, Helvetica, sans-serif;
             font-size: 7px;
             color: #000;
             line-height: 1.1;
-            padding: 6px;
+            padding: 0;
         }
 
         .no-print { margin-bottom: 8px; text-align: right; }
@@ -97,8 +97,17 @@
         .sig-name   { font-weight: bold; text-decoration: underline; font-size: 7px; }
         .sig-sid    { font-size: 6.5px; }
 
-        .logbook-page { page-break-after: always; }
-        .logbook-page:last-child { page-break-after: auto; }
+        .logbook-page {
+            break-after: page;
+            page-break-after: always;
+        }
+        .logbook-page:last-child {
+            break-after: auto;
+            page-break-after: auto;
+        }
+        .logbook-page:empty {
+            display: none !important;
+        }
 
         @media print {
             @page { size: A4 portrait; margin: 5mm; }
@@ -107,6 +116,31 @@
             .form-container { border: 1px solid #000 !important; }
             .evaluation-page { padding: 6mm !important; }
             * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            
+            /* Ensure each logbook page breaks after except the last one */
+            .logbook-page {
+                display: block !important;
+                break-inside: avoid;
+            }
+            .logbook-page:not(:last-child) {
+                break-after: page !important;
+                page-break-after: always !important;
+            }
+            .logbook-page:last-child {
+                break-after: auto !important;
+                page-break-after: auto !important;
+            }
+            
+            /* Hide empty pages */
+            .logbook-page:empty,
+            .logbook-page:not(:first-child):empty {
+                display: none !important;
+            }
+            
+            /* Prevent orphaned content from creating extra pages */
+            body {
+                overflow: visible;
+            }
         }
     </style>
 </head>
@@ -130,6 +164,31 @@
             @endif
         </div>
     @endforeach
+
+    <script>
+        function fixPageBreaks() {
+            var pages = document.querySelectorAll('.logbook-page');
+            if (pages.length > 0) {
+                // Remove page break from the last page
+                var lastPage = pages[pages.length - 1];
+                lastPage.style.breakAfter = 'auto';
+                lastPage.style.pageBreakAfter = 'auto';
+            }
+        }
+
+        // Apply before print
+        if (window.matchMedia) {
+            let mediaQueryList = window.matchMedia('print');
+            mediaQueryList.addListener(function(mql) {
+                if (mql.matches) {
+                    fixPageBreaks();
+                }
+            });
+        }
+
+        // Also apply on print event
+        window.addEventListener('beforeprint', fixPageBreaks);
+    </script>
 
 </body>
 </html>

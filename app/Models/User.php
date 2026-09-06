@@ -29,6 +29,8 @@ class User extends Authenticatable
         'company',
         'equipment_category_id',
         'equipment_number',
+        'initial_hm_day',
+        'initial_hm_night',
         'sticker_expired_at',
     ];
 

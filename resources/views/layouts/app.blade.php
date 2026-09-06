@@ -6,6 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'OJT Form System' }} - PT Berau Coal / PT MTL Training Centre</title>
 
+    <!-- Favicon -->
+    <link rel="icon" href="{{ asset('images/icon-prima.png') }}">
+    
     <!-- Google Fonts Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

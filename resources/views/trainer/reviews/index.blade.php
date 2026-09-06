@@ -45,7 +45,7 @@
                     <div class="flex items-center justify-between px-5 py-3">
                         <div>
                             <p class="text-sm font-bold text-slate-800">{{ $t['name'] }}</p>
-                            <p class="text-[11px] text-slate-500">{{ $t['certification'] }} · {{ $t['phase_label'] }}</p>
+                            <p class="text-[11px] text-slate-500">{{ $t['certification'] === 'Green' ? 'Green' : ($t['certification'] === 'Skill-up' ? 'Skill-up' : ($t['certification'] === 'Experience_internal' ? 'Experience Internal' : ($t['certification'] === 'Experience_external' ? 'Experience External' : '-'))) }} · {{ $t['phase_label'] }}</p>
                         </div>
                     <div class="flex items-center space-x-2 sm:space-x-3">
                         <span class="text-[10px] sm:text-[11px] font-semibold text-[#2563eb]">{{ $t['progress']['total'] }}% HM</span>
@@ -102,13 +102,7 @@
                                     {{ $evaluation->status === 'tc_approved' ? 'bg-purple-50 text-purple-700 border border-purple-200' : '' }}
                                     {{ $evaluation->status === 'pjo_approved' ? 'bg-amber-50 text-amber-700 border border-amber-200' : '' }}
                                     {{ $evaluation->status === 'rejected' ? 'bg-red-50 text-red-700 border border-red-200' : '' }}">
-                                    {{ match($evaluation->status) {
-                                        'submitted' => 'Menunggu TC',
-                                        'tc_approved' => 'Disetujui TC',
-                                        'pjo_approved' => 'Disetujui PJO',
-                                        'rejected' => 'Revisi',
-                                        default => str_replace('_', ' ', ucfirst($evaluation->status))
-                                    } }}
+                                    {{ $evaluation->status === 'submitted' ? 'Menunggu TC' : ($evaluation->status === 'tc_approved' ? 'Disetujui TC' : ($evaluation->status === 'pjo_approved' ? 'Disetujui PJO' : ($evaluation->status === 'rejected' ? 'Revisi' : str_replace('_', ' ', ucfirst($evaluation->status))))) }}
                                 </span>
                             </td>
                             <td class="px-5 py-4 text-right">

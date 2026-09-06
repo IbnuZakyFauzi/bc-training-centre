@@ -5,7 +5,7 @@
         <div>
             <p class="text-blue-300 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1">Admin Training Centre</p>
             <h1 class="text-xl sm:text-2xl font-bold">Detail Dokumen {{ $trainee->name }}</h1>
-            <p class="text-blue-100 text-[10px] sm:text-xs mt-1">{{ $trainee->sid }} · {{ $trainee->certification ?? '-' }} · {{ $trainee->currentPhaseMeta()['label'] ?? $trainee->current_phase }}</p>
+            <p class="text-blue-100 text-[10px] sm:text-xs mt-1">{{ $trainee->sid }} · {{ $trainee->certification === 'Green' ? 'Green' : ($trainee->certification === 'Skill-up' ? 'Skill-up' : ($trainee->certification === 'Experience_internal' ? 'Experience Internal' : ($trainee->certification === 'Experience_external' ? 'Experience External' : '-'))) }} · {{ $trainee->currentPhaseMeta()['label'] ?? $trainee->current_phase }}</p>
         </div>
         <a href="{{ route('training-centre.approvals.index') }}" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/10 border border-white/15 text-white text-xs font-bold hover:bg-white/20 transition min-h-[44px]">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
@@ -54,6 +54,24 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+            @php
+                $initialHmDay = (float) ($trainee->initial_hm_day ?? 0);
+                $initialHmNight = (float) ($trainee->initial_hm_night ?? 0);
+                $totalLogbookHm = $logbooks->sum('total_hm');
+                $cumulativeHm = $totalLogbookHm + $initialHmDay + $initialHmNight;
+            @endphp
+            <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center gap-4 text-xs">
+                <span class="font-bold text-slate-700">Total HM dari Logbook: <span class="text-[#1e3a8a]">{{ number_format($totalLogbookHm, 1) }}</span></span>
+                @if($initialHmDay > 0 || $initialHmNight > 0)
+                @if($initialHmDay > 0)
+                <span class="font-bold text-slate-700">HM Siang Awal: <span class="text-blue-600">{{ number_format($initialHmDay, 1) }}</span></span>
+                @endif
+                @if($initialHmNight > 0)
+                <span class="font-bold text-slate-700">HM Malam Awal: <span class="text-indigo-600">{{ number_format($initialHmNight, 1) }}</span></span>
+                @endif
+                <span class="font-bold text-slate-700">Total Kumulatif: <span class="text-amber-600">{{ number_format($cumulativeHm, 1) }}</span></span>
+                @endif
             </div>
         </div>
 

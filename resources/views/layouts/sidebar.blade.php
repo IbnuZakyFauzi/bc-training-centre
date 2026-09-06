@@ -108,13 +108,9 @@
 <aside x-show="sidebarOpen" x-cloak class="fixed inset-y-0 left-0 z-50 w-64 bg-[#1e3a8a] text-white flex flex-col shadow-xl lg:relative lg:z-20 lg:translate-x-0 lg:block transition-transform duration-300">
     <div class="h-16 px-6 flex items-center justify-between border-b border-amber-400/40 bg-[#172554]">
         <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-lg bg-amber-500 flex items-center justify-center font-bold text-slate-900 shadow-md border border-amber-300/50">
-                <svg class="w-5 h-5 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-            </div>
+            <img src="{{ asset('images/logo-prima.jpg') }}" alt="PRIMA Training Centre Logo" class="h-9 w-auto object-contain">
             <div>
-                <h1 class="font-extrabold text-sm tracking-wide text-white leading-none">BERAU COAL</h1>
+                <h1 class="font-extrabold text-sm tracking-wide text-white leading-none">PRIMA TC</h1>
                 <p class="text-[10px] text-amber-200 font-medium tracking-wider uppercase mt-1">{{ $roleLabel }} Portal</p>
             </div>
         </div>

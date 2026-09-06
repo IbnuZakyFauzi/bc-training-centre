@@ -1,4 +1,4 @@
-@php
+<?php
     $isEditing = isset($logbook);
     $isTrainerEditing = $isTrainerEditing ?? false;
     $formPayload = old('sop_payload', $isEditing ? ($logbook->sop_payload ?? []) : []);
@@ -330,38 +330,38 @@
         ['code' => '9', 'label' => 'Parkir unit ditempat yang rata dan aman (pasang lock dan cara meletakkan attachment)', 'kind' => 'Skl'],
         ['code' => '10', 'label' => 'Keselamatan selama operasi', 'kind' => 'Knw'],
     ];
-@endphp
+?>
 
 <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
     <div>
         <div class="flex items-center space-x-2 text-xs font-semibold text-[#2563eb] mb-1">
-            <a href="{{ route('ojt.logbooks.index') }}" class="hover:underline">My Form OJT</a>
+            <a href="<?php echo e(route('ojt.logbooks.index')); ?>" class="hover:underline">My Form OJT</a>
             <span>/</span>
-            <span class="text-slate-500">{{ $isTrainerEditing ? 'Edit Form OJT Trainer' : ($isEditing ? 'Edit Draft Form OJT' : 'Create Digital Form OJT') }}</span>
+            <span class="text-slate-500"><?php echo e($isTrainerEditing ? 'Edit Form OJT Trainer' : ($isEditing ? 'Edit Draft Form OJT' : 'Create Digital Form OJT')); ?></span>
         </div>
         <h1 class="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">Formulir Harian Trainee OJT</h1>
         <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Form ini menampilkan checklist harian per unit: track unit (DZ/GR), excavator (EXC), dump truck (HDT/LDT), dan semi dump (SDT/ADT).</p>
     </div>
-    <a href="{{ route('ojt.logbooks.index') }}" class="px-3.5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition text-center min-h-[44px] inline-flex items-center justify-center">Kembali</a>
+    <a href="<?php echo e(route('ojt.logbooks.index')); ?>" class="px-3.5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition text-center min-h-[44px] inline-flex items-center justify-center">Kembali</a>
     </div>
 
     <script>
-        window.existingSopPayload = @js($formPayload);
+        window.existingSopPayload = <?php echo \Illuminate\Support\Js::from($formPayload)->toHtml() ?>;
         window.logbookFormData = () => ({
-            categoryId: @js(old('equipment_category_id', $selectedCategoryId)),
-            equipmentId: @js(old('equipment_id', $isEditing ? $logbook->equipment_id : '')),
-            categoryMap: @js($categoryMap),
-            equipmentMap: @js($equipmentMap),
-            company: @js(old('sop_payload.meta.company', data_get($formPayload, 'meta.company', $trainee->company ?? ''))),
-            certification: @js(old('sop_payload.meta.certification', data_get($formPayload, 'meta.certification', $trainee->certification ?? 'Green'))),
-            stickerExpiredAt: @js(old('sop_payload.meta.sticker_expired_at', data_get($formPayload, 'meta.sticker_expired_at', ''))),
-            assessmentMode: @js(old('sop_payload.meta.assessment_mode', data_get($formPayload, 'meta.assessment_mode', $defaultAssessmentMode))),
-            assessmentStage: @js(old('sop_payload.meta.assessment_stage', data_get($formPayload, 'meta.assessment_stage', $defaultAssessmentStage))),
-            assessmentStageDetail: @js(old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', $defaultAssessmentStageDetail))),
-            hmStart: @js(old('hm_start', $isEditing ? $logbook->hm_start : '')),
-            hmEnd: @js(old('hm_end', $isEditing ? $logbook->hm_end : '')),
-            unitType: @js(old('sop_payload.meta.unit_type', data_get($formPayload, 'meta.unit_type', ''))),
-            location: @js(old('location', $isEditing ? $logbook->location : '')),
+            categoryId: <?php echo \Illuminate\Support\Js::from(old('equipment_category_id', $selectedCategoryId))->toHtml() ?>,
+            equipmentId: <?php echo \Illuminate\Support\Js::from(old('equipment_id', $isEditing ? $logbook->equipment_id : ''))->toHtml() ?>,
+            categoryMap: <?php echo \Illuminate\Support\Js::from($categoryMap)->toHtml() ?>,
+            equipmentMap: <?php echo \Illuminate\Support\Js::from($equipmentMap)->toHtml() ?>,
+            company: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.company', data_get($formPayload, 'meta.company', $trainee->company ?? '')))->toHtml() ?>,
+            certification: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.certification', data_get($formPayload, 'meta.certification', $trainee->certification ?? 'Green')))->toHtml() ?>,
+            stickerExpiredAt: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.sticker_expired_at', data_get($formPayload, 'meta.sticker_expired_at', '')))->toHtml() ?>,
+            assessmentMode: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.assessment_mode', data_get($formPayload, 'meta.assessment_mode', $defaultAssessmentMode)))->toHtml() ?>,
+            assessmentStage: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.assessment_stage', data_get($formPayload, 'meta.assessment_stage', $defaultAssessmentStage)))->toHtml() ?>,
+            assessmentStageDetail: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', $defaultAssessmentStageDetail)))->toHtml() ?>,
+            hmStart: <?php echo \Illuminate\Support\Js::from(old('hm_start', $isEditing ? $logbook->hm_start : ''))->toHtml() ?>,
+            hmEnd: <?php echo \Illuminate\Support\Js::from(old('hm_end', $isEditing ? $logbook->hm_end : ''))->toHtml() ?>,
+            unitType: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.unit_type', data_get($formPayload, 'meta.unit_type', '')))->toHtml() ?>,
+            location: <?php echo \Illuminate\Support\Js::from(old('location', $isEditing ? $logbook->location : ''))->toHtml() ?>,
             selectedTrainerId: '',
             selectedPengawasIds: [],
             selectedOperatorIds: [],
@@ -405,13 +405,13 @@
                 });
             },
             initSelectedTrainers() {
-                const trainerId = @js(old('trainer_id', $isEditing ? $logbook->trainer_id : ''));
+                const trainerId = <?php echo \Illuminate\Support\Js::from(old('trainer_id', $isEditing ? $logbook->trainer_id : ''))->toHtml() ?>;
                 this.selectedTrainerId = trainerId ? Number(trainerId) : '';
 
-                const pengawasIds = @js(old('selected_pengawas_ids', $isEditing ? ($logbook->selected_pengawas_ids ?? []) : []));
+                const pengawasIds = <?php echo \Illuminate\Support\Js::from(old('selected_pengawas_ids', $isEditing ? ($logbook->selected_pengawas_ids ?? []) : []))->toHtml() ?>;
                 this.selectedPengawasIds = pengawasIds.map(Number);
 
-                const operatorIds = @js(old('selected_operator_pendamping_ids', $isEditing ? ($logbook->selected_operator_pendamping_ids ?? []) : []));
+                const operatorIds = <?php echo \Illuminate\Support\Js::from(old('selected_operator_pendamping_ids', $isEditing ? ($logbook->selected_operator_pendamping_ids ?? []) : []))->toHtml() ?>;
                 this.selectedOperatorIds = operatorIds.map(Number);
             },
             toggleOperator(userId, event) {
@@ -426,25 +426,25 @@
         });
     </script>
 
-    <form id="logbookForm" action="{{ $isTrainerEditing ? route('trainer.reviews.update', $logbook->id) : ($isEditing ? route('ojt.logbooks.update', $logbook->id) : route('ojt.logbooks.store')) }}" method="POST"
+    <form id="logbookForm" action="<?php echo e($isTrainerEditing ? route('trainer.reviews.update', $logbook->id) : ($isEditing ? route('ojt.logbooks.update', $logbook->id) : route('ojt.logbooks.store'))); ?>" method="POST"
       x-data="logbookFormData()"
         x-init="$nextTick(() => { fillExistingChecklist(); initSelectedTrainers(); })"
         class="space-y-3 sm:space-y-3 pb-6 sm:pb-10">
-    @csrf
-    @if($isEditing)
-        @method('PUT')
-    @endif
+    <?php echo csrf_field(); ?>
+    <?php if($isEditing): ?>
+        <?php echo method_field('PUT'); ?>
+    <?php endif; ?>
 
-    @if($errors->any())
+    <?php if($errors->any()): ?>
         <div class="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-xs text-rose-900">
             <p class="font-bold">Submit gagal. Periksa field berikut:</p>
             <ul class="mt-2 list-disc pl-5 space-y-1">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
+                <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <li><?php echo e($error); ?></li>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </ul>
         </div>
-    @endif
+    <?php endif; ?>
 
 <input type="hidden" name="sop_payload[meta][category_code]" :value="selectedCategoryCode">
 <input type="hidden" name="sop_payload[meta][unit_family]" :value="unitFamily">
@@ -456,19 +456,19 @@
                 <div class="grid grid-cols-[120px_minmax(0,1fr)] gap-x-3 gap-y-0 text-[11px] text-slate-900">
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">NAMA</div>
                     <div class="px-3 py-1.5 border-b border-slate-900">
-                        <input type="text" name="sop_payload[meta][trainee_name]" value="{{ old('sop_payload.meta.trainee_name', data_get($formPayload, 'meta.trainee_name', $user->name)) }}" readonly class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
+                        <input type="text" name="sop_payload[meta][trainee_name]" value="<?php echo e(old('sop_payload.meta.trainee_name', data_get($formPayload, 'meta.trainee_name', $user->name))); ?>" readonly class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                     </div>
 
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">HARI/ TANGGAL</div>
                     <div class="px-3 py-1.5 border-b border-slate-900">
-                        <input type="date" name="date" value="{{ old('date', $isEditing ? optional($logbook->date)->format('Y-m-d') : date('Y-m-d')) }}" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
+                        <input type="date" name="date" value="<?php echo e(old('date', $isEditing ? optional($logbook->date)->format('Y-m-d') : date('Y-m-d'))); ?>" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                     </div>
 
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">SHIFT</div>
                     <div class="px-3 py-1.5 border-b border-slate-900">
                         <select name="shift" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
-                            <option value="day" {{ old('shift', $isEditing ? $logbook->shift : '') == 'day' ? 'selected' : '' }}>Shift Siang</option>
-                            <option value="night" {{ old('shift', $isEditing ? $logbook->shift : '') == 'night' ? 'selected' : '' }}>Shift Malam</option>
+                            <option value="day" <?php echo e(old('shift', $isEditing ? $logbook->shift : '') == 'day' ? 'selected' : ''); ?>>Shift Siang</option>
+                            <option value="night" <?php echo e(old('shift', $isEditing ? $logbook->shift : '') == 'night' ? 'selected' : ''); ?>>Shift Malam</option>
                         </select>
                     </div>
 
@@ -476,26 +476,26 @@
                     <div class="px-3 py-1.5 border-b border-slate-900">
                         <select name="location" x-model="location" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                             <option value="">Pilih lokasi</option>
-                            <option value="BMO 1" {{ old('location', $isEditing ? $logbook->location : '') == 'BMO 1' ? 'selected' : '' }}>BMO 1</option>
-                            <option value="BMO 2" {{ old('location', $isEditing ? $logbook->location : '') == 'BMO 2' ? 'selected' : '' }}>BMO 2</option>
-                            <option value="BMO 3" {{ old('location', $isEditing ? $logbook->location : '') == 'BMO 3' ? 'selected' : '' }}>BMO 3</option>
-                            <option value="GMO" {{ old('location', $isEditing ? $logbook->location : '') == 'GMO' ? 'selected' : '' }}>GMO</option>
-                            <option value="LMO" {{ old('location', $isEditing ? $logbook->location : '') == 'LMO' ? 'selected' : '' }}>LMO</option>
-                            <option value="SMO" {{ old('location', $isEditing ? $logbook->location : '') == 'SMO' ? 'selected' : '' }}>SMO</option>
+                            <option value="BMO 1" <?php echo e(old('location', $isEditing ? $logbook->location : '') == 'BMO 1' ? 'selected' : ''); ?>>BMO 1</option>
+                            <option value="BMO 2" <?php echo e(old('location', $isEditing ? $logbook->location : '') == 'BMO 2' ? 'selected' : ''); ?>>BMO 2</option>
+                            <option value="BMO 3" <?php echo e(old('location', $isEditing ? $logbook->location : '') == 'BMO 3' ? 'selected' : ''); ?>>BMO 3</option>
+                            <option value="GMO" <?php echo e(old('location', $isEditing ? $logbook->location : '') == 'GMO' ? 'selected' : ''); ?>>GMO</option>
+                            <option value="LMO" <?php echo e(old('location', $isEditing ? $logbook->location : '') == 'LMO' ? 'selected' : ''); ?>>LMO</option>
+                            <option value="SMO" <?php echo e(old('location', $isEditing ? $logbook->location : '') == 'SMO' ? 'selected' : ''); ?>>SMO</option>
                         </select>
                     </div>
 
                     <div class="px-3 py-2 font-semibold">SERTIFIKASI</div>
                     <div class="px-3 py-1.5">
-                        <select name="sop_payload[meta][certification]" x-model="certification" {{ (!$isEditing && $trainee->certification) || $isEditing ? 'disabled' : '' }} class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0 {{ (!$isEditing && $trainee->certification) || $isEditing ? 'appearance-none' : '' }}">
+                        <select name="sop_payload[meta][certification]" x-model="certification" <?php echo e((!$isEditing && $trainee->certification) || $isEditing ? 'disabled' : ''); ?> class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0 <?php echo e((!$isEditing && $trainee->certification) || $isEditing ? 'appearance-none' : ''); ?>">
                             <option value="Green">Green</option>
                             <option value="Skill-up">Skill-up</option>
                             <option value="Experience_internal">Experience Internal</option>
                             <option value="Experience_external">Experience External</option>
                         </select>
-                        @if((!$isEditing && $trainee->certification) || $isEditing)
-                            <input type="hidden" name="sop_payload[meta][certification]" value="{{ old('sop_payload.meta.certification', data_get($formPayload, 'meta.certification', $trainee->certification ?? 'Green')) }}">
-                        @endif
+                        <?php if((!$isEditing && $trainee->certification) || $isEditing): ?>
+                            <input type="hidden" name="sop_payload[meta][certification]" value="<?php echo e(old('sop_payload.meta.certification', data_get($formPayload, 'meta.certification', $trainee->certification ?? 'Green'))); ?>">
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -504,40 +504,40 @@
                 <div class="grid grid-cols-[120px_minmax(0,1fr)] gap-x-3 gap-y-0 text-[11px] text-slate-900">
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">PERUSAHAAN</div>
                     <div class="px-3 py-1.5 border-b border-slate-900">
-                        <input type="text" name="sop_payload[meta][company]" x-model="company" placeholder="Contoh: PT Mutiara Tanjung Lestari" {{ (!$isEditing && $trainee->company) || $isEditing ? 'readonly' : '' }} class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
-                        @if((!$isEditing && $trainee->company) || $isEditing)
-                            <input type="hidden" name="sop_payload[meta][company]" value="{{ old('sop_payload.meta.company', data_get($formPayload, 'meta.company', $trainee->company ?? '')) }}">
-                        @endif
+                        <input type="text" name="sop_payload[meta][company]" x-model="company" placeholder="Contoh: PT Mutiara Tanjung Lestari" <?php echo e((!$isEditing && $trainee->company) || $isEditing ? 'readonly' : ''); ?> class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
+                        <?php if((!$isEditing && $trainee->company) || $isEditing): ?>
+                            <input type="hidden" name="sop_payload[meta][company]" value="<?php echo e(old('sop_payload.meta.company', data_get($formPayload, 'meta.company', $trainee->company ?? ''))); ?>">
+                        <?php endif; ?>
                     </div>
 
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">TIPE ALAT</div>
                     <div class="px-3 py-1.5 border-b border-slate-900">
-                        <select name="equipment_category_id" x-model="categoryId" {{ (!$isEditing && $trainee->equipment_category_id) || $isEditing ? 'disabled' : '' }} class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0 {{ (!$isEditing && $trainee->equipment_category_id) || $isEditing ? 'appearance-none' : '' }}">
+                        <select name="equipment_category_id" x-model="categoryId" <?php echo e((!$isEditing && $trainee->equipment_category_id) || $isEditing ? 'disabled' : ''); ?> class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0 <?php echo e((!$isEditing && $trainee->equipment_category_id) || $isEditing ? 'appearance-none' : ''); ?>">
                             <option value="">Pilih unit</option>
-                            <option value="{{ $categories->firstWhere('code', 'EXC')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'EXC')?->id) ? 'selected' : '' }}>Excavator (EX)</option>
-                            <option value="{{ $categories->firstWhere('code', 'DZ')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'DZ')?->id) ? 'selected' : '' }}>Bulldozer (DZ) / Motor Grader (GR)</option>
-                            <option value="{{ $categories->firstWhere('code', 'HDT')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'HDT')?->id) ? 'selected' : '' }}>Heavy Dump Truck (HDT) / Light Dump Truck (LDT)</option>
-                            <option value="{{ $categories->firstWhere('code', 'SDT')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'SDT')?->id) ? 'selected' : '' }}>Semi Dump Trailler (SDT) / Articulated Dump Truck (ADT)</option>
-                            <option value="{{ $categories->firstWhere('code', 'WL')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'WL')?->id) ? 'selected' : '' }}>Wheel Loader (WL)</option>
+                            <option value="<?php echo e($categories->firstWhere('code', 'EXC')?->id); ?>" <?php echo e(old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'EXC')?->id) ? 'selected' : ''); ?>>Excavator (EX)</option>
+                            <option value="<?php echo e($categories->firstWhere('code', 'DZ')?->id); ?>" <?php echo e(old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'DZ')?->id) ? 'selected' : ''); ?>>Bulldozer (DZ) / Motor Grader (GR)</option>
+                            <option value="<?php echo e($categories->firstWhere('code', 'HDT')?->id); ?>" <?php echo e(old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'HDT')?->id) ? 'selected' : ''); ?>>Heavy Dump Truck (HDT) / Light Dump Truck (LDT)</option>
+                            <option value="<?php echo e($categories->firstWhere('code', 'SDT')?->id); ?>" <?php echo e(old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'SDT')?->id) ? 'selected' : ''); ?>>Semi Dump Trailler (SDT) / Articulated Dump Truck (ADT)</option>
+                            <option value="<?php echo e($categories->firstWhere('code', 'WL')?->id); ?>" <?php echo e(old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'WL')?->id) ? 'selected' : ''); ?>>Wheel Loader (WL)</option>
                         </select>
-                        @if((!$isEditing && $trainee->equipment_category_id) || $isEditing)
-                            <input type="hidden" name="equipment_category_id" value="{{ old('equipment_category_id', $selectedCategoryId) }}">
-                        @endif
+                        <?php if((!$isEditing && $trainee->equipment_category_id) || $isEditing): ?>
+                            <input type="hidden" name="equipment_category_id" value="<?php echo e(old('equipment_category_id', $selectedCategoryId)); ?>">
+                        <?php endif; ?>
                     </div>
 
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">NO ALAT</div>
                     <div class="px-3 py-1.5 border-b border-slate-900">
-                        <input type="text" name="equipment_number" value="{{ old('equipment_number', $isEditing ? $logbook->equipment_number : '') }}" placeholder="Contoh: DZ-123" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
+                        <input type="text" name="equipment_number" value="<?php echo e(old('equipment_number', $isEditing ? $logbook->equipment_number : '')); ?>" placeholder="Contoh: DZ-123" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                     </div>
 
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">HM / KM AWAL</div>
                     <div class="px-3 py-1 border-b border-slate-900">
-                        <input type="number" step="0.1" name="hm_start" id="hm_start_section_a" value="{{ old('hm_start', $isEditing ? $logbook->hm_start : '') }}" placeholder="Contoh: 4520.5" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
+                        <input type="number" step="0.1" name="hm_start" id="hm_start_section_a" value="<?php echo e(old('hm_start', $isEditing ? $logbook->hm_start : '')); ?>" placeholder="Contoh: 4520.5" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                     </div>
 
                     <div class="px-3 py-2 font-semibold">HM / KM AKHIR</div>
                     <div class="px-3 py-1">
-                        <input type="number" step="0.1" name="hm_end" id="hm_end_section_a" value="{{ old('hm_end', $isEditing ? $logbook->hm_end : '') }}" placeholder="Contoh: 4529.0" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
+                        <input type="number" step="0.1" name="hm_end" id="hm_end_section_a" value="<?php echo e(old('hm_end', $isEditing ? $logbook->hm_end : '')); ?>" placeholder="Contoh: 4529.0" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                     </div>
 
                     <div class="px-3 py-2 font-semibold border-t border-slate-900">EXPIRED DATE STIKER (SKO)</div>
@@ -592,12 +592,12 @@
                         <div class="font-semibold mb-2">Keterangan</div>
                         <select name="sop_payload[meta][assessment_stage_detail]" x-model="assessmentStageDetail" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
                             <option value="">Pilih bulan</option>
-                            <option value="bulan_1" {{ old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', '')) == 'bulan_1' ? 'selected' : '' }}>Bulan ke-1</option>
-                            <option value="bulan_2" {{ old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', '')) == 'bulan_2' ? 'selected' : '' }}>Bulan ke-2</option>
-                            <option value="bulan_3" {{ old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', '')) == 'bulan_3' ? 'selected' : '' }}>Bulan ke-3</option>
-                            <option value="bulan_4" {{ old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', '')) == 'bulan_4' ? 'selected' : '' }}>Bulan ke-4</option>
-                            <option value="bulan_5" {{ old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', '')) == 'bulan_5' ? 'selected' : '' }}>Bulan ke-5</option>
-                            <option value="bulan_6" {{ old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', '')) == 'bulan_6' ? 'selected' : '' }}>Bulan ke-6</option>
+                            <option value="bulan_1" <?php echo e(old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', '')) == 'bulan_1' ? 'selected' : ''); ?>>Bulan ke-1</option>
+                            <option value="bulan_2" <?php echo e(old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', '')) == 'bulan_2' ? 'selected' : ''); ?>>Bulan ke-2</option>
+                            <option value="bulan_3" <?php echo e(old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', '')) == 'bulan_3' ? 'selected' : ''); ?>>Bulan ke-3</option>
+                            <option value="bulan_4" <?php echo e(old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', '')) == 'bulan_4' ? 'selected' : ''); ?>>Bulan ke-4</option>
+                            <option value="bulan_5" <?php echo e(old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', '')) == 'bulan_5' ? 'selected' : ''); ?>>Bulan ke-5</option>
+                            <option value="bulan_6" <?php echo e(old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', '')) == 'bulan_6' ? 'selected' : ''); ?>>Bulan ke-6</option>
                         </select>
                     </div>
                 </div>
@@ -619,47 +619,61 @@
                     <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Instruktur</label>
                     <select name="trainer_id" x-model="selectedTrainerId" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition min-h-[44px]">
                     <option value="">Pilih instruktur</option>
-                    @foreach($user->assignedInstruktur as $instruktur)
-                        <option value="{{ $instruktur->id }}" {{ old('trainer_id', $isEditing ? $logbook->trainer_id : '') == $instruktur->id ? 'selected' : '' }}>{{ $instruktur->name }}</option>
-                    @endforeach
+                    <?php $__currentLoopData = $user->assignedInstruktur; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $instruktur): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <option value="<?php echo e($instruktur->id); ?>" <?php echo e(old('trainer_id', $isEditing ? $logbook->trainer_id : '') == $instruktur->id ? 'selected' : ''); ?>><?php echo e($instruktur->name); ?></option>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </select>
-                @if($user->assignedInstruktur->isEmpty())
+                <?php if($user->assignedInstruktur->isEmpty()): ?>
                     <p class="text-[10px] text-slate-400 mt-1">Belum ada instruktur yang ditugaskan.</p>
-                @endif
+                <?php endif; ?>
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Pengawas</label>
                 <div class="space-y-2">
-                    @foreach($assignedPengawas as $pengawas)
+                    <?php $__currentLoopData = $assignedPengawas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pengawas): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <label class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
-                            <input type="checkbox" name="selected_pengawas_ids[]" value="{{ $pengawas->id }}" {{ in_array($pengawas->id, old('selected_pengawas_ids', $isEditing ? ($logbook->selected_pengawas_ids ?? []) : [])) ? 'checked' : '' }} x-model="selectedPengawasIds" class="accent-blue-600">
-                            <span class="text-xs">{{ $pengawas->name }}</span>
+                            <input type="checkbox" name="selected_pengawas_ids[]" value="<?php echo e($pengawas->id); ?>" <?php echo e(in_array($pengawas->id, old('selected_pengawas_ids', $isEditing ? ($logbook->selected_pengawas_ids ?? []) : [])) ? 'checked' : ''); ?> x-model="selectedPengawasIds" class="accent-blue-600">
+                            <span class="text-xs"><?php echo e($pengawas->name); ?></span>
                         </label>
-                    @endforeach
-                    @if($assignedPengawas->isEmpty())
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    <?php if($assignedPengawas->isEmpty()): ?>
                         <span class="text-[10px] text-slate-400">Belum ada pengawas yang ditugaskan.</span>
-                    @endif
+                    <?php endif; ?>
                 </div>
-                @error('selected_pengawas_ids')
-                    <p class="text-[10px] text-rose-600 mt-1">{{ $message }}</p>
-                @enderror
+                <?php $__errorArgs = ['selected_pengawas_ids'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <p class="text-[10px] text-rose-600 mt-1"><?php echo e($message); ?></p>
+                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Operator Pendamping</label>
                 <div class="space-y-2">
-                    @foreach($assignedOperators as $operator)
+                    <?php $__currentLoopData = $assignedOperators; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $operator): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <label class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
-                            <input type="checkbox" name="selected_operator_pendamping_ids[]" value="{{ $operator->id }}" {{ in_array($operator->id, old('selected_operator_pendamping_ids', $isEditing ? ($logbook->selected_operator_pendamping_ids ?? []) : [])) ? 'checked' : '' }} @click="toggleOperator({{ $operator->id }}, $event)" class="accent-blue-600">
-                            <span class="text-xs">{{ $operator->name }}</span>
+                            <input type="checkbox" name="selected_operator_pendamping_ids[]" value="<?php echo e($operator->id); ?>" <?php echo e(in_array($operator->id, old('selected_operator_pendamping_ids', $isEditing ? ($logbook->selected_operator_pendamping_ids ?? []) : [])) ? 'checked' : ''); ?> @click="toggleOperator(<?php echo e($operator->id); ?>, $event)" class="accent-blue-600">
+                            <span class="text-xs"><?php echo e($operator->name); ?></span>
                         </label>
-                    @endforeach
-                    @if($assignedOperators->isEmpty())
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    <?php if($assignedOperators->isEmpty()): ?>
                         <span class="text-[10px] text-slate-400">Belum ada operator pendamping yang ditugaskan.</span>
-                    @endif
+                    <?php endif; ?>
                 </div>
-                @error('selected_operator_pendamping_ids')
-                    <p class="text-[10px] text-rose-600 mt-1">{{ $message }}</p>
-                @enderror
+                <?php $__errorArgs = ['selected_operator_pendamping_ids'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <p class="text-[10px] text-rose-600 mt-1"><?php echo e($message); ?></p>
+                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
             </div>
             <p class="text-[10px] text-slate-500 mt-2">Pilih minimal salah satu: Instruktur, Pengawas, atau Operator Pendamping.</p>
         </div>
@@ -692,11 +706,11 @@
                             </label>
                         </div>
                     </div>
-                    @foreach($trackGroups as $groupIndex => $group)
+                    <?php $__currentLoopData = $trackGroups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $groupIndex => $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="rounded-2xl border border-slate-200 overflow-hidden">
                             <div class="bg-[#1e3a8a] px-4 py-3 text-white">
-                                <div class="text-xs font-bold uppercase tracking-wide">{{ $group['title'] }}</div>
-                                <div class="text-[11px] text-blue-100 mt-1">{{ $group['subtitle'] }}</div>
+                                <div class="text-xs font-bold uppercase tracking-wide"><?php echo e($group['title']); ?></div>
+                                <div class="text-[11px] text-blue-100 mt-1"><?php echo e($group['subtitle']); ?></div>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -717,20 +731,20 @@
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100">
-                                        @foreach($group['items'] as $itemIndex => $item)
+                                        <?php $__currentLoopData = $group['items']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $itemIndex => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <tr class="align-top">
-                                                <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
-                                                <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
-                                                <td class="px-3 py-3 text-slate-700 leading-relaxed break-words">{{ $item['label'] }}</td>
-                                                <td class="px-2 py-3"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'track.groups.'.$groupIndex.'.items.'.$itemIndex])</td>
-                                                <td class="px-3 py-3"><textarea name="sop_payload[track][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Tulis trainee feedback">{{ old('sop_payload.track.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'track.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+                                                <td class="px-3 py-3 font-bold text-slate-700"><?php echo e($item['code']); ?></td>
+                                                <td class="px-3 py-3 text-slate-500 font-medium"><?php echo e($item['kind']); ?></td>
+                                                <td class="px-3 py-3 text-slate-700 leading-relaxed break-words"><?php echo e($item['label']); ?></td>
+                                                <td class="px-2 py-3"><input type="hidden" name="sop_payload[track][groups][<?php echo e($groupIndex); ?>][title]" value="<?php echo e($group['title']); ?>"><input type="hidden" name="sop_payload[track][groups][<?php echo e($groupIndex); ?>][subtitle]" value="<?php echo e($group['subtitle']); ?>"><input type="hidden" name="sop_payload[track][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][code]" value="<?php echo e($item['code']); ?>"><input type="hidden" name="sop_payload[track][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][label]" value="<?php echo e($item['label']); ?>"><input type="hidden" name="sop_payload[track][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][kind]" value="<?php echo e($item['kind']); ?>"><?php echo $__env->make('ojt.logbooks.partials.scale-cell', ['itemPath' => 'track.groups.'.$groupIndex.'.items.'.$itemIndex], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?></td>
+                                                <td class="px-3 py-3"><textarea name="sop_payload[track][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Tulis trainee feedback"><?php echo e(old('sop_payload.track.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'track.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback'))); ?></textarea></td>
                                             </tr>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                     <div class="rounded-2xl border border-slate-200 overflow-hidden">
                         <div class="bg-[#1e3a8a] px-4 py-3 text-white">
@@ -756,15 +770,15 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
-                                    @foreach($trackComplianceItems as $itemIndex => $item)
+                                    <?php $__currentLoopData = $trackComplianceItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $itemIndex => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <tr class="align-top">
-                                            <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
-                                            <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
-                                            <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-                                            <td class="px-2 py-3"><input type="hidden" name="sop_payload[track][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[track][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[track][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'track.compliance.'.$itemIndex])</td>
-                                            <td class="px-3 py-3"><textarea name="sop_payload[track][compliance][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.track.compliance.'.$itemIndex.'.note', data_get($formPayload, 'track.compliance.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+                                            <td class="px-3 py-3 font-bold text-slate-700"><?php echo e($item['code']); ?></td>
+                                            <td class="px-3 py-3 text-slate-500 font-medium"><?php echo e($item['kind']); ?></td>
+                                            <td class="px-3 py-3 text-slate-700 leading-relaxed"><?php echo e($item['label']); ?></td>
+                                            <td class="px-2 py-3"><input type="hidden" name="sop_payload[track][compliance][<?php echo e($itemIndex); ?>][code]" value="<?php echo e($item['code']); ?>"><input type="hidden" name="sop_payload[track][compliance][<?php echo e($itemIndex); ?>][label]" value="<?php echo e($item['label']); ?>"><input type="hidden" name="sop_payload[track][compliance][<?php echo e($itemIndex); ?>][kind]" value="<?php echo e($item['kind']); ?>"><?php echo $__env->make('ojt.logbooks.partials.scale-cell', ['itemPath' => 'track.compliance.'.$itemIndex], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?></td>
+                                            <td class="px-3 py-3"><textarea name="sop_payload[track][compliance][<?php echo e($itemIndex); ?>][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback"><?php echo e(old('sop_payload.track.compliance.'.$itemIndex.'.note', data_get($formPayload, 'track.compliance.'.$itemIndex.'.trainee_feedback'))); ?></textarea></td>
                                         </tr>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </tbody>
                             </table>
                         </div>
@@ -794,15 +808,15 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
-                                    @foreach($disciplineItems as $itemIndex => $item)
+                                    <?php $__currentLoopData = $disciplineItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $itemIndex => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <tr class="align-top">
-                                            <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
-                                            <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
-                                            <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-                                            <td class="px-2 py-3"><input type="hidden" name="sop_payload[track][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[track][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[track][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'track.behavior.'.$itemIndex])</td>
-                                            <td class="px-3 py-3"><textarea name="sop_payload[track][behavior][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.track.behavior.'.$itemIndex.'.note', data_get($formPayload, 'track.behavior.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+                                            <td class="px-3 py-3 font-bold text-slate-700"><?php echo e($item['code']); ?></td>
+                                            <td class="px-3 py-3 text-slate-500 font-medium"><?php echo e($item['kind']); ?></td>
+                                            <td class="px-3 py-3 text-slate-700 leading-relaxed"><?php echo e($item['label']); ?></td>
+                                            <td class="px-2 py-3"><input type="hidden" name="sop_payload[track][behavior][<?php echo e($itemIndex); ?>][code]" value="<?php echo e($item['code']); ?>"><input type="hidden" name="sop_payload[track][behavior][<?php echo e($itemIndex); ?>][label]" value="<?php echo e($item['label']); ?>"><input type="hidden" name="sop_payload[track][behavior][<?php echo e($itemIndex); ?>][kind]" value="<?php echo e($item['kind']); ?>"><?php echo $__env->make('ojt.logbooks.partials.scale-cell', ['itemPath' => 'track.behavior.'.$itemIndex], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?></td>
+                                            <td class="px-3 py-3"><textarea name="sop_payload[track][behavior][<?php echo e($itemIndex); ?>][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback"><?php echo e(old('sop_payload.track.behavior.'.$itemIndex.'.note', data_get($formPayload, 'track.behavior.'.$itemIndex.'.trainee_feedback'))); ?></textarea></td>
                                         </tr>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </tbody>
                             </table>
                         </div>
@@ -827,11 +841,11 @@
                         <span class="w-6 h-6 rounded-full bg-[#2563eb] text-white flex items-center justify-center text-[10px]">A</span>
                         <span>BAGIAN A: TEKNIK PENGOPERASIAN</span>
                     </div>
-                    @foreach($excavatorGroups as $groupIndex => $group)
+                    <?php $__currentLoopData = $excavatorGroups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $groupIndex => $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="rounded-2xl border border-slate-200 overflow-hidden">
                             <div class="bg-[#1e3a8a] px-4 py-3 text-white">
-                                <div class="text-xs font-bold uppercase tracking-wide">{{ $group['title'] }}</div>
-                                <div class="text-[11px] text-blue-100 mt-1">{{ $group['subtitle'] }}</div>
+                                <div class="text-xs font-bold uppercase tracking-wide"><?php echo e($group['title']); ?></div>
+                                <div class="text-[11px] text-blue-100 mt-1"><?php echo e($group['subtitle']); ?></div>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -852,20 +866,20 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
-                                    @foreach($group['items'] as $itemIndex => $item)
+                                    <?php $__currentLoopData = $group['items']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $itemIndex => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <tr class="align-top">
-                                                <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
-                                                <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
-                                                <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-                                                <td class="px-2 py-3"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'excavator.groups.'.$groupIndex.'.items.'.$itemIndex])</td>
-                                            <td class="px-3 py-3"><textarea name="sop_payload[excavator][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Tulis Trainee feedback">{{ old('sop_payload.excavator.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'excavator.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+                                                <td class="px-3 py-3 font-bold text-slate-700"><?php echo e($item['code']); ?></td>
+                                                <td class="px-3 py-3 text-slate-500 font-medium"><?php echo e($item['kind']); ?></td>
+                                                <td class="px-3 py-3 text-slate-700 leading-relaxed"><?php echo e($item['label']); ?></td>
+                                                <td class="px-2 py-3"><input type="hidden" name="sop_payload[excavator][groups][<?php echo e($groupIndex); ?>][title]" value="<?php echo e($group['title']); ?>"><input type="hidden" name="sop_payload[excavator][groups][<?php echo e($groupIndex); ?>][subtitle]" value="<?php echo e($group['subtitle']); ?>"><input type="hidden" name="sop_payload[excavator][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][code]" value="<?php echo e($item['code']); ?>"><input type="hidden" name="sop_payload[excavator][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][label]" value="<?php echo e($item['label']); ?>"><input type="hidden" name="sop_payload[excavator][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][kind]" value="<?php echo e($item['kind']); ?>"><?php echo $__env->make('ojt.logbooks.partials.scale-cell', ['itemPath' => 'excavator.groups.'.$groupIndex.'.items.'.$itemIndex], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?></td>
+                                            <td class="px-3 py-3"><textarea name="sop_payload[excavator][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Tulis Trainee feedback"><?php echo e(old('sop_payload.excavator.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'excavator.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback'))); ?></textarea></td>
                                         </tr>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                     <div class="rounded-2xl border border-slate-200 overflow-hidden">
                         <div class="bg-[#1e3a8a] px-4 py-3 text-white">
@@ -891,15 +905,15 @@
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100">
-                                        @foreach($complianceItems as $itemIndex => $item)
+                                        <?php $__currentLoopData = $complianceItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $itemIndex => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <tr class="align-top">
-                                            <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
-                                            <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
-                                            <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-                                            <td class="px-2 py-3"><input type="hidden" name="sop_payload[excavator][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[excavator][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[excavator][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'excavator.compliance.'.$itemIndex])</td>
-                                            <td class="px-3 py-3"><textarea name="sop_payload[excavator][compliance][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.excavator.compliance.'.$itemIndex.'.note', data_get($formPayload, 'excavator.compliance.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+                                            <td class="px-3 py-3 font-bold text-slate-700"><?php echo e($item['code']); ?></td>
+                                            <td class="px-3 py-3 text-slate-500 font-medium"><?php echo e($item['kind']); ?></td>
+                                            <td class="px-3 py-3 text-slate-700 leading-relaxed"><?php echo e($item['label']); ?></td>
+                                            <td class="px-2 py-3"><input type="hidden" name="sop_payload[excavator][compliance][<?php echo e($itemIndex); ?>][code]" value="<?php echo e($item['code']); ?>"><input type="hidden" name="sop_payload[excavator][compliance][<?php echo e($itemIndex); ?>][label]" value="<?php echo e($item['label']); ?>"><input type="hidden" name="sop_payload[excavator][compliance][<?php echo e($itemIndex); ?>][kind]" value="<?php echo e($item['kind']); ?>"><?php echo $__env->make('ojt.logbooks.partials.scale-cell', ['itemPath' => 'excavator.compliance.'.$itemIndex], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?></td>
+                                            <td class="px-3 py-3"><textarea name="sop_payload[excavator][compliance][<?php echo e($itemIndex); ?>][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback"><?php echo e(old('sop_payload.excavator.compliance.'.$itemIndex.'.note', data_get($formPayload, 'excavator.compliance.'.$itemIndex.'.trainee_feedback'))); ?></textarea></td>
                                         </tr>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </tbody>
                             </table>
                         </div>
@@ -929,15 +943,15 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
-                                    @foreach($disciplineItems as $itemIndex => $item)
+                                    <?php $__currentLoopData = $disciplineItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $itemIndex => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <tr class="align-top">
-                                            <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
-                                            <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
-                                            <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-                                            <td class="px-2 py-3"><input type="hidden" name="sop_payload[excavator][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[excavator][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[excavator][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'excavator.behavior.'.$itemIndex])</td>
-                                            <td class="px-3 py-3"><textarea name="sop_payload[excavator][behavior][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.excavator.behavior.'.$itemIndex.'.note', data_get($formPayload, 'excavator.behavior.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+                                            <td class="px-3 py-3 font-bold text-slate-700"><?php echo e($item['code']); ?></td>
+                                            <td class="px-3 py-3 text-slate-500 font-medium"><?php echo e($item['kind']); ?></td>
+                                            <td class="px-3 py-3 text-slate-700 leading-relaxed"><?php echo e($item['label']); ?></td>
+                                            <td class="px-2 py-3"><input type="hidden" name="sop_payload[excavator][behavior][<?php echo e($itemIndex); ?>][code]" value="<?php echo e($item['code']); ?>"><input type="hidden" name="sop_payload[excavator][behavior][<?php echo e($itemIndex); ?>][label]" value="<?php echo e($item['label']); ?>"><input type="hidden" name="sop_payload[excavator][behavior][<?php echo e($itemIndex); ?>][kind]" value="<?php echo e($item['kind']); ?>"><?php echo $__env->make('ojt.logbooks.partials.scale-cell', ['itemPath' => 'excavator.behavior.'.$itemIndex], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?></td>
+                                            <td class="px-3 py-3"><textarea name="sop_payload[excavator][behavior][<?php echo e($itemIndex); ?>][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback"><?php echo e(old('sop_payload.excavator.behavior.'.$itemIndex.'.note', data_get($formPayload, 'excavator.behavior.'.$itemIndex.'.trainee_feedback'))); ?></textarea></td>
                                         </tr>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </tbody>
                             </table>
                         </div>
@@ -972,11 +986,11 @@
                             </label>
                         </div>
                     </div>
-                    @foreach($dumptruckGroups as $groupIndex => $group)
+                    <?php $__currentLoopData = $dumptruckGroups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $groupIndex => $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="rounded-2xl border border-slate-200 overflow-hidden">
                             <div class="bg-[#1e3a8a] px-4 py-3 text-white">
-                                <div class="text-xs font-bold uppercase tracking-wide">{{ $group['title'] }}</div>
-                                <div class="text-[11px] text-blue-100 mt-1">{{ $group['subtitle'] }}</div>
+                                <div class="text-xs font-bold uppercase tracking-wide"><?php echo e($group['title']); ?></div>
+                                <div class="text-[11px] text-blue-100 mt-1"><?php echo e($group['subtitle']); ?></div>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -997,20 +1011,20 @@
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100">
-                                        @foreach($group['items'] as $itemIndex => $item)
+                                        <?php $__currentLoopData = $group['items']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $itemIndex => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <tr class="align-top">
-                                                <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
-                                                <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
-                                                <td class="px-3 py-3 text-slate-700 leading-relaxed break-words">{{ $item['label'] }}</td>
-<td class="px-2 py-3"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex])</td>
-<td class="px-3 py-3"><textarea name="sop_payload[dumptruck][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Tulis Trainee feedback">{{ old('sop_payload.dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+                                                <td class="px-3 py-3 font-bold text-slate-700"><?php echo e($item['code']); ?></td>
+                                                <td class="px-3 py-3 text-slate-500 font-medium"><?php echo e($item['kind']); ?></td>
+                                                <td class="px-3 py-3 text-slate-700 leading-relaxed break-words"><?php echo e($item['label']); ?></td>
+<td class="px-2 py-3"><input type="hidden" name="sop_payload[dumptruck][groups][<?php echo e($groupIndex); ?>][title]" value="<?php echo e($group['title']); ?>"><input type="hidden" name="sop_payload[dumptruck][groups][<?php echo e($groupIndex); ?>][subtitle]" value="<?php echo e($group['subtitle']); ?>"><input type="hidden" name="sop_payload[dumptruck][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][code]" value="<?php echo e($item['code']); ?>"><input type="hidden" name="sop_payload[dumptruck][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][label]" value="<?php echo e($item['label']); ?>"><input type="hidden" name="sop_payload[dumptruck][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][kind]" value="<?php echo e($item['kind']); ?>"><?php echo $__env->make('ojt.logbooks.partials.scale-cell', ['itemPath' => 'dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?></td>
+<td class="px-3 py-3"><textarea name="sop_payload[dumptruck][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Tulis Trainee feedback"><?php echo e(old('sop_payload.dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'dumptruck.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback'))); ?></textarea></td>
                                             </tr>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                     <div class="rounded-2xl border border-slate-200 overflow-hidden">
                         <div class="bg-[#1e3a8a] px-4 py-3 text-white">
@@ -1036,15 +1050,15 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
-                                    @foreach($dumptruckComplianceItems as $itemIndex => $item)
+                                    <?php $__currentLoopData = $dumptruckComplianceItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $itemIndex => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <tr class="align-top">
-                                            <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
-                                            <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
-                                            <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-<td class="px-2 py-3"><input type="hidden" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'dumptruck.compliance.'.$itemIndex])</td>
-<td class="px-3 py-3"><textarea name="sop_payload[dumptruck][compliance][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.dumptruck.compliance.'.$itemIndex.'.note', data_get($formPayload, 'dumptruck.compliance.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+                                            <td class="px-3 py-3 font-bold text-slate-700"><?php echo e($item['code']); ?></td>
+                                            <td class="px-3 py-3 text-slate-500 font-medium"><?php echo e($item['kind']); ?></td>
+                                            <td class="px-3 py-3 text-slate-700 leading-relaxed"><?php echo e($item['label']); ?></td>
+<td class="px-2 py-3"><input type="hidden" name="sop_payload[dumptruck][compliance][<?php echo e($itemIndex); ?>][code]" value="<?php echo e($item['code']); ?>"><input type="hidden" name="sop_payload[dumptruck][compliance][<?php echo e($itemIndex); ?>][label]" value="<?php echo e($item['label']); ?>"><input type="hidden" name="sop_payload[dumptruck][compliance][<?php echo e($itemIndex); ?>][kind]" value="<?php echo e($item['kind']); ?>"><?php echo $__env->make('ojt.logbooks.partials.scale-cell', ['itemPath' => 'dumptruck.compliance.'.$itemIndex], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?></td>
+<td class="px-3 py-3"><textarea name="sop_payload[dumptruck][compliance][<?php echo e($itemIndex); ?>][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback"><?php echo e(old('sop_payload.dumptruck.compliance.'.$itemIndex.'.note', data_get($formPayload, 'dumptruck.compliance.'.$itemIndex.'.trainee_feedback'))); ?></textarea></td>
                                         </tr>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </tbody>
                             </table>
                         </div>
@@ -1074,15 +1088,15 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
-                                    @foreach($disciplineItems as $itemIndex => $item)
+                                    <?php $__currentLoopData = $disciplineItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $itemIndex => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <tr class="align-top">
-                                            <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
-                                            <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
-                                            <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-<td class="px-2 py-3"><input type="hidden" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'dumptruck.behavior.'.$itemIndex])</td>
-<td class="px-3 py-3"><textarea name="sop_payload[dumptruck][behavior][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.dumptruck.behavior.'.$itemIndex.'.note', data_get($formPayload, 'dumptruck.behavior.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+                                            <td class="px-3 py-3 font-bold text-slate-700"><?php echo e($item['code']); ?></td>
+                                            <td class="px-3 py-3 text-slate-500 font-medium"><?php echo e($item['kind']); ?></td>
+                                            <td class="px-3 py-3 text-slate-700 leading-relaxed"><?php echo e($item['label']); ?></td>
+<td class="px-2 py-3"><input type="hidden" name="sop_payload[dumptruck][behavior][<?php echo e($itemIndex); ?>][code]" value="<?php echo e($item['code']); ?>"><input type="hidden" name="sop_payload[dumptruck][behavior][<?php echo e($itemIndex); ?>][label]" value="<?php echo e($item['label']); ?>"><input type="hidden" name="sop_payload[dumptruck][behavior][<?php echo e($itemIndex); ?>][kind]" value="<?php echo e($item['kind']); ?>"><?php echo $__env->make('ojt.logbooks.partials.scale-cell', ['itemPath' => 'dumptruck.behavior.'.$itemIndex], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?></td>
+<td class="px-3 py-3"><textarea name="sop_payload[dumptruck][behavior][<?php echo e($itemIndex); ?>][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback"><?php echo e(old('sop_payload.dumptruck.behavior.'.$itemIndex.'.note', data_get($formPayload, 'dumptruck.behavior.'.$itemIndex.'.trainee_feedback'))); ?></textarea></td>
                                         </tr>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </tbody>
                             </table>
                         </div>
@@ -1117,11 +1131,11 @@
                             </label>
                         </div>
                     </div>
-                    @foreach($semidumpGroups as $groupIndex => $group)
+                    <?php $__currentLoopData = $semidumpGroups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $groupIndex => $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="rounded-2xl border border-slate-200 overflow-hidden">
                             <div class="bg-[#1e3a8a] px-4 py-3 text-white">
-                                <div class="text-xs font-bold uppercase tracking-wide">{{ $group['title'] }}</div>
-                                <div class="text-[11px] text-blue-100 mt-1">{{ $group['subtitle'] }}</div>
+                                <div class="text-xs font-bold uppercase tracking-wide"><?php echo e($group['title']); ?></div>
+                                <div class="text-[11px] text-blue-100 mt-1"><?php echo e($group['subtitle']); ?></div>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -1141,20 +1155,20 @@
                                             <th class="px-3 py-2 text-left w-56">Trainee feedback</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-slate-100">@foreach($group['items'] as $itemIndex => $item)
+                                    <tbody class="divide-y divide-slate-100"><?php $__currentLoopData = $group['items']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $itemIndex => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <tr class="align-top">
-        <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
-        <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
-        <td class="px-3 py-3 text-slate-700 leading-relaxed break-words">{{ $item['label'] }}</td>
-<td class="px-2 py-3"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'semidump.groups.'.$groupIndex.'.items.'.$itemIndex])</td>
-<td class="px-3 py-3"><textarea name="sop_payload[semidump][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Tulis Trainee feedback">{{ old('sop_payload.semidump.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'semidump.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+        <td class="px-3 py-3 font-bold text-slate-700"><?php echo e($item['code']); ?></td>
+        <td class="px-3 py-3 text-slate-500 font-medium"><?php echo e($item['kind']); ?></td>
+        <td class="px-3 py-3 text-slate-700 leading-relaxed break-words"><?php echo e($item['label']); ?></td>
+<td class="px-2 py-3"><input type="hidden" name="sop_payload[semidump][groups][<?php echo e($groupIndex); ?>][title]" value="<?php echo e($group['title']); ?>"><input type="hidden" name="sop_payload[semidump][groups][<?php echo e($groupIndex); ?>][subtitle]" value="<?php echo e($group['subtitle']); ?>"><input type="hidden" name="sop_payload[semidump][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][code]" value="<?php echo e($item['code']); ?>"><input type="hidden" name="sop_payload[semidump][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][label]" value="<?php echo e($item['label']); ?>"><input type="hidden" name="sop_payload[semidump][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][kind]" value="<?php echo e($item['kind']); ?>"><?php echo $__env->make('ojt.logbooks.partials.scale-cell', ['itemPath' => 'semidump.groups.'.$groupIndex.'.items.'.$itemIndex], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?></td>
+<td class="px-3 py-3"><textarea name="sop_payload[semidump][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Tulis Trainee feedback"><?php echo e(old('sop_payload.semidump.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'semidump.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback'))); ?></textarea></td>
                                             </tr>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                     <div class="rounded-2xl border border-slate-200 overflow-hidden">
                         <div class="bg-[#1e3a8a] px-4 py-3 text-white">
@@ -1179,15 +1193,15 @@
                                         <th class="px-3 py-2 text-left w-56">Trainee Feedback</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-slate-100">@foreach($semidumpComplianceItems as $itemIndex => $item)
+                                <tbody class="divide-y divide-slate-100"><?php $__currentLoopData = $semidumpComplianceItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $itemIndex => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <tr class="align-top">
-                                            <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
-                                            <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
-                                            <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-<td class="px-2 py-3"><input type="hidden" name="sop_payload[semidump][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[semidump][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[semidump][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'semidump.compliance.'.$itemIndex])</td>
-<td class="px-3 py-3"><textarea name="sop_payload[semidump][compliance][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.semidump.compliance.'.$itemIndex.'.note', data_get($formPayload, 'semidump.compliance.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+                                            <td class="px-3 py-3 font-bold text-slate-700"><?php echo e($item['code']); ?></td>
+                                            <td class="px-3 py-3 text-slate-500 font-medium"><?php echo e($item['kind']); ?></td>
+                                            <td class="px-3 py-3 text-slate-700 leading-relaxed"><?php echo e($item['label']); ?></td>
+<td class="px-2 py-3"><input type="hidden" name="sop_payload[semidump][compliance][<?php echo e($itemIndex); ?>][code]" value="<?php echo e($item['code']); ?>"><input type="hidden" name="sop_payload[semidump][compliance][<?php echo e($itemIndex); ?>][label]" value="<?php echo e($item['label']); ?>"><input type="hidden" name="sop_payload[semidump][compliance][<?php echo e($itemIndex); ?>][kind]" value="<?php echo e($item['kind']); ?>"><?php echo $__env->make('ojt.logbooks.partials.scale-cell', ['itemPath' => 'semidump.compliance.'.$itemIndex], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?></td>
+<td class="px-3 py-3"><textarea name="sop_payload[semidump][compliance][<?php echo e($itemIndex); ?>][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback"><?php echo e(old('sop_payload.semidump.compliance.'.$itemIndex.'.note', data_get($formPayload, 'semidump.compliance.'.$itemIndex.'.trainee_feedback'))); ?></textarea></td>
                                         </tr>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </tbody>
                             </table>
                         </div>
@@ -1217,15 +1231,15 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
-                                    @foreach($disciplineItems as $itemIndex => $item)
+                                    <?php $__currentLoopData = $disciplineItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $itemIndex => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <tr class="align-top">
-                                            <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
-                                            <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
-                                            <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-<td class="px-2 py-3"><input type="hidden" name="sop_payload[semidump][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[semidump][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[semidump][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'semidump.behavior.'.$itemIndex])</td>
-<td class="px-3 py-3"><textarea name="sop_payload[semidump][behavior][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.semidump.behavior.'.$itemIndex.'.note', data_get($formPayload, 'semidump.behavior.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+                                            <td class="px-3 py-3 font-bold text-slate-700"><?php echo e($item['code']); ?></td>
+                                            <td class="px-3 py-3 text-slate-500 font-medium"><?php echo e($item['kind']); ?></td>
+                                            <td class="px-3 py-3 text-slate-700 leading-relaxed"><?php echo e($item['label']); ?></td>
+<td class="px-2 py-3"><input type="hidden" name="sop_payload[semidump][behavior][<?php echo e($itemIndex); ?>][code]" value="<?php echo e($item['code']); ?>"><input type="hidden" name="sop_payload[semidump][behavior][<?php echo e($itemIndex); ?>][label]" value="<?php echo e($item['label']); ?>"><input type="hidden" name="sop_payload[semidump][behavior][<?php echo e($itemIndex); ?>][kind]" value="<?php echo e($item['kind']); ?>"><?php echo $__env->make('ojt.logbooks.partials.scale-cell', ['itemPath' => 'semidump.behavior.'.$itemIndex], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?></td>
+<td class="px-3 py-3"><textarea name="sop_payload[semidump][behavior][<?php echo e($itemIndex); ?>][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback"><?php echo e(old('sop_payload.semidump.behavior.'.$itemIndex.'.note', data_get($formPayload, 'semidump.behavior.'.$itemIndex.'.trainee_feedback'))); ?></textarea></td>
                                         </tr>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </tbody>
                             </table>
                         </div>
@@ -1250,11 +1264,11 @@
                         <span class="w-6 h-6 rounded-full bg-[#2563eb] text-white flex items-center justify-center text-[10px]">A</span>
                         <span>BAGIAN A: TEKNIK PENGOPERASIAN (TRAVELING, SCOPING &amp; LOADING, DIGGING, LEVELING)</span>
                     </div>
-                    @foreach($wlGroups as $groupIndex => $group)
+                    <?php $__currentLoopData = $wlGroups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $groupIndex => $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="rounded-2xl border border-slate-200 overflow-hidden">
                             <div class="bg-[#1e3a8a] px-4 py-3 text-white">
-                                <div class="text-xs font-bold uppercase tracking-wide">{{ $group['title'] }}</div>
-                                <div class="text-[11px] text-blue-100 mt-1">{{ $group['subtitle'] }}</div>
+                                <div class="text-xs font-bold uppercase tracking-wide"><?php echo e($group['title']); ?></div>
+                                <div class="text-[11px] text-blue-100 mt-1"><?php echo e($group['subtitle']); ?></div>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full min-w-[900px] table-fixed text-xs">
@@ -1274,20 +1288,20 @@
                                             <th class="px-3 py-2 text-left w-56">Trainee feedback</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-slate-100">@foreach($group['items'] as $itemIndex => $item)
+                                    <tbody class="divide-y divide-slate-100"><?php $__currentLoopData = $group['items']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $itemIndex => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <tr class="align-top">
-        <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
-        <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
-        <td class="px-3 py-3 text-slate-700 leading-relaxed break-words">{{ $item['label'] }}</td>
-<td class="px-2 py-3"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][title]" value="{{ $group['title'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][subtitle]" value="{{ $group['subtitle'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex])</td>
-<td class="px-3 py-3"><textarea name="sop_payload[wheelloader][groups][{{ $groupIndex }}][items][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Tulis Trainee feedback">{{ old('sop_payload.wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+        <td class="px-3 py-3 font-bold text-slate-700"><?php echo e($item['code']); ?></td>
+        <td class="px-3 py-3 text-slate-500 font-medium"><?php echo e($item['kind']); ?></td>
+        <td class="px-3 py-3 text-slate-700 leading-relaxed break-words"><?php echo e($item['label']); ?></td>
+<td class="px-2 py-3"><input type="hidden" name="sop_payload[wheelloader][groups][<?php echo e($groupIndex); ?>][title]" value="<?php echo e($group['title']); ?>"><input type="hidden" name="sop_payload[wheelloader][groups][<?php echo e($groupIndex); ?>][subtitle]" value="<?php echo e($group['subtitle']); ?>"><input type="hidden" name="sop_payload[wheelloader][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][code]" value="<?php echo e($item['code']); ?>"><input type="hidden" name="sop_payload[wheelloader][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][label]" value="<?php echo e($item['label']); ?>"><input type="hidden" name="sop_payload[wheelloader][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][kind]" value="<?php echo e($item['kind']); ?>"><?php echo $__env->make('ojt.logbooks.partials.scale-cell', ['itemPath' => 'wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?></td>
+<td class="px-3 py-3"><textarea name="sop_payload[wheelloader][groups][<?php echo e($groupIndex); ?>][items][<?php echo e($itemIndex); ?>][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Tulis Trainee feedback"><?php echo e(old('sop_payload.wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex.'.note', data_get($formPayload, 'wheelloader.groups.'.$groupIndex.'.items.'.$itemIndex.'.trainee_feedback'))); ?></textarea></td>
                                             </tr>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                     <div class="rounded-2xl border border-slate-200 overflow-hidden">
                         <div class="bg-[#1e3a8a] px-4 py-3 text-white">
@@ -1312,15 +1326,15 @@
                                         <th class="px-3 py-2 text-left w-56">Trainee Feedback</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-slate-100">@foreach($wlComplianceItems as $itemIndex => $item)
+                                <tbody class="divide-y divide-slate-100"><?php $__currentLoopData = $wlComplianceItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $itemIndex => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <tr class="align-top">
-                                            <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
-                                            <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
-                                            <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-<td class="px-2 py-3"><input type="hidden" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'wheelloader.compliance.'.$itemIndex])</td>
-<td class="px-3 py-3"><textarea name="sop_payload[wheelloader][compliance][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback">{{ old('sop_payload.wheelloader.compliance.'.$itemIndex.'.note', data_get($formPayload, 'wheelloader.compliance.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+                                            <td class="px-3 py-3 font-bold text-slate-700"><?php echo e($item['code']); ?></td>
+                                            <td class="px-3 py-3 text-slate-500 font-medium"><?php echo e($item['kind']); ?></td>
+                                            <td class="px-3 py-3 text-slate-700 leading-relaxed"><?php echo e($item['label']); ?></td>
+<td class="px-2 py-3"><input type="hidden" name="sop_payload[wheelloader][compliance][<?php echo e($itemIndex); ?>][code]" value="<?php echo e($item['code']); ?>"><input type="hidden" name="sop_payload[wheelloader][compliance][<?php echo e($itemIndex); ?>][label]" value="<?php echo e($item['label']); ?>"><input type="hidden" name="sop_payload[wheelloader][compliance][<?php echo e($itemIndex); ?>][kind]" value="<?php echo e($item['kind']); ?>"><?php echo $__env->make('ojt.logbooks.partials.scale-cell', ['itemPath' => 'wheelloader.compliance.'.$itemIndex], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?></td>
+<td class="px-3 py-3"><textarea name="sop_payload[wheelloader][compliance][<?php echo e($itemIndex); ?>][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainee feedback"><?php echo e(old('sop_payload.wheelloader.compliance.'.$itemIndex.'.note', data_get($formPayload, 'wheelloader.compliance.'.$itemIndex.'.trainee_feedback'))); ?></textarea></td>
                                         </tr>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </tbody>
                             </table>
                         </div>
@@ -1350,15 +1364,15 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
-                                    @foreach($disciplineItems as $itemIndex => $item)
+                                    <?php $__currentLoopData = $disciplineItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $itemIndex => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <tr class="align-top">
-                                            <td class="px-3 py-3 font-bold text-slate-700">{{ $item['code'] }}</td>
-                                            <td class="px-3 py-3 text-slate-500 font-medium">{{ $item['kind'] }}</td>
-                                            <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] }}</td>
-<td class="px-2 py-3"><input type="hidden" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][code]" value="{{ $item['code'] }}"><input type="hidden" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][label]" value="{{ $item['label'] }}"><input type="hidden" name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][kind]" value="{{ $item['kind'] }}">@include('ojt.logbooks.partials.scale-cell', ['itemPath' => 'wheelloader.behavior.'.$itemIndex])</td>
-<td class="px-3 py-3"><textarea name="sop_payload[wheelloader][behavior][{{ $itemIndex }}][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainer feedback">{{ old('sop_payload.wheelloader.behavior.'.$itemIndex.'.note', data_get($formPayload, 'wheelloader.behavior.'.$itemIndex.'.trainee_feedback')) }}</textarea></td>
+                                            <td class="px-3 py-3 font-bold text-slate-700"><?php echo e($item['code']); ?></td>
+                                            <td class="px-3 py-3 text-slate-500 font-medium"><?php echo e($item['kind']); ?></td>
+                                            <td class="px-3 py-3 text-slate-700 leading-relaxed"><?php echo e($item['label']); ?></td>
+<td class="px-2 py-3"><input type="hidden" name="sop_payload[wheelloader][behavior][<?php echo e($itemIndex); ?>][code]" value="<?php echo e($item['code']); ?>"><input type="hidden" name="sop_payload[wheelloader][behavior][<?php echo e($itemIndex); ?>][label]" value="<?php echo e($item['label']); ?>"><input type="hidden" name="sop_payload[wheelloader][behavior][<?php echo e($itemIndex); ?>][kind]" value="<?php echo e($item['kind']); ?>"><?php echo $__env->make('ojt.logbooks.partials.scale-cell', ['itemPath' => 'wheelloader.behavior.'.$itemIndex], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?></td>
+<td class="px-3 py-3"><textarea name="sop_payload[wheelloader][behavior][<?php echo e($itemIndex); ?>][trainee_feedback]" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Trainer feedback"><?php echo e(old('sop_payload.wheelloader.behavior.'.$itemIndex.'.note', data_get($formPayload, 'wheelloader.behavior.'.$itemIndex.'.trainee_feedback'))); ?></textarea></td>
                                         </tr>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </tbody>
                             </table>
                         </div>
@@ -1410,23 +1424,23 @@
         <div class="p-6 space-y-4">
             <p class="text-[11px] text-slate-500">Penilaian skala 1-4 dan trainee feedback harus sesuai SOP unit yang dipilih sebelum submit.</p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                @unless($isTrainerEditing)
+                <?php if (! ($isTrainerEditing)): ?>
                     <button type="submit" value="draft" formnovalidate onclick="document.getElementById('action_type').value='draft'" class="group flex items-start gap-4 rounded-xl border border-slate-200 bg-slate-50 p-5 text-left hover:border-slate-300 hover:bg-slate-100 transition">
                         <div class="rounded-lg bg-slate-200 p-2 group-hover:bg-slate-300 transition">
                             <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
                         </div>
                         <div>
-                            <span class="text-xs font-bold text-slate-700">{{ $isEditing ? 'Simpan Perubahan Draft' : 'Save Draft' }}</span>
+                            <span class="text-xs font-bold text-slate-700"><?php echo e($isEditing ? 'Simpan Perubahan Draft' : 'Save Draft'); ?></span>
                             <p class="mt-1 text-[11px] text-slate-500 leading-relaxed">Form OJT akan disimpan sebagai draft. Anda mampu melanjutkan pengisian nanti.</p>
                         </div>
                     </button>
-                @endunless
+                <?php endif; ?>
                 <button type="submit" value="submit" onclick="document.getElementById('action_type').value='submit'" class="group flex items-start gap-4 rounded-xl border border-blue-200 bg-blue-50 p-5 text-left hover:border-blue-300 hover:bg-blue-100 transition">
                     <div class="rounded-lg bg-blue-200 p-2 group-hover:bg-blue-300 transition">
                         <svg class="w-5 h-5 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                     </div>
                     <div>
-                        <span class="text-xs font-bold text-blue-800">{{ $isTrainerEditing ? 'Simpan Perubahan' : ($isEditing ? 'Kirim Ulang ke Trainer' : 'Submit Form OJT') }}</span>
+                        <span class="text-xs font-bold text-blue-800"><?php echo e($isTrainerEditing ? 'Simpan Perubahan' : ($isEditing ? 'Kirim Ulang ke Trainer' : 'Submit Form OJT')); ?></span>
                         <p class="mt-1 text-[11px] text-blue-700 leading-relaxed">Kirim logbook untuk dievaluasi trainer. Pastikan semua checklist dan HM sudah terisi dengan benar.</p>
                     </div>
                 </button>
@@ -1513,3 +1527,4 @@
 
 
 
+<?php /**PATH D:\KULIAH\BERAU COAL INTERN\logbook\resources\views/ojt/logbooks/partials/create-form.blade.php ENDPATH**/ ?>

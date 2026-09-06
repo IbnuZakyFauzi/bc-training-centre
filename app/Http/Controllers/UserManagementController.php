@@ -72,6 +72,8 @@ class UserManagementController extends Controller
             'certification' => ['nullable', Rule::in(['Green', 'Skill-up', 'Experience_internal', 'Experience_external'])],
             'company' => ['nullable', 'string', 'max:255'],
             'equipment_category_id' => ['nullable', 'exists:equipment_categories,id'],
+            'initial_hm_day' => ['nullable', 'numeric', 'min:0', 'max:999999.9'],
+            'initial_hm_night' => ['nullable', 'numeric', 'min:0', 'max:999999.9'],
         ]);
 
         if ($data['role'] !== 'trainer') {
@@ -80,6 +82,8 @@ class UserManagementController extends Controller
 
         $data['password'] = bcrypt('password');
         $data['must_change_password'] = true;
+        $data['initial_hm_day'] = floatval($data['initial_hm_day'] ?? 0);
+        $data['initial_hm_night'] = floatval($data['initial_hm_night'] ?? 0);
 
         $user = User::create($data);
 
@@ -139,11 +143,16 @@ class UserManagementController extends Controller
             'certification' => ['nullable', Rule::in(['Green', 'Skill-up', 'Experience_internal', 'Experience_external'])],
             'company' => ['nullable', 'string', 'max:255'],
             'equipment_category_id' => ['nullable', 'exists:equipment_categories,id'],
+            'initial_hm_day' => ['nullable', 'numeric', 'min:0', 'max:999999.9'],
+            'initial_hm_night' => ['nullable', 'numeric', 'min:0', 'max:999999.9'],
         ]);
 
         if ($data['role'] !== 'trainer') {
             $data['trainer_type'] = null;
         }
+
+        $data['initial_hm_day'] = floatval($data['initial_hm_day'] ?? 0);
+        $data['initial_hm_night'] = floatval($data['initial_hm_night'] ?? 0);
 
         $user->update($data);
 

@@ -116,36 +116,19 @@
                     <div>
                         <div class="font-semibold mb-2">Tahap Penilaian OJT</div>
                         <div class="font-medium">
-                            {{ match($evaluation->tahap_penilaian) {
-                                'pendampingan' => 'Pendampingan',
-                                'tanpa_pendampingan' => 'Tanpa Pendampingan',
-                                default => '-'
-                            } }}
+                            {{ $evaluation->tahap_penilaian === 'pendampingan' ? 'Pendampingan' : ($evaluation->tahap_penilaian === 'tanpa_pendampingan' ? 'Tanpa Pendampingan' : '-') }}
                         </div>
                     </div>
                     <div>
                         <div class="font-semibold mb-2">Tahap Tanpa Pendampingan Lanjutan</div>
                         <div class="font-medium">
-                            {{ match($evaluation->sub_tahap) {
-                                'bulanan' => 'Bulanan',
-                                '3_bulan_pertama' => '3 Bulan Pertama',
-                                '3_bulan_kedua' => '3 Bulan Kedua',
-                                default => '-'
-                            } }}
+                            {{ $evaluation->sub_tahap === 'bulanan' ? 'Bulanan' : ($evaluation->sub_tahap === '3_bulan_pertama' ? '3 Bulan Pertama' : ($evaluation->sub_tahap === '3_bulan_kedua' ? '3 Bulan Kedua' : '-')) }}
                         </div>
                     </div>
                     <div>
                         <div class="font-semibold mb-2">Keterangan</div>
                         <div class="font-medium">
-                            {{ match($evaluation->sub_tahap_keterangan) {
-                                'bulan_1' => 'Bulan ke-1',
-                                'bulan_2' => 'Bulan ke-2',
-                                'bulan_3' => 'Bulan ke-3',
-                                'bulan_4' => 'Bulan ke-4',
-                                'bulan_5' => 'Bulan ke-5',
-                                'bulan_6' => 'Bulan ke-6',
-                                default => '-'
-                            } }}
+                            {{ $evaluation->sub_tahap_keterangan === 'bulan_1' ? 'Bulan ke-1' : ($evaluation->sub_tahap_keterangan === 'bulan_2' ? 'Bulan ke-2' : ($evaluation->sub_tahap_keterangan === 'bulan_3' ? 'Bulan ke-3' : ($evaluation->sub_tahap_keterangan === 'bulan_4' ? 'Bulan ke-4' : ($evaluation->sub_tahap_keterangan === 'bulan_5' ? 'Bulan ke-5' : ($evaluation->sub_tahap_keterangan === 'bulan_6' ? 'Bulan ke-6' : '-'))))) }}
                         </div>
                     </div>
                 </div>
