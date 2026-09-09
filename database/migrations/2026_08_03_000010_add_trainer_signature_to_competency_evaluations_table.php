@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('competency_evaluations', function (Blueprint $table) {
-            $table->string('trainer_signature_path')->nullable()->after('revision_instruction');
+            $table->string('trainer_signature_path')->nullable();
         });
     }
 

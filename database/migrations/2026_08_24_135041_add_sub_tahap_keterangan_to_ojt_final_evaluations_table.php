@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('ojt_final_evaluations', function (Blueprint $table) {
-            $table->string('sub_tahap_keterangan')->nullable()->after('sub_tahap');
+            $table->string('sub_tahap_keterangan')->nullable();
         });
     }
 

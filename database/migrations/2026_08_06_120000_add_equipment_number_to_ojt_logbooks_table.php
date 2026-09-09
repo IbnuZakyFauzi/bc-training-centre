@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('ojt_logbooks', function (Blueprint $table) {
-            $table->string('equipment_number')->nullable()->after('equipment_id');
+            $table->string('equipment_number')->nullable();
         });
     }
 

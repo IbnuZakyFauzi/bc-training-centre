@@ -9,8 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('ojt_logbooks', function (Blueprint $table) {
-            $table->foreignId('assigned_pjo_id')->nullable()->constrained('users')->nullOnDelete()->after('supervisor_id');
-            $table->foreignId('assigned_tc_id')->nullable()->constrained('users')->nullOnDelete()->after('assigned_pjo_id');
+            $table->foreignId('assigned_pjo_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('assigned_tc_id')->nullable()->constrained('users')->nullOnDelete();
         });
     }
 

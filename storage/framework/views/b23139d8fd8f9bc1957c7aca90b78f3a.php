@@ -354,7 +354,7 @@
             equipmentMap: <?php echo \Illuminate\Support\Js::from($equipmentMap)->toHtml() ?>,
             company: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.company', data_get($formPayload, 'meta.company', $trainee->company ?? '')))->toHtml() ?>,
             certification: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.certification', data_get($formPayload, 'meta.certification', $trainee->certification ?? 'Green')))->toHtml() ?>,
-            stickerExpiredAt: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.sticker_expired_at', data_get($formPayload, 'meta.sticker_expired_at', '')))->toHtml() ?>,
+            stickerExpiredAt: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.sticker_expired_at', data_get($formPayload, 'meta.sticker_expired_at', $trainee->sticker_expired_at ?? '')))->toHtml() ?>,
             assessmentMode: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.assessment_mode', data_get($formPayload, 'meta.assessment_mode', $defaultAssessmentMode)))->toHtml() ?>,
             assessmentStage: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.assessment_stage', data_get($formPayload, 'meta.assessment_stage', $defaultAssessmentStage)))->toHtml() ?>,
             assessmentStageDetail: <?php echo \Illuminate\Support\Js::from(old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', $defaultAssessmentStageDetail)))->toHtml() ?>,
@@ -429,7 +429,8 @@
     <form id="logbookForm" action="<?php echo e($isTrainerEditing ? route('trainer.reviews.update', $logbook->id) : ($isEditing ? route('ojt.logbooks.update', $logbook->id) : route('ojt.logbooks.store'))); ?>" method="POST"
       x-data="logbookFormData()"
         x-init="$nextTick(() => { fillExistingChecklist(); initSelectedTrainers(); })"
-        class="space-y-3 sm:space-y-3 pb-6 sm:pb-10">
+        class="space-y-3 sm:space-y-3 pb-6 sm:pb-10"
+        @submit="document.querySelectorAll('#logbookForm button[type=submit]').forEach(btn => btn.disabled = true)">
     <?php echo csrf_field(); ?>
     <?php if($isEditing): ?>
         <?php echo method_field('PUT'); ?>

@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('ojt_logbooks', function (Blueprint $table) {
-            $table->longText('sop_payload')->nullable()->after('daily_activity');
+            $table->longText('sop_payload')->nullable();
         });
     }
 

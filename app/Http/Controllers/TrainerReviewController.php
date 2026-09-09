@@ -194,15 +194,17 @@ class TrainerReviewController extends Controller
             'sop_payload.meta.unit_type' => ['nullable', 'string', 'in:DZ,GR,HDT,LDT,SDT,ADT', Rule::requiredIf(function () use ($request) {
                 return in_array($request->input('sop_payload.meta.unit_family'), ['track', 'dumptruck', 'semidump']);
             })],
+            'sop_payload.meta.sticker_expired_at' => ['nullable', 'date'],
             'sop_payload.*.groups.*.items.*.status' => ['nullable', 'integer', 'between:1,4'],
-            'sop_payload.*.compliance.*.status' => ['nullable', 'integer', 'between:1,4'],
-            'sop_payload.*.behavior.*.status' => ['nullable', 'integer', 'between:1,4'],
             'sop_payload.*.groups.*.items.*.trainee_feedback' => ['nullable', 'string'],
+            'sop_payload.*.compliance.*.status' => ['nullable', 'integer', 'between:1,4'],
             'sop_payload.*.compliance.*.trainee_feedback' => ['nullable', 'string'],
+            'sop_payload.*.behavior.*.status' => ['nullable', 'integer', 'between:1,4'],
             'sop_payload.*.behavior.*.trainee_feedback' => ['nullable', 'string'],
         ], [
             'sop_payload.meta.unit_type.required' => 'Pilih tipe unit (DZ/GR, HDT/LDT, atau SDT/ADT) sesuai kategori alat.',
             'sop_payload.meta.unit_type.in' => 'Tipe unit yang dipilih tidak valid.',
+            'sop_payload.meta.sticker_expired_at.date' => 'Format expired date stiker (SKO) tidak valid.',
             'sop_payload.*.groups.*.items.*.status.integer' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Mampu), atau 4 (Mahir).',
             'sop_payload.*.groups.*.items.*.status.between' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Mampu), atau 4 (Mahir).',
             'sop_payload.*.compliance.*.status.integer' => 'Nilai item evaluasi harus berupa angka 1 (Belum), 2 (Cukup), 3 (Mampu), atau 4 (Mahir).',
@@ -220,6 +222,10 @@ class TrainerReviewController extends Controller
             $existingUnitType = data_get($logbook->sop_payload, 'meta.unit_type');
             if ($existingUnitType && empty($data['sop_payload']['meta']['unit_type'])) {
                 data_set($data['sop_payload'], 'meta.unit_type', $existingUnitType);
+            }
+            $existingStickerExp = data_get($logbook->sop_payload, 'meta.sticker_expired_at');
+            if ($existingStickerExp && empty($data['sop_payload']['meta']['sticker_expired_at'])) {
+                data_set($data['sop_payload'], 'meta.sticker_expired_at', $existingStickerExp);
             }
         }
 

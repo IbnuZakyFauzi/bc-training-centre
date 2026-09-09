@@ -187,7 +187,11 @@ class EvaluationFlowController extends Controller
         ]);
 
         if ($trainee && $nextPhase) {
-            $trainee->update(['current_phase' => $nextPhase]);
+            $trainee->update([
+                'current_phase' => $nextPhase,
+                'initial_hm_day' => 0,
+                'initial_hm_night' => 0,
+            ]);
             \App\Models\TraineePhaseHistory::create([
                 'user_id' => $trainee->id,
                 'from_phase' => $fromPhase,

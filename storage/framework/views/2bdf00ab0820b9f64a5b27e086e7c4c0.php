@@ -182,58 +182,6 @@
         <?php endif; ?>
     </div>
 
-    <!-- Rating Trainer -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-4 sm:mb-7">
-        <div class="p-4 sm:p-5 border-b border-slate-100">
-            <h3 class="text-xs sm:text-sm font-bold text-slate-800">Rating Trainer</h3>
-            <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Akumulasi rating bintang dari trainee untuk setiap trainer.</p>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-                <thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500">
-                    <tr>
-                        <th class="px-5 py-3">Trainer</th>
-                        <th class="px-5 py-3 text-center">Rata-rata Rating</th>
-                        <th class="px-5 py-3 text-center">Jumlah Penilaian</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    <?php if(!empty($trainerRatings)): ?>
-                        <?php $__currentLoopData = $trainerRatings; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <tr class="hover:bg-blue-50/30">
-                                <td class="px-5 py-4 text-xs font-bold text-slate-800"><?php echo e($row['name']); ?></td>
-                                <td class="px-5 py-4 text-center">
-                                    <div class="inline-flex items-center gap-1">
-                                        <?php
-                                            $avg = (float) $row['avg'];
-                                            $fullStars = floor($avg);
-                                            $hasHalf = ($avg - $fullStars) >= 0.5;
-                                        ?>
-                                        <?php for($i = 1; $i <= 5; $i++): ?>
-                                            <?php if($i <= $fullStars): ?>
-                                                <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.26.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.176 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.063 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.951-.69l1.286-3.957z"/></svg>
-                                            <?php elseif($i == $fullStars + 1 && $hasHalf): ?>
-                                                <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path fill="url(#half-star)" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.26.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.176 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.063 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.951-.69l1.286-3.957z"/></svg>
-                                            <?php else: ?>
-                                                <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.26.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.176 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.063 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.951-.69l1.286-3.957z"/></svg>
-                                            <?php endif; ?>
-                                        <?php endfor; ?>
-                                        <span class="ml-1 text-[11px] font-bold text-slate-700"><?php echo e(number_format($avg, 1)); ?></span>
-                                    </div>
-                                </td>
-                                <td class="px-5 py-4 text-center text-xs text-slate-600"><?php echo e($row['count']); ?></td>
-                             </tr>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="3" class="px-5 py-10 text-center text-xs text-slate-400">Belum ada penilaian trainer dari trainee.</td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
     <!-- OJT Multi-Phase Monitoring -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-7">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">

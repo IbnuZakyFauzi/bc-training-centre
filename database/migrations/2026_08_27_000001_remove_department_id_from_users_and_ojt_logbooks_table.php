@@ -32,11 +32,11 @@ return new class extends Migration
         });
 
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('department_id')->nullable()->constrained()->nullOnDelete()->after('trainer_type');
+            $table->foreignId('department_id')->nullable()->constrained()->nullOnDelete();
         });
 
         Schema::table('ojt_logbooks', function (Blueprint $table) {
-            $table->foreignId('department_id')->nullable()->constrained('departments')->nullOnDelete()->after('equipment_number');
+            $table->foreignId('department_id')->nullable()->constrained('departments')->nullOnDelete();
         });
     }
 };

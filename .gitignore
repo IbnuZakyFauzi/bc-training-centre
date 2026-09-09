@@ -1,0 +1,43 @@
+# Environment files and secrets
+/.env
+/.env.*
+!/.env.example
+/auth.json
+
+# PHP / Composer
+/vendor/
+/.phpunit.result.cache
+
+# Node / frontend build output
+/node_modules/
+/public/build/
+/public/hot
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Laravel runtime files
+/bootstrap/cache/*.php
+!/bootstrap/cache/.gitignore
+/storage/logs/*
+!/storage/logs/.gitignore
+/storage/framework/cache/*
+!/storage/framework/cache/.gitignore
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitignore
+/storage/framework/testing/*
+!/storage/framework/testing/.gitignore
+/storage/framework/views/*
+!/storage/framework/views/.gitignore
+
+# Local databases and generated SQLite sidecar files
+/database/*.sqlite
+/database/*.sqlite-shm
+/database/*.sqlite-wal
+
+# IDE and operating-system files
+/.idea/
+/.vscode/
+*.code-workspace
+.DS_Store
+Thumbs.db

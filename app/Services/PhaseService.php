@@ -112,8 +112,11 @@ class PhaseService
 
         $day = (float) $approved->where('shift', 'day')->sum('total_hm');
         $night = (float) $approved->where('shift', 'night')->sum('total_hm');
-        $initialHmDay = (float) ($trainee->initial_hm_day ?? 0);
-        $initialHmNight = (float) ($trainee->initial_hm_night ?? 0);
+
+        $firstPhase = self::firstPhase($trainee->certification ?? 'Green');
+        $isFirstPhase = $phase === $firstPhase;
+        $initialHmDay = $isFirstPhase ? (float) ($trainee->initial_hm_day ?? 0) : 0;
+        $initialHmNight = $isFirstPhase ? (float) ($trainee->initial_hm_night ?? 0) : 0;
 
         return [
             'day' => $day + $initialHmDay,

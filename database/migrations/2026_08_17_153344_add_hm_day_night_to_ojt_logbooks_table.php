@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('ojt_logbooks', function (Blueprint $table) {
-            $table->decimal('hm_day', 8, 1)->nullable()->after('total_hm');
-            $table->decimal('hm_night', 8, 1)->nullable()->after('hm_day');
+            $table->decimal('hm_day', 8, 1)->nullable();
+            $table->decimal('hm_night', 8, 1)->nullable();
         });
     }
 

@@ -127,7 +127,10 @@ class OjtLogbookController extends Controller
         $hmDay = $request->shift === 'day' ? $totalHm : 0;
         $hmNight = $request->shift === 'night' ? $totalHm : 0;
 
-        $logbookNumber = 'LOG-' . date('Ym') . '-' . str_pad(OjtLogbook::count() + 1, 4, '0', STR_PAD_LEFT);
+        $prefix = 'LOG-' . date('Ym') . '-';
+        $last = OjtLogbook::where('logbook_number', 'like', $prefix . '%')->orderByDesc('logbook_number')->value('logbook_number');
+        $next = $last ? (int) substr($last, -4) + 1 : 1;
+        $logbookNumber = $prefix . str_pad($next, 4, '0', STR_PAD_LEFT);
 
         $logbook = OjtLogbook::create([
             'logbook_number' => $logbookNumber,
@@ -248,6 +251,10 @@ class OjtLogbookController extends Controller
             if ($existingUnitType && empty($payload['meta']['unit_type'])) {
                 data_set($payload, 'meta.unit_type', $existingUnitType);
             }
+            $existingStickerExp = data_get($logbook->sop_payload, 'meta.sticker_expired_at');
+            if ($existingStickerExp && empty($payload['meta']['sticker_expired_at'])) {
+                data_set($payload, 'meta.sticker_expired_at', $existingStickerExp);
+            }
         }
 
         $logbook->update([
@@ -338,7 +345,10 @@ class OjtLogbookController extends Controller
         $user = Auth::user() ?? User::where('role', 'trainee')->first();
         $traineeId = $user ? $user->id : 1;
 
-        $newLogbookNumber = 'LOG-' . date('Ym') . '-' . str_pad(OjtLogbook::count() + 1, 4, '0', STR_PAD_LEFT);
+        $prefix = 'LOG-' . date('Ym') . '-';
+        $last = OjtLogbook::where('logbook_number', 'like', $prefix . '%')->orderByDesc('logbook_number')->value('logbook_number');
+        $next = $last ? (int) substr($last, -4) + 1 : 1;
+        $newLogbookNumber = $prefix . str_pad($next, 4, '0', STR_PAD_LEFT);
 
         $newLogbook = OjtLogbook::create([
             'logbook_number' => $newLogbookNumber,

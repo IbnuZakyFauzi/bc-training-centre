@@ -9,8 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('ojt_final_evaluations', function (Blueprint $table) {
-            $table->string('phase')->nullable()->after('ojt_logbook_id');
-            $table->string('status')->default('submitted')->after('phase');
+            $table->string('phase')->nullable();
+            $table->string('status')->default('submitted');
 
             $table->foreignId('tc_approved_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('tc_approved_at')->nullable();

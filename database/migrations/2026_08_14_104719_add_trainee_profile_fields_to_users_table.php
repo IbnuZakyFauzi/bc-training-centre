@@ -9,11 +9,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->enum('certification', ['Green', 'Skill-up', 'Experience'])->nullable()->after('phone');
-            $table->string('company')->nullable()->after('certification');
-            $table->foreignId('equipment_category_id')->nullable()->constrained()->nullOnDelete()->after('company');
-            $table->string('equipment_number')->nullable()->after('equipment_category_id');
-            $table->date('sticker_expired_at')->nullable()->after('equipment_number');
+            $table->enum('certification', ['Green', 'Skill-up', 'Experience'])->nullable();
+            $table->string('company')->nullable();
+            $table->foreignId('equipment_category_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('equipment_number')->nullable();
+            $table->date('sticker_expired_at')->nullable();
         });
     }
 

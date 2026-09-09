@@ -9,8 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('ojt_logbooks', function (Blueprint $table) {
-            $table->json('selected_pengawas_ids')->nullable()->after('trainer_id');
-            $table->json('selected_operator_pendamping_ids')->nullable()->after('selected_pengawas_ids');
+            $table->json('selected_pengawas_ids')->nullable();
+            $table->json('selected_operator_pendamping_ids')->nullable();
         });
     }
 

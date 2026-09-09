@@ -19,7 +19,7 @@ return new class extends Migration
         });
 
         Schema::table('users', function (Blueprint $table) {
-            $table->enum('role_new', ['trainee', 'trainer', 'admin', 'pjo', 'hse_ct'])->default('trainee')->after('sid');
+            $table->enum('role_new', ['trainee', 'trainer', 'admin', 'pjo', 'hse_ct'])->default('trainee');
         });
 
         DB::table('users')->update(['role_new' => DB::raw('role')]);
@@ -32,15 +32,21 @@ return new class extends Migration
             $table->renameColumn('role_new', 'role');
         });
 
-        Schema::table('ojt_logbooks', function (Blueprint $table) {
-            $table->enum('status', ['draft', 'submitted', 'revision', 'verified', 'final_approved'])->default('draft')->change();
-        });
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE "ojt_logbooks" DROP CONSTRAINT IF EXISTS "ojt_logbooks_status_check"');
+            DB::statement("ALTER TABLE \"ojt_logbooks\" ADD CONSTRAINT \"ojt_logbooks_status_check\" CHECK (\"status\" IN ('draft', 'submitted', 'revision', 'verified', 'final_approved'))");
+            DB::statement("ALTER TABLE \"ojt_logbooks\" ALTER COLUMN \"status\" SET DEFAULT 'draft'");
+        } else {
+            Schema::table('ojt_logbooks', function (Blueprint $table) {
+                $table->enum('status', ['draft', 'submitted', 'revision', 'verified', 'final_approved'])->default('draft')->change();
+            });
+        }
     }
 
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->enum('role_new', ['trainee', 'trainer', 'supervisor', 'admin', 'pjo', 'hse_ct'])->default('trainee')->after('sid');
+            $table->enum('role_new', ['trainee', 'trainer', 'supervisor', 'admin', 'pjo', 'hse_ct'])->default('trainee');
         });
 
         DB::table('users')->update(['role_new' => DB::raw('role')]);
@@ -54,15 +60,21 @@ return new class extends Migration
         });
 
         Schema::table('ojt_logbooks', function (Blueprint $table) {
-            $table->foreignId('supervisor_id')->nullable()->constrained('users')->nullOnDelete()->after('trainer_id');
+            $table->foreignId('supervisor_id')->nullable()->constrained('users')->nullOnDelete();
         });
 
         Schema::table('ojt_logbooks', function (Blueprint $table) {
-            $table->longText('daily_activity')->after('total_hm');
+            $table->longText('daily_activity');
         });
 
-        Schema::table('ojt_logbooks', function (Blueprint $table) {
-            $table->enum('status', ['draft', 'submitted', 'revision', 'verified', 'supervisor_approved', 'final_approved'])->default('draft')->change();
-        });
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE "ojt_logbooks" DROP CONSTRAINT IF EXISTS "ojt_logbooks_status_check"');
+            DB::statement("ALTER TABLE \"ojt_logbooks\" ADD CONSTRAINT \"ojt_logbooks_status_check\" CHECK (\"status\" IN ('draft', 'submitted', 'revision', 'verified', 'supervisor_approved', 'final_approved'))");
+            DB::statement("ALTER TABLE \"ojt_logbooks\" ALTER COLUMN \"status\" SET DEFAULT 'draft'");
+        } else {
+            Schema::table('ojt_logbooks', function (Blueprint $table) {
+                $table->enum('status', ['draft', 'submitted', 'revision', 'verified', 'supervisor_approved', 'final_approved'])->default('draft')->change();
+            });
+        }
     }
 };

@@ -70,14 +70,13 @@
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-4 sm:mb-7">
         <div class="p-4 sm:p-5 border-b border-slate-100">
             <h2 class="font-bold text-slate-800 text-sm sm:text-base">Antrean Form Evaluasi OJT A2B</h2>
-            <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Evaluasi yang sedang menunggu persetujuan atau memerlukan revisi.</p>
+            <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Evaluasi yang sedang menunggu persetujuan.</p>
         </div>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
             <?php $__currentLoopData = [
                 ['submitted', 'Menunggu TC', $evaluationCounts['submitted'] ?? 0, 'blue'],
                 ['tc_approved', 'Sudah TC', $evaluationCounts['tc_approved'] ?? 0, 'purple'],
                 ['pjo_approved', 'Sudah PJO', $evaluationCounts['pjo_approved'] ?? 0, 'amber'],
-                ['rejected', 'Revisi', $evaluationCounts['rejected'] ?? 0, 'red'],
             ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as [$key, $label, $value, $color]): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <a href="<?php echo e(route('trainer.reviews.index', array_merge(request()->query(), ['eval_status' => $key]))); ?>" class="block bg-slate-50 rounded-xl border transition-all p-3 sm:p-4 hover:shadow-md <?php echo e(($evaluationStatus ?? 'submitted') === $key ? 'ring-2 ring-[#2563eb] border-[#2563eb]' : 'border-slate-200'); ?>">
                     <p class="text-[10px] sm:text-xs font-bold uppercase tracking-wide text-<?php echo e($color); ?>-600"><?php echo e($label); ?></p>

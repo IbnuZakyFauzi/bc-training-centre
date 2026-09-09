@@ -354,7 +354,7 @@
             equipmentMap: @js($equipmentMap),
             company: @js(old('sop_payload.meta.company', data_get($formPayload, 'meta.company', $trainee->company ?? ''))),
             certification: @js(old('sop_payload.meta.certification', data_get($formPayload, 'meta.certification', $trainee->certification ?? 'Green'))),
-            stickerExpiredAt: @js(old('sop_payload.meta.sticker_expired_at', data_get($formPayload, 'meta.sticker_expired_at', ''))),
+            stickerExpiredAt: @js(old('sop_payload.meta.sticker_expired_at', data_get($formPayload, 'meta.sticker_expired_at', $trainee->sticker_expired_at ?? ''))),
             assessmentMode: @js(old('sop_payload.meta.assessment_mode', data_get($formPayload, 'meta.assessment_mode', $defaultAssessmentMode))),
             assessmentStage: @js(old('sop_payload.meta.assessment_stage', data_get($formPayload, 'meta.assessment_stage', $defaultAssessmentStage))),
             assessmentStageDetail: @js(old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', $defaultAssessmentStageDetail))),
@@ -429,7 +429,8 @@
     <form id="logbookForm" action="{{ $isTrainerEditing ? route('trainer.reviews.update', $logbook->id) : ($isEditing ? route('ojt.logbooks.update', $logbook->id) : route('ojt.logbooks.store')) }}" method="POST"
       x-data="logbookFormData()"
         x-init="$nextTick(() => { fillExistingChecklist(); initSelectedTrainers(); })"
-        class="space-y-3 sm:space-y-3 pb-6 sm:pb-10">
+        class="space-y-3 sm:space-y-3 pb-6 sm:pb-10"
+        @submit="document.querySelectorAll('#logbookForm button[type=submit]').forEach(btn => btn.disabled = true)">
     @csrf
     @if($isEditing)
         @method('PUT')

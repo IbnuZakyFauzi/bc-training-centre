@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->decimal('initial_hm_day', 10, 1)->default(0)->after('equipment_number');
-            $table->decimal('initial_hm_night', 10, 1)->default(0)->after('initial_hm_day');
+            $table->decimal('initial_hm_day', 10, 1)->default(0);
+            $table->decimal('initial_hm_night', 10, 1)->default(0);
         });
     }
 

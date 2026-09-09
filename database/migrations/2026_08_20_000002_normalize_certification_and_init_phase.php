@@ -7,6 +7,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE "users" DROP CONSTRAINT IF EXISTS "users_certification_check"');
+            DB::statement("ALTER TABLE \"users\" ADD CONSTRAINT \"users_certification_check\" CHECK (\"certification\" IN ('Green', 'Skill-up', 'Experience', 'Experience_internal'))");
+        }
+
         // Normalisasi kategori Experience tunggal -> Experience_internal (default split)
         DB::table('users')
             ->where('role', 'trainee')
@@ -30,5 +35,10 @@ return new class extends Migration
         DB::table('users')
             ->where('role', 'trainee')
             ->update(['current_phase' => null]);
+
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE "users" DROP CONSTRAINT IF EXISTS "users_certification_check"');
+            DB::statement("ALTER TABLE \"users\" ADD CONSTRAINT \"users_certification_check\" CHECK (\"certification\" IN ('Green', 'Skill-up', 'Experience'))");
+        }
     }
 };

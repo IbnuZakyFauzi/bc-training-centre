@@ -244,7 +244,11 @@ class UserManagementController extends Controller
         }
 
         DB::transaction(function () use ($user, $newPhase, $oldPhase, $admin) {
-            $user->update(['current_phase' => $newPhase]);
+            $user->update([
+                'current_phase' => $newPhase,
+                'initial_hm_day' => 0,
+                'initial_hm_night' => 0,
+            ]);
 
             TraineePhaseHistory::create([
                 'user_id' => $user->id,
