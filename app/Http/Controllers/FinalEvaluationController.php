@@ -61,6 +61,7 @@ class FinalEvaluationController extends Controller
         $trainees = User::where('role', 'trainee')
             ->with(['equipmentCategory', 'assignedOperatorPendamping'])
             ->get()
+            ->filter(fn ($trainee) => !$trainee->isMonthlyEvaluationLocked())
             ->map(fn ($trainee) => [
                 'id' => $trainee->id,
                 'name' => $trainee->name,
@@ -70,13 +71,21 @@ class FinalEvaluationController extends Controller
                 'operator_pendamping' => $trainee->assignedOperatorPendamping->pluck('name')->join(', '),
                 'current_phase' => $trainee->currentPhaseKey(),
                 'current_phase_label' => $trainee->currentPhaseMeta()['label'] ?? '',
-                'eligible' => $trainee->isPhaseEligible(),
+                'eligible' => $trainee->isPhaseEligible() && !$trainee->isMonthlyEvaluationLocked(),
             ])
             ->values();
 
         $locations = ['BMO 1', 'BMO 2', 'BMO 3', 'GMO', 'LMO', 'SMO'];
         $certifications = \App\Services\PhaseService::CERTIFICATIONS;
         $selectedTraineeId = $request->query('trainee');
+
+        if ($selectedTraineeId) {
+            $selectedTrainee = User::where('role', 'trainee')->find($selectedTraineeId);
+            if ($selectedTrainee && $selectedTrainee->isMonthlyEvaluationLocked()) {
+                return redirect()->route('trainer.final-evaluations.index')
+                    ->with('error', 'Form evaluasi untuk trainee ini masih dikunci. Pastikan trainee sudah memenuhi syarat HM untuk evaluasi 3/4 atau berada di akhir bulan untuk evaluasi bulanan (5-10).');
+            }
+        }
 
         return view('final-evaluations.create', compact('trainees', 'locations', 'certifications'));
     }
@@ -87,9 +96,17 @@ class FinalEvaluationController extends Controller
         abort_unless($user && $user->isTrainer(), 403);
 
         $evaluation = FinalEvaluation::where('trainer_id', $user->id)->findOrFail($id);
+
+        $trainee = $evaluation->trainee;
+        if ($trainee && $trainee->isMonthlyEvaluationLocked()) {
+            return redirect()->route('trainer.final-evaluations.index')
+                ->with('error', 'Form evaluasi untuk trainee ini masih dikunci. Pastikan trainee sudah memenuhi syarat HM untuk evaluasi 3/4 atau berada di akhir bulan untuk evaluasi bulanan (5-10).');
+        }
+
         $trainees = User::where('role', 'trainee')
             ->with(['equipmentCategory', 'assignedOperatorPendamping'])
             ->get()
+            ->filter(fn ($trainee) => !$trainee->isMonthlyEvaluationLocked())
             ->map(fn ($trainee) => [
                 'id' => $trainee->id,
                 'name' => $trainee->name,
@@ -99,7 +116,7 @@ class FinalEvaluationController extends Controller
                 'operator_pendamping' => $trainee->assignedOperatorPendamping->pluck('name')->join(', '),
                 'current_phase' => $trainee->currentPhaseKey(),
                 'current_phase_label' => $trainee->currentPhaseMeta()['label'] ?? '',
-                'eligible' => $trainee->isPhaseEligible(),
+                'eligible' => $trainee->isPhaseEligible() && !$trainee->isMonthlyEvaluationLocked(),
             ])
             ->values();
 
@@ -113,6 +130,12 @@ class FinalEvaluationController extends Controller
     {
         $user = Auth::user();
         abort_unless($user && $user->isTrainer(), 403);
+
+        $trainee = User::where('name', $request->input('nama_operator'))->where('role', 'trainee')->first();
+        if ($trainee && $trainee->isMonthlyEvaluationLocked()) {
+            return redirect()->route('trainer.final-evaluations.index')
+                ->with('error', 'Form evaluasi untuk trainee ini masih dikunci. Pastikan trainee sudah memenuhi syarat HM untuk evaluasi 3/4 atau berada di akhir bulan untuk evaluasi bulanan (5-10).');
+        }
 
         $validated = $request->validate([
             'nama_operator' => ['required', 'string', 'max:255'],
@@ -167,6 +190,12 @@ class FinalEvaluationController extends Controller
         abort_unless($user && $user->isTrainer(), 403);
 
         $evaluation = FinalEvaluation::where('trainer_id', $user->id)->findOrFail($id);
+
+        $trainee = $evaluation->trainee;
+        if ($trainee && $trainee->isMonthlyEvaluationLocked()) {
+            return redirect()->route('trainer.final-evaluations.index')
+                ->with('error', 'Form evaluasi untuk trainee ini masih dikunci. Pastikan trainee sudah memenuhi syarat HM untuk evaluasi 3/4 atau berada di akhir bulan untuk evaluasi bulanan (5-10).');
+        }
 
         $validated = $request->validate([
             'nama_operator' => ['required', 'string', 'max:255'],

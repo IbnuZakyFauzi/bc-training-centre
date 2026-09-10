@@ -7,7 +7,7 @@
     <title><?php echo e($title ?? 'OJT Form System'); ?> - PT Berau Coal / PT MTL Training Centre</title>
 
     <!-- Favicon -->
-    <link rel="icon" href="<?php echo e(asset('images/icon-prima.png')); ?>">
+    <link rel="icon" href="<?php echo e(asset('images/mtl-logo.png')); ?>">
     
     <!-- Google Fonts Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

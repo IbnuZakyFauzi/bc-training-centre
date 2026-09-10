@@ -89,7 +89,7 @@ class TrainerReviewController extends Controller
                     'certification' => $trainee->certification,
                     'phase' => $phase,
                     'phase_label' => $trainee->currentPhaseMeta()['label'] ?? '',
-                    'eligible' => $trainee->isPhaseEligible() && ! $hasOpenEval,
+                    'eligible' => $trainee->isPhaseEligible() && ! $trainee->isMonthlyEvaluationLocked() && ! $hasOpenEval,
                     'progress' => $trainee->phaseProgressPercent(),
                 ];
             })

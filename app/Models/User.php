@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\OjtLogbook;
 
 class User extends Authenticatable
 {
@@ -165,6 +166,31 @@ class User extends Authenticatable
     public function isPhaseEligible(?string $phase = null): bool
     {
         return \App\Services\PhaseService::isEligible($this, $phase);
+    }
+
+    public function isMonthlyEvaluationLocked(): bool
+    {
+        $phase = $this->currentPhaseKey();
+        $meta = \App\Services\PhaseService::meta($this->certification ?? 'Green', $phase);
+
+        if (!$meta) {
+            return true;
+        }
+
+        if ($meta['type'] === 'evaluasi') {
+            return !$this->isPhaseEligible($phase);
+        }
+
+        if ($meta['type'] === 'bulanan') {
+            $approvedLogbookCount = OjtLogbook::where('trainee_id', $this->id)
+                ->whereIn('status', ['verified', 'final_approved'])
+                ->where('created_at', '>=', \App\Services\PhaseService::currentPhaseStartDate($this, $phase))
+                ->count();
+
+            return $approvedLogbookCount < 4;
+        }
+
+        return false;
     }
 
     public function phaseProgressPercent(?string $phase = null): array

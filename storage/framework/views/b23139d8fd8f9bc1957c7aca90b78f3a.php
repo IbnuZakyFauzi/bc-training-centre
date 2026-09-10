@@ -1452,26 +1452,6 @@ unset($__errorArgs, $__bag); ?>
 
 <script>
 (function() {
-    const toggleGroups = ['sop_payload[meta][assessment_mode]', 'sop_payload[meta][assessment_stage]'];
-    toggleGroups.forEach(function(name) {
-        const radios = document.querySelectorAll('input[name="' + name + '"]');
-        radios.forEach(function(radio) {
-            radio.addEventListener('click', function() {
-                if (this.checked && this.dataset.toggled === 'true') {
-                    this.checked = false;
-                    this.dataset.toggled = 'false';
-                    this.dispatchEvent(new Event('change', { bubbles: true }));
-                } else {
-                    radios.forEach(function(r) { r.dataset.toggled = 'false'; });
-                    this.dataset.toggled = 'true';
-                }
-            });
-        });
-    });
-})();
-</script>
-<script>
-(function() {
     const hmStartInput = document.getElementById('hm_start_section_a');
     const hmEndInput = document.getElementById('hm_end_section_a');
     const sectionCHmStart = document.getElementById('section-c-hm-start');

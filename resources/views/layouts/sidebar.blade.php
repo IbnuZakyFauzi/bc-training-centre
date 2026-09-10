@@ -108,9 +108,9 @@
 <aside x-show="sidebarOpen" x-cloak class="fixed inset-y-0 left-0 z-50 w-64 bg-[#1e3a8a] text-white flex flex-col shadow-xl lg:relative lg:z-20 lg:translate-x-0 lg:block transition-transform duration-300">
     <div class="h-16 px-6 flex items-center justify-between border-b border-amber-400/40 bg-[#172554]">
         <div class="flex items-center space-x-3">
-            <img src="{{ asset('images/logo-prima.jpg') }}" alt="PRIMA Training Centre Logo" class="h-9 w-auto object-contain">
+            <img src="{{ asset('images/mtl-logo.png') }}" alt="Training Centre Logo" class="h-9 w-auto object-contain">
             <div>
-                <h1 class="font-extrabold text-sm tracking-wide text-white leading-none">PRIMA TC</h1>
+                <h1 class="font-extrabold text-sm tracking-wide text-white leading-none">Training Centre</h1>
                 <p class="text-[10px] text-amber-200 font-medium tracking-wider uppercase mt-1">{{ $roleLabel }} Portal</p>
             </div>
         </div>

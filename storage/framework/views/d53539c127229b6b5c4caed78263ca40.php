@@ -25,7 +25,7 @@
         </button>
 
         <div class="flex items-center space-x-3">
-            <img src="<?php echo e(asset('images/logo-prima.jpg')); ?>" alt="PRIMA Training Centre Logo" class="h-9 w-auto object-contain">
+            <img src="<?php echo e(asset('images/mtl-logo.png')); ?>" alt="Training Centre Logo" class="h-9 w-auto object-contain">
             <span class="text-blue-200 font-medium hidden sm:inline"><?php echo e($roleLabel); ?> Dashboard</span>
         </div>
     </div>

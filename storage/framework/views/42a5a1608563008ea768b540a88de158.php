@@ -7,7 +7,7 @@
     <title>Login OJT Form</title>
     
     <!-- Favicon -->
-    <link rel="icon" href="<?php echo e(asset('images/icon-prima.png')); ?>">
+    <link rel="icon" href="<?php echo e(asset('images/mtl-logo.png')); ?>">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -103,8 +103,8 @@
                     >
                     
                     <div class="absolute top-4 right-4 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center space-x-2">
-                        <img src="<?php echo e(asset('images/icon-prima.png')); ?>" alt="PRIMA Logo" class="h-6 w-6 object-contain">
-                        <span class="text-xs font-semibold text-white">PRIMA Training Centre</span>
+                        <img src="<?php echo e(asset('images/mtl-logo.png')); ?>" alt="Training Centre Logo" class="h-6 w-6 object-contain">
+                        <span class="text-xs font-semibold text-white">Training Centre</span>
                     </div>
                 </div>
             </section>
