@@ -46,13 +46,6 @@
             </div>
 
             <div>
-                <label class="text-xs font-bold text-slate-700">Expired Date Stiker (SKO)</label>
-                <input type="date" name="sticker_expired_at" value="{{ old('sticker_expired_at', $user->sticker_expired_at?->format('Y-m-d')) }}" class="mt-2 w-full rounded-xl border-slate-300 text-sm min-h-[44px]">
-                <p class="mt-1 text-[11px] text-slate-500">Tanggal kadaluarsa stiker SKO Anda. Akan ditampilkan pada Form OJT yang dicetak.</p>
-                @error('sticker_expired_at')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
-            </div>
-
-            <div>
                 <label class="text-xs font-bold text-slate-700">Upload Tanda Tangan</label>
                 <input type="file" name="signature" accept="image/png,image/jpeg" class="mt-2 block w-full text-xs text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-[#1e3a8a] file:px-3 file:py-2 file:text-xs file:font-bold file:text-white min-h-[44px]">
                 <p class="mt-2 text-[11px] text-slate-500">Format PNG, JPG, atau JPEG. Maksimal 2 MB. Tanda tangan ini akan dipakai otomatis saat approval.</p>

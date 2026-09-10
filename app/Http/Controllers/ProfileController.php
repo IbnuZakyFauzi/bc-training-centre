@@ -31,7 +31,6 @@ class ProfileController extends Controller
                 Rule::unique('users', 'email')->ignore($user->id),
             ],
             'phone' => ['required', 'string', 'max:30'],
-            'sticker_expired_at' => ['nullable', 'date'],
             'signature' => ['nullable', 'file', 'mimes:png,jpg,jpeg', 'max:2048'],
             'current_password' => ['nullable', 'current_password'],
             'new_password' => ['nullable', 'string', 'min:6', 'confirmed'],
@@ -51,7 +50,6 @@ class ProfileController extends Controller
             'name' => $data['name'],
             'email' => $data['email'] ?: null,
             'phone' => $data['phone'] ?? null,
-            'sticker_expired_at' => $data['sticker_expired_at'] ?: null,
             'signature_path' => $signaturePath,
             'must_change_password' => false,
         ];
