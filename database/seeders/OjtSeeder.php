@@ -82,6 +82,7 @@ class OjtSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => 'trainee',
             'phone' => '+62 812-5543-9901',
+            'equipment_category_id' => $catExcavator->id, // Assign default category
         ]);
 
         $trainer = User::create([
