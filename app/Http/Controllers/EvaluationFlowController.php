@@ -86,28 +86,105 @@ class EvaluationFlowController extends Controller
     }
 
     // ===================== PJO =====================
-    public function pjoIndex()
+    public function pjoIndex(Request $request)
     {
-        return $this->pjoDashboard();
+        return $this->pjoDashboard($request);
     }
 
-    public function pjoDashboard()
+    public function pjoDashboard(Request $request)
     {
         $user = Auth::user();
         abort_unless($user && $user->isPjo(), 403);
 
-        $evaluations = FinalEvaluation::with(['trainer', 'trainee'])
-            ->where('status', 'tc_approved')
-            ->latest()
-            ->paginate(15);
+        $activeTab = $request->query('tab', 'pending');
+
+        // 1. Antrean Menunggu Review PJO
+        $pendingQuery = FinalEvaluation::with(['trainer', 'trainee'])
+            ->where('status', 'tc_approved');
+
+        if ($request->filled('search')) {
+            $term = $request->search;
+            $pendingQuery->where(function ($q) use ($term) {
+                $q->where('nama_operator', 'like', "%{$term}%")
+                    ->orWhere('perusahaan', 'like', "%{$term}%")
+                    ->orWhereHas('trainee', fn ($u) => $u->where('sid', 'like', "%{$term}%")->orWhere('department', 'like', "%{$term}%"))
+                    ->orWhereHas('trainer', fn ($t) => $t->where('name', 'like', "%{$term}%"));
+            });
+        }
+
+        if ($request->filled('trainer_id')) {
+            $pendingQuery->where('trainer_id', $request->trainer_id);
+        }
+
+        if ($request->filled('department')) {
+            $pendingQuery->whereHas('trainee', fn ($u) => $u->where('department', $request->department));
+        }
+
+        if ($request->filled('certification')) {
+            $pendingQuery->where('jenis_sertifikasi', $request->certification);
+        }
+
+        $evaluations = $pendingQuery->latest()->paginate(10, ['*'], 'pending_page')->withQueryString();
+
+        // 2. History Evaluasi yang Sudah Disetujui PJO
+        $historyQuery = FinalEvaluation::with(['trainer', 'trainee', 'pjoApprover', 'hseApprover'])
+            ->whereIn('status', ['pjo_approved', 'hse_approved']);
+
+        if ($request->filled('search')) {
+            $term = $request->search;
+            $historyQuery->where(function ($q) use ($term) {
+                $q->where('nama_operator', 'like', "%{$term}%")
+                    ->orWhere('perusahaan', 'like', "%{$term}%")
+                    ->orWhereHas('trainee', fn ($u) => $u->where('sid', 'like', "%{$term}%")->orWhere('department', 'like', "%{$term}%"))
+                    ->orWhereHas('trainer', fn ($t) => $t->where('name', 'like', "%{$term}%"));
+            });
+        }
+
+        if ($request->filled('trainer_id')) {
+            $historyQuery->where('trainer_id', $request->trainer_id);
+        }
+
+        if ($request->filled('department')) {
+            $historyQuery->whereHas('trainee', fn ($u) => $u->where('department', $request->department));
+        }
+
+        if ($request->filled('certification')) {
+            $historyQuery->where('jenis_sertifikasi', $request->certification);
+        }
+
+        $historyEvaluations = $historyQuery->latest('pjo_approved_at')->paginate(10, ['*'], 'history_page')->withQueryString();
+
+        // 3. Rekap Trainer yang evaluasinya sudah disetujui PJO
+        $approvedEvals = FinalEvaluation::whereIn('status', ['pjo_approved', 'hse_approved'])
+            ->with('trainer')
+            ->get();
+
+        $trainerRecap = $approvedEvals->groupBy('trainer_id')->map(function ($group) {
+            $first = $group->first();
+            return [
+                'trainer_id' => $first->trainer_id,
+                'trainer_name' => $first->trainer->name ?? 'Trainer Tidak Ditemukan',
+                'trainer_sid' => $first->trainer->sid ?? '-',
+                'total_approved' => $group->count(),
+                'latest_approved_at' => $group->max('pjo_approved_at'),
+            ];
+        })->sortByDesc('total_approved')->values();
+
+        $trainers = User::where('role', 'trainer')->orderBy('name')->get();
+        $departments = User::whereNotNull('department')->where('department', '!=', '')->distinct()->pluck('department');
+        $certifications = PhaseService::CERTIFICATIONS;
 
         $counts = [
             'pending' => FinalEvaluation::where('status', 'tc_approved')->count(),
             'approved' => FinalEvaluation::where('status', 'pjo_approved')->count(),
             'completed' => FinalEvaluation::where('status', 'hse_approved')->count(),
+            'total_history' => FinalEvaluation::whereIn('status', ['pjo_approved', 'hse_approved'])->count(),
         ];
 
-        return view('evaluation-flow.pjo-dashboard', compact('evaluations', 'counts'));
+        return view('evaluation-flow.pjo-dashboard', compact(
+            'evaluations', 'historyEvaluations', 'counts', 'activeTab',
+            'trainers', 'departments', 'certifications', 'trainerRecap'
+        ));
     }
 
     public function pjoApprove(Request $request, $id)
@@ -139,27 +216,104 @@ class EvaluationFlowController extends Controller
     }
 
     // ===================== HSE CT =====================
-    public function hseIndex()
+    public function hseIndex(Request $request)
     {
-        return $this->hseCtDashboard();
+        return $this->hseCtDashboard($request);
     }
 
-    public function hseCtDashboard()
+    public function hseCtDashboard(Request $request)
     {
         $user = Auth::user();
         abort_unless($user && $user->isHseCt(), 403);
 
-        $evaluations = FinalEvaluation::with(['trainer', 'trainee'])
-            ->where('status', 'pjo_approved')
-            ->latest()
-            ->paginate(15);
+        $activeTab = $request->query('tab', 'pending');
+
+        // 1. Antrean Menunggu Review HSE CT
+        $pendingQuery = FinalEvaluation::with(['trainer', 'trainee', 'pjoApprover'])
+            ->where('status', 'pjo_approved');
+
+        if ($request->filled('search')) {
+            $term = $request->search;
+            $pendingQuery->where(function ($q) use ($term) {
+                $q->where('nama_operator', 'like', "%{$term}%")
+                    ->orWhere('perusahaan', 'like', "%{$term}%")
+                    ->orWhereHas('trainee', fn ($u) => $u->where('sid', 'like', "%{$term}%")->orWhere('department', 'like', "%{$term}%"))
+                    ->orWhereHas('trainer', fn ($t) => $t->where('name', 'like', "%{$term}%"));
+            });
+        }
+
+        if ($request->filled('trainer_id')) {
+            $pendingQuery->where('trainer_id', $request->trainer_id);
+        }
+
+        if ($request->filled('department')) {
+            $pendingQuery->whereHas('trainee', fn ($u) => $u->where('department', $request->department));
+        }
+
+        if ($request->filled('certification')) {
+            $pendingQuery->where('jenis_sertifikasi', $request->certification);
+        }
+
+        $evaluations = $pendingQuery->latest()->paginate(10, ['*'], 'pending_page')->withQueryString();
+
+        // 2. History Evaluasi yang Sudah Disetujui Final oleh HSE CT
+        $historyQuery = FinalEvaluation::with(['trainer', 'trainee', 'pjoApprover', 'hseApprover'])
+            ->where('status', 'hse_approved');
+
+        if ($request->filled('search')) {
+            $term = $request->search;
+            $historyQuery->where(function ($q) use ($term) {
+                $q->where('nama_operator', 'like', "%{$term}%")
+                    ->orWhere('perusahaan', 'like', "%{$term}%")
+                    ->orWhereHas('trainee', fn ($u) => $u->where('sid', 'like', "%{$term}%")->orWhere('department', 'like', "%{$term}%"))
+                    ->orWhereHas('trainer', fn ($t) => $t->where('name', 'like', "%{$term}%"));
+            });
+        }
+
+        if ($request->filled('trainer_id')) {
+            $historyQuery->where('trainer_id', $request->trainer_id);
+        }
+
+        if ($request->filled('department')) {
+            $historyQuery->whereHas('trainee', fn ($u) => $u->where('department', $request->department));
+        }
+
+        if ($request->filled('certification')) {
+            $historyQuery->where('jenis_sertifikasi', $request->certification);
+        }
+
+        $historyEvaluations = $historyQuery->latest('hse_approved_at')->paginate(10, ['*'], 'history_page')->withQueryString();
+
+        // 3. Rekap Trainer yang evaluasinya sudah disahkan HSE CT
+        $approvedEvals = FinalEvaluation::where('status', 'hse_approved')
+            ->with('trainer')
+            ->get();
+
+        $trainerRecap = $approvedEvals->groupBy('trainer_id')->map(function ($group) {
+            $first = $group->first();
+            return [
+                'trainer_id' => $first->trainer_id,
+                'trainer_name' => $first->trainer->name ?? 'Trainer Tidak Ditemukan',
+                'trainer_sid' => $first->trainer->sid ?? '-',
+                'total_approved' => $group->count(),
+                'latest_approved_at' => $group->max('hse_approved_at'),
+            ];
+        })->sortByDesc('total_approved')->values();
+
+        $trainers = User::where('role', 'trainer')->orderBy('name')->get();
+        $departments = User::whereNotNull('department')->where('department', '!=', '')->distinct()->pluck('department');
+        $certifications = PhaseService::CERTIFICATIONS;
 
         $counts = [
             'pending' => FinalEvaluation::where('status', 'pjo_approved')->count(),
             'completed' => FinalEvaluation::where('status', 'hse_approved')->count(),
+            'total_history' => FinalEvaluation::where('status', 'hse_approved')->count(),
         ];
 
-        return view('evaluation-flow.hse-dashboard', compact('evaluations', 'counts'));
+        return view('evaluation-flow.hse-dashboard', compact(
+            'evaluations', 'historyEvaluations', 'counts', 'activeTab',
+            'trainers', 'departments', 'certifications', 'trainerRecap'
+        ));
     }
 
     public function hseApprove(Request $request, $id)
