@@ -291,13 +291,21 @@ class EvaluationFlowController extends Controller
         }
         if ($request->filled('search')) {
             $term = $request->search;
-            $query->where(fn ($q) => $q->where('name', 'like', "%{$term}%")->orWhere('sid', 'like', "%{$term}%"));
+            $query->where(fn ($q) => $q->where('name', 'like', "%{$term}%")
+                ->orWhere('sid', 'like', "%{$term}%")
+                ->orWhere('company', 'like', "%{$term}%")
+                ->orWhere('department', 'like', "%{$term}%"));
         }
         if ($request->filled('certification')) {
             $query->where('certification', $request->certification);
         }
+        if ($request->filled('department')) {
+            $query->where('department', $request->department);
+        }
 
-        $trainees = $query->with('equipmentCategory')->get()->map(function ($t) {
+        $allTrainees = $query->with('equipmentCategory')->get();
+
+        $trainees = $allTrainees->map(function ($t) {
             $cert = $t->certification ?? 'Green';
             $seq = PhaseService::sequence($cert);
             $currentKey = $t->currentPhaseKey();
@@ -322,6 +330,9 @@ class EvaluationFlowController extends Controller
                 'name' => $t->name,
                 'sid' => $t->sid,
                 'certification' => $cert,
+                'company' => $t->company,
+                'department' => $t->department,
+                'equipment_category_name' => $t->equipmentCategory->name ?? '-',
                 'current_phase_label' => $t->currentPhaseMeta()['label'] ?? $currentKey,
                 'eligible' => $t->isPhaseEligible(),
                 'hm' => $t->hmProgress(),
@@ -334,6 +345,32 @@ class EvaluationFlowController extends Controller
 
         $certifications = PhaseService::CERTIFICATIONS;
 
-        return view('evaluation-flow.monitoring', compact('trainees', 'certifications', 'user'));
+        $departments = User::whereNotNull('department')
+            ->where('department', '!=', '')
+            ->distinct()
+            ->orderBy('department')
+            ->pluck('department');
+
+        // Analytics data for interactive charts
+        $analytics = [
+            'total_trainees' => $trainees->count(),
+            'eligible_count' => $trainees->where('eligible', true)->count(),
+            'in_progress_count' => $trainees->where('eligible', false)->count(),
+            'total_evaluations' => $trainees->sum('evaluations_count'),
+            'completed_evaluations' => $trainees->sum('completed_count'),
+            'cert_distribution' => [
+                'labels' => ['Green', 'Skill-up', 'Experience Internal', 'Experience External'],
+                'data' => [
+                    $trainees->where('certification', 'Green')->count(),
+                    $trainees->where('certification', 'Skill-up')->count(),
+                    $trainees->where('certification', 'Experience_internal')->count(),
+                    $trainees->where('certification', 'Experience_external')->count(),
+                ],
+            ],
+            'phase_distribution' => $trainees->groupBy('current_phase_label')->map->count(),
+            'dept_distribution' => $trainees->groupBy(fn ($t) => $t['department'] ?: 'Belum diisi')->map->count(),
+        ];
+
+        return view('evaluation-flow.monitoring', compact('trainees', 'certifications', 'departments', 'user', 'analytics'));
     }
 }

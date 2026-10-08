@@ -1,13 +1,25 @@
 <x-app-layout>
     <x-slot name="title">Detail Dokumen - {{ $trainee->name }}</x-slot>
 
-    <div class="mb-4 sm:mb-6 bg-gradient-to-r from-[#1e3a8a] to-[#1d4ed8] p-4 sm:p-6 rounded-2xl shadow-md text-white border border-blue-900 flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4">
+    <div class="mb-4 sm:mb-6 bg-gradient-to-r from-[#1e3a8a] via-[#1d4ed8] to-[#2563eb] p-5 sm:p-6 rounded-3xl shadow-lg text-white border border-blue-900 flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4">
         <div>
-            <p class="text-blue-300 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1">Admin Training Centre</p>
+            <div class="flex items-center gap-2 mb-1">
+                <p class="text-blue-300 text-[10px] sm:text-xs font-bold uppercase tracking-widest">Admin Training Centre</p>
+                @if($trainee->department)
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-white/20 text-white border border-white/20">
+                        🏢 {{ $trainee->department }}
+                    </span>
+                @endif
+                @if($trainee->company)
+                    <span class="text-xs text-blue-200">· {{ $trainee->company }}</span>
+                @endif
+            </div>
             <h1 class="text-xl sm:text-2xl font-bold">Detail Dokumen {{ $trainee->name }}</h1>
-            <p class="text-blue-100 text-[10px] sm:text-xs mt-1">{{ $trainee->sid }} · {{ $trainee->certification === 'Green' ? 'Green' : ($trainee->certification === 'Skill-up' ? 'Skill-up' : ($trainee->certification === 'Experience_internal' ? 'Experience Internal' : ($trainee->certification === 'Experience_external' ? 'Experience External' : '-'))) }} · {{ $trainee->currentPhaseMeta()['label'] ?? $trainee->current_phase }}</p>
+            <p class="text-blue-100 text-[10px] sm:text-xs mt-1">
+                SID: {{ $trainee->sid }} · Jalur: {{ $trainee->certification === 'Green' ? 'Green' : ($trainee->certification === 'Skill-up' ? 'Skill-up' : ($trainee->certification === 'Experience_internal' ? 'Experience Internal' : ($trainee->certification === 'Experience_external' ? 'Experience External' : '-'))) }} · Fase: <span class="font-bold text-white">{{ $trainee->currentPhaseMeta()['label'] ?? $trainee->current_phase }}</span>
+            </p>
         </div>
-        <a href="{{ route('training-centre.approvals.index') }}" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/10 border border-white/15 text-white text-xs font-bold hover:bg-white/20 transition min-h-[44px]">
+        <a href="{{ route('training-centre.approvals.index') }}" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition border border-white/20 min-h-[44px]">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
             Kembali ke Dashboard
         </a>

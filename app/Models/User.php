@@ -28,6 +28,7 @@ class User extends Authenticatable
         'certification',
         'current_phase',
         'company',
+        'department',
         'equipment_category_id',
         'equipment_number',
         'initial_hm_day',

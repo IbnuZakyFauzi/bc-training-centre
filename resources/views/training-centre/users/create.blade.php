@@ -99,6 +99,16 @@
                             @error('company')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
                         </div>
                         <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Departemen</label>
+                            <select name="department" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
+                                <option value="">Pilih Departemen</option>
+                                <option value="CHCPP" {{ old('department') === 'CHCPP' ? 'selected' : '' }}>CHCPP</option>
+                                <option value="RIM" {{ old('department') === 'RIM' ? 'selected' : '' }}>RIM</option>
+                                <option value="HRGS" {{ old('department') === 'HRGS' ? 'selected' : '' }}>HRGS</option>
+                            </select>
+                            @error('department')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
                             <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Tipe Alat</label>
                             <select name="equipment_category_id" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
                                 <option value="">Pilih tipe alat</option>

@@ -43,7 +43,14 @@ class TrainerReviewController extends Controller
         if ($request->filled('search')) {
             $term = $request->search;
             $query->where(fn ($q) => $q->where('logbook_number', 'like', "%{$term}%")
-                ->orWhereHas('trainee', fn ($u) => $u->where('name', 'like', "%{$term}%")->orWhere('sid', 'like', "%{$term}%")));
+                ->orWhereHas('trainee', fn ($u) => $u->where('name', 'like', "%{$term}%")
+                    ->orWhere('sid', 'like', "%{$term}%")
+                    ->orWhere('company', 'like', "%{$term}%")
+                    ->orWhere('department', 'like', "%{$term}%")));
+        }
+
+        if ($request->filled('department')) {
+            $query->whereHas('trainee', fn ($u) => $u->where('department', $request->department));
         }
 
         $logbooks = $query->latest('submitted_at')->paginate(10)->withQueryString();
@@ -86,7 +93,10 @@ class TrainerReviewController extends Controller
                 return [
                     'id' => $trainee->id,
                     'name' => $trainee->name,
+                    'sid' => $trainee->sid,
                     'certification' => $trainee->certification,
+                    'department' => $trainee->department,
+                    'company' => $trainee->company,
                     'phase' => $phase,
                     'phase_label' => $trainee->currentPhaseMeta()['label'] ?? '',
                     'eligible' => $trainee->isPhaseEligible() && ! $trainee->isMonthlyEvaluationLocked() && ! $hasOpenEval,
@@ -100,6 +110,10 @@ class TrainerReviewController extends Controller
         $evaluationQuery = \App\Models\FinalEvaluation::with(['trainer', 'trainee'])
             ->where('trainer_id', $trainer->id)
             ->whereNotIn('status', ['hse_approved']);
+
+        if ($request->filled('department')) {
+            $evaluationQuery->whereHas('trainee', fn ($u) => $u->where('department', $request->department));
+        }
 
         $evaluationStatus = $request->get('eval_status', 'submitted');
 
@@ -123,9 +137,11 @@ class TrainerReviewController extends Controller
             'pjo_approved' => \App\Models\FinalEvaluation::where('trainer_id', $trainer->id)->where('status', 'pjo_approved')->count(),
         ];
 
+        $departments = User::whereNotNull('department')->where('department', '!=', '')->distinct()->orderBy('department')->pluck('department');
+
         return view('trainer.reviews.index', compact(
             'trainer', 'logbooks', 'counts', 'activeStatus', 'eligibleTrainees',
-            'evaluationQueue', 'evaluationCounts', 'evaluationStatus'
+            'evaluationQueue', 'evaluationCounts', 'evaluationStatus', 'departments'
         ));
     }
 

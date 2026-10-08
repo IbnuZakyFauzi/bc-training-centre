@@ -37,17 +37,29 @@
                 <h2 class="font-bold text-slate-800 text-sm sm:text-base">Daftar Pengguna</h2>
                 <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Kelola akun trainee, trainer, dan pengawas.</p>
             </div>
-            <form class="flex flex-col sm:flex-row gap-2" method="GET">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari SID, nama, atau email..." class="text-xs rounded-xl border-slate-300 focus:border-brand-500 focus:ring-brand-500 min-h-[44px]">
+            <form class="flex flex-col sm:flex-row gap-2 flex-wrap items-stretch sm:items-center" method="GET">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari SID, nama, email, departemen..." class="text-xs rounded-xl border-slate-300 focus:border-brand-500 focus:ring-brand-500 min-h-[44px]">
                 <select name="role" class="text-xs rounded-xl border-slate-300 min-h-[44px]">
                     <option value="">Semua Role</option>
                     <option value="trainee" {{ request('role') === 'trainee' ? 'selected' : '' }}>Trainee</option>
                     <option value="trainer" {{ request('role') === 'trainer' ? 'selected' : '' }}>Trainer</option>
                     <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin TC</option>
-                <option value="pjo" {{ request('role') === 'pjo' ? 'selected' : '' }}>PJO</option>
-                <option value="hse_ct" {{ request('role') === 'hse_ct' ? 'selected' : '' }}>HSE CT</option>
+                    <option value="pjo" {{ request('role') === 'pjo' ? 'selected' : '' }}>PJO</option>
+                    <option value="hse_ct" {{ request('role') === 'hse_ct' ? 'selected' : '' }}>HSE CT</option>
                 </select>
-                <button class="px-4 py-2.5 rounded-xl bg-[#1e3a8a] text-white text-xs font-bold min-h-[44px]">Filter</button>
+                <select name="department" class="text-xs rounded-xl border-slate-300 min-h-[44px]">
+                    <option value="">Semua Departemen</option>
+                    @php
+                        $deptOptions = collect(['CHCPP', 'RIM', 'HRGS'])->merge($departments ?? [])->filter()->unique()->values();
+                    @endphp
+                    @foreach($deptOptions as $d)
+                        <option value="{{ $d }}" {{ request('department') === $d ? 'selected' : '' }}>{{ $d }}</option>
+                    @endforeach
+                </select>
+                <button class="px-4 py-2.5 rounded-xl bg-[#1e3a8a] hover:bg-blue-900 text-white text-xs font-bold min-h-[44px] transition">Filter</button>
+                @if(request()->hasAny(['search', 'role', 'department']))
+                    <a href="{{ route('training-centre.users.index') }}" class="px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold min-h-[44px] inline-flex items-center justify-center transition">Reset</a>
+                @endif
             </form>
         </div>
         <div class="overflow-x-auto">
@@ -55,7 +67,7 @@
                 <thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500">
                     <tr>
                         <th class="px-5 py-3">SID / Nama</th>
-                        <th class="px-5 py-3">Email</th>
+                        <th class="px-5 py-3">Departemen & Perusahaan</th>
                         <th class="px-5 py-3">Role</th>
                         <th class="px-5 py-3">Tipe Trainer</th>
                         <th class="px-5 py-3">Fase Evaluasi</th>
@@ -66,10 +78,33 @@
                     @forelse($users as $user)
                         <tr class="hover:bg-blue-50/30">
                             <td class="px-5 py-4">
-                                <p class="text-xs font-bold text-slate-800">{{ $user->sid }}</p>
-                                <p class="text-[11px] text-slate-500 mt-0.5">{{ $user->name }}</p>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-slate-100 text-[#1e3a8a] font-bold text-xs flex items-center justify-center border border-slate-200">
+                                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-800">{{ $user->sid }}</p>
+                                        <p class="text-[11px] text-slate-500 mt-0.5">{{ $user->name }}</p>
+                                        @if($user->email)
+                                            <p class="text-[10px] text-slate-400">{{ $user->email }}</p>
+                                        @endif
+                                    </div>
+                                </div>
                             </td>
-                            <td class="px-5 py-4 text-xs text-slate-600">{{ $user->email }}</td>
+                            <td class="px-5 py-4">
+                                @if($user->department || $user->company)
+                                    @if($user->department)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-[#1e3a8a] border border-blue-200 mb-1">
+                                            🏢 {{ $user->department }}
+                                        </span>
+                                    @endif
+                                    @if($user->company)
+                                        <p class="text-[10px] text-slate-500 truncate max-w-[180px]" title="{{ $user->company }}">{{ $user->company }}</p>
+                                    @endif
+                                @else
+                                    <span class="text-[11px] text-slate-400">-</span>
+                                @endif
+                            </td>
                             <td class="px-5 py-4">
                                 @php
                                     $roleBadge = match($user->role) {
@@ -94,13 +129,12 @@
                                 </span>
                             </td>
                             <td class="px-5 py-4">
-                                <span class="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-bold {{ $roleBadge }}">
-                                    {{ $roleLabel }}
-                                </span>
                                 @if($user->role === 'trainer' && $user->trainer_type)
-                                    <span class="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 text-slate-700 ml-1">
+                                    <span class="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 text-slate-700">
                                          {{ $user->trainer_type === 'instruktur' ? 'Instruktur' : ($user->trainer_type === 'pengawas' ? 'Pengawas' : ($user->trainer_type === 'operator_pendamping' ? 'Operator Pendamping' : $user->trainer_type)) }}
                                     </span>
+                                @else
+                                    <span class="text-[11px] text-slate-400">-</span>
                                 @endif
                             </td>
                             <td class="px-5 py-4">

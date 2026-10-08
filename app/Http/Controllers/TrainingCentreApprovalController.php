@@ -47,17 +47,26 @@ class TrainingCentreApprovalController extends Controller
         if ($request->filled('search')) {
             $term = $request->search;
             $query->where(fn ($q) => $q->where('logbook_number', 'like', "%{$term}%")
-                ->orWhereHas('trainee', fn ($u) => $u->where('name', 'like', "%{$term}%")->orWhere('sid', 'like', "%{$term}%")));
+                ->orWhereHas('trainee', fn ($u) => $u->where('name', 'like', "%{$term}%")
+                    ->orWhere('sid', 'like', "%{$term}%")
+                    ->orWhere('company', 'like', "%{$term}%")
+                    ->orWhere('department', 'like', "%{$term}%")));
         }
+
+        if ($request->filled('department')) {
+            $query->whereHas('trainee', fn ($u) => $u->where('department', $request->department));
+        }
+
         $logbooks = $query->latest('updated_at')->paginate(10)->withQueryString();
 
         $groupedFinalized = collect();
         if ($activeStatus === 'finalized') {
             $groupedFinalized = OjtLogbook::query()
                 ->select('id', 'trainee_id', 'trainer_id', 'status', 'training_centre_decided_at', 'updated_at')
-                ->with(['trainee' => fn ($q) => $q->select('id', 'name', 'sid'), 'trainer' => fn ($q) => $q->select('id', 'name')])
+                ->with(['trainee' => fn ($q) => $q->select('id', 'name', 'sid', 'department', 'company'), 'trainer' => fn ($q) => $q->select('id', 'name')])
                 ->where('status', 'final_approved')
                 ->whereNotNull('training_centre_decided_at')
+                ->when($request->filled('department'), fn ($q) => $q->whereHas('trainee', fn ($u) => $u->where('department', $request->department)))
                 ->latest('updated_at')
                 ->get()
                 ->groupBy('trainee_id')
@@ -93,7 +102,9 @@ class TrainingCentreApprovalController extends Controller
             ->map(fn ($g) => $g->count())
             ->sortKeys();
 
-        return view('training-centre.approvals.index', compact('reviewer', 'logbooks', 'counts', 'activeStatus', 'groupedFinalized', 'pendingEvaluations', 'evalCounts', 'phaseRecap'));
+        $departments = User::whereNotNull('department')->where('department', '!=', '')->distinct()->orderBy('department')->pluck('department');
+
+        return view('training-centre.approvals.index', compact('reviewer', 'logbooks', 'counts', 'activeStatus', 'groupedFinalized', 'pendingEvaluations', 'evalCounts', 'phaseRecap', 'departments'));
     }
 
     public function show($id)

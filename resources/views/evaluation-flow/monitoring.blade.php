@@ -1,95 +1,389 @@
 <x-app-layout>
     <x-slot name="title">Monitoring Evaluasi Multi-Fase</x-slot>
 
-    <div class="mb-4 sm:mb-8 bg-gradient-to-r from-[#1e3a8a] to-[#1d4ed8] p-4 sm:p-6 rounded-2xl shadow-md text-white border border-blue-900 flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4">
-        <div>
-            <p class="text-blue-300 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1">{{ $user->isTrainingCentre() ? 'Admin Training Centre' : 'Trainer' }}</p>
-            <h1 class="text-xl sm:text-2xl font-bold">Monitoring Progress Evaluasi Multi-Fase</h1>
-            <p class="text-blue-100 text-[10px] sm:text-xs mt-1">{{ $user->isTrainingCentre() ? 'Seluruh trainee terdaftar.' : 'Hanya trainee yang Anda bimbing (instruktur/pengawas/operator pendamping).' }}</p>
+    <!-- Header Section -->
+    <div class="mb-6 bg-gradient-to-r from-[#1e3a8a] via-[#1d4ed8] to-[#2563eb] p-5 sm:p-7 rounded-3xl shadow-lg text-white border border-blue-900/50 relative overflow-hidden">
+        <div class="absolute right-0 top-0 -mt-10 -mr-10 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-400/20 text-blue-200 border border-blue-300/30 tracking-wider uppercase">
+                        {{ $user->isTrainingCentre() ? 'Admin Training Centre' : 'Trainer Evaluator' }}
+                    </span>
+                    <span class="text-blue-200 text-xs">·</span>
+                    <span class="text-blue-100 text-xs font-semibold">Live Monitoring</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">Monitoring Progress Evaluasi Multi-Fase</h1>
+                <p class="text-blue-100/90 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
+                    {{ $user->isTrainingCentre() ? 'Pantau akumulasi jam terbang (HM), kelayakan fase, dan status persetujuan evaluasi seluruh trainee secara komprehensif.' : 'Pantau progress jam terbang dan kelayakan evaluasi multi-fase seluruh trainee bimbingan Anda.' }}
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 px-4 py-3 text-xs shadow-inner">
+                    <p class="text-blue-200 text-[11px] font-medium">User Login</p>
+                    <p class="font-bold text-white mt-0.5 text-sm">{{ $user->name }}</p>
+                    <p class="text-[10px] text-blue-200/80">{{ $user->sid }}</p>
+                </div>
+                @if($user->isTrainingCentre())
+                    <a href="{{ route('training-centre.dashboard') }}" class="px-4 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-bold transition border border-white/20 text-center min-h-[44px] inline-flex items-center justify-center">
+                        Dashboard Logbook
+                    </a>
+                @else
+                    <a href="{{ route('trainer.dashboard') }}" class="px-4 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-bold transition border border-white/20 text-center min-h-[44px] inline-flex items-center justify-center">
+                        Review Logbook
+                    </a>
+                @endif
+            </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-4 sm:mb-7">
-        <form method="GET" class="p-3 sm:p-4 flex flex-col sm:flex-row gap-2 sm:gap-3 border-b border-slate-100">
-            <input name="search" value="{{ request('search') }}" placeholder="Cari nama / SID..." class="text-xs rounded-xl border-slate-300 focus:border-brand-500 focus:ring-brand-500 flex-1 min-h-[44px]">
-            <select name="certification" class="text-xs rounded-xl border-slate-300 focus:border-brand-500 focus:ring-brand-500 min-h-[44px]">
-                <option value="">Semua Sertifikasi</option>
-                @foreach($certifications as $c)
-                    <option value="{{ $c }}" {{ request('certification') === $c ? 'selected' : '' }}>{{ $c }}</option>
-                @endforeach
-            </select>
-            <button class="px-5 py-2.5 rounded-xl bg-[#1e3a8a] text-white text-xs font-bold min-h-[44px]">Filter</button>
+    <!-- Analytics KPI Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition-all">
+            <div class="flex items-center justify-between">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Trainee</p>
+                <div class="w-9 h-9 rounded-xl bg-blue-50 text-[#1e3a8a] flex items-center justify-center font-bold">
+                    👥
+                </div>
+            </div>
+            <p class="text-3xl font-black text-slate-800 mt-2">{{ $analytics['total_trainees'] }}</p>
+            <p class="text-[11px] text-slate-400 mt-1">Peserta OJT aktif</p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition-all">
+            <div class="flex items-center justify-between">
+                <p class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Siap Dievaluasi</p>
+                <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                    ✓
+                </div>
+            </div>
+            <p class="text-3xl font-black text-emerald-600 mt-2">{{ $analytics['eligible_count'] }}</p>
+            <p class="text-[11px] text-slate-400 mt-1">Syarat HM terpenuhi</p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition-all">
+            <div class="flex items-center justify-between">
+                <p class="text-xs font-bold text-amber-600 uppercase tracking-wider">Akumulasi HM</p>
+                <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                    ⏱
+                </div>
+            </div>
+            <p class="text-3xl font-black text-amber-600 mt-2">{{ $analytics['in_progress_count'] }}</p>
+            <p class="text-[11px] text-slate-400 mt-1">Sedang proses OJT</p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition-all">
+            <div class="flex items-center justify-between">
+                <p class="text-xs font-bold text-[#1e3a8a] uppercase tracking-wider">Evaluasi Selesai</p>
+                <div class="w-9 h-9 rounded-xl bg-indigo-50 text-[#1e3a8a] flex items-center justify-center font-bold">
+                    📊
+                </div>
+            </div>
+            <p class="text-3xl font-black text-[#1e3a8a] mt-2">{{ $analytics['completed_evaluations'] }}</p>
+            <p class="text-[11px] text-slate-400 mt-1">Disetujui final HSE CT</p>
+        </div>
+    </div>
+
+    <!-- Interactive Charts Section -->
+    @if($trainees->isNotEmpty())
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
+            <!-- Chart 1: Komposisi Sertifikasi -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-800">Distribusi Sertifikasi</h3>
+                        <p class="text-[11px] text-slate-400">Klasifikasi jalur masuk trainee</p>
+                    </div>
+                    <span class="text-xs font-bold text-[#1e3a8a] bg-blue-50 px-2 py-1 rounded-lg">Realtime</span>
+                </div>
+                <div id="chart-certification" class="min-h-[220px]"></div>
+            </div>
+
+            <!-- Chart 2: Distribusi Departemen -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-800">Distribusi Departemen</h3>
+                        <p class="text-[11px] text-slate-400">Sebaran departemen trainee</p>
+                    </div>
+                    <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-lg">Departemen</span>
+                </div>
+                <div id="chart-department" class="min-h-[220px]"></div>
+            </div>
+
+            <!-- Chart 3: Posisi Fase & Kelayakan -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-800">Status Kesiapan Evaluasi</h3>
+                        <p class="text-[11px] text-slate-400">Rasio eligible vs dalam akumulasi</p>
+                    </div>
+                    <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg">Kesiapan</span>
+                </div>
+                <div id="chart-readiness" class="min-h-[220px]"></div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Search & Filter Toolbar -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+        <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div>
+                <h2 class="text-sm font-extrabold text-slate-800 flex items-center gap-2">
+                    <span>🔍</span> Filter & Pencarian Trainee
+                </h2>
+                <p class="text-[11px] text-slate-500 mt-0.5">Saring data trainee berdasarkan kriteria di bawah ini.</p>
+            </div>
+            @if(request()->hasAny(['search', 'certification', 'department']))
+                <a href="{{ url()->current() }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 text-xs font-bold transition self-start md:self-auto">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    Reset Filter
+                </a>
+            @endif
+        </div>
+        <form method="GET" class="p-4 bg-slate-50/50 flex flex-col sm:flex-row gap-2.5 flex-wrap items-stretch sm:items-center">
+            <div class="flex-1 min-w-[220px]">
+                <input name="search" value="{{ request('search') }}" placeholder="Cari nama, SID, perusahaan, departemen..." class="w-full text-xs rounded-xl border-slate-300 focus:border-brand-500 focus:ring-brand-500 min-h-[44px] bg-white">
+            </div>
+            <div class="w-full sm:w-auto min-w-[180px]">
+                <select name="certification" class="w-full text-xs rounded-xl border-slate-300 focus:border-brand-500 focus:ring-brand-500 min-h-[44px] bg-white">
+                    <option value="">Semua Sertifikasi</option>
+                    @foreach($certifications as $c)
+                        <option value="{{ $c }}" {{ request('certification') === $c ? 'selected' : '' }}>
+                            {{ $c === 'Green' ? 'Green' : ($c === 'Skill-up' ? 'Skill-up' : ($c === 'Experience_internal' ? 'Experience Internal' : ($c === 'Experience_external' ? 'Experience External' : $c))) }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="w-full sm:w-auto min-w-[180px]">
+                <select name="department" class="w-full text-xs rounded-xl border-slate-300 focus:border-brand-500 focus:ring-brand-500 min-h-[44px] bg-white">
+                    <option value="">Semua Departemen</option>
+                    @php
+                        $monitoringDeptOptions = collect(['CHCPP', 'RIM', 'HRGS'])->merge($departments ?? [])->filter()->unique()->values();
+                    @endphp
+                    @foreach($monitoringDeptOptions as $d)
+                        <option value="{{ $d }}" {{ request('department') === $d ? 'selected' : '' }}>{{ $d }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-[#1e3a8a] hover:bg-blue-900 text-white text-xs font-bold min-h-[44px] transition shadow-sm inline-flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                Terapkan Filter
+            </button>
         </form>
     </div>
 
-    <div class="space-y-5">
+    <!-- Trainee Progression Cards List -->
+    <div class="space-y-4 sm:space-y-5">
         @forelse($trainees as $t)
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-slate-100">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-11 h-11 rounded-full bg-[#2563eb] flex items-center justify-center text-white font-bold">
+            <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition-all overflow-hidden">
+                <!-- Card Header -->
+                <div class="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-gradient-to-r from-slate-50/50 to-white border-b border-slate-100">
+                    <div class="flex items-start sm:items-center gap-3.5">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#1e3a8a] to-[#2563eb] flex items-center justify-center text-white font-extrabold text-sm shadow-md flex-shrink-0">
                             {{ collect(explode(' ', $t['name']))->take(2)->map(fn($p)=>strtoupper(substr($p,0,1)))->implode('') }}
                         </div>
                         <div>
-                            <p class="text-base font-extrabold text-slate-800">{{ $t['name'] }}</p>
-                            <p class="text-xs text-slate-500">{{ $t['sid'] }} · {{ $t['certification'] === 'Green' ? 'Green' : ($t['certification'] === 'Skill-up' ? 'Skill-up' : ($t['certification'] === 'Experience_internal' ? 'Experience Internal' : ($t['certification'] === 'Experience_external' ? 'Experience External' : '-'))) }} · Fase Saat Ini: <span class="font-bold text-[#1e3a8a]">{{ $t['current_phase_label'] }}</span></p>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h2 class="text-base font-extrabold text-slate-800">{{ $t['name'] }}</h2>
+                                <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-bold border border-slate-200">
+                                    SID: {{ $t['sid'] }}
+                                </span>
+                                @if($t['department'])
+                                    <span class="px-2 py-0.5 rounded-md bg-blue-50 text-[#1e3a8a] text-[10px] font-extrabold border border-blue-200 flex items-center gap-1">
+                                        🏢 {{ $t['department'] }}
+                                    </span>
+                                @endif
+                                @if($t['company'])
+                                    <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-semibold">
+                                        {{ $t['company'] }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 mt-1.5">
+                                <span class="inline-flex items-center gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                    Sertifikasi: <strong class="text-slate-700">{{ $t['certification'] === 'Green' ? 'Green' : ($t['certification'] === 'Skill-up' ? 'Skill-up' : ($t['certification'] === 'Experience_internal' ? 'Experience Internal' : ($t['certification'] === 'Experience_external' ? 'Experience External' : $t['certification']))) }}</strong>
+                                </span>
+                                <span>·</span>
+                                <span>Tipe Alat: <strong class="text-slate-700">{{ $t['equipment_category_name'] }}</strong></span>
+                                <span>·</span>
+                                <span>Fase Saat Ini: <span class="font-extrabold text-[#1e3a8a] bg-blue-50 px-2 py-0.5 rounded">{{ $t['current_phase_label'] }}</span></span>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-4">
+
+                    <!-- Right Status Badges & Action -->
+                    <div class="flex flex-wrap items-center gap-3 self-start lg:self-auto">
                         @if($t['eligible'])
-                            <span class="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#2563eb] text-white">Siap Dievaluasi</span>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 text-white shadow-sm">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                Siap Dievaluasi
+                            </span>
+                            @if($user->isTrainer())
+                                <a href="{{ route('trainer.final-evaluations.create', ['trainee' => $t['id']]) }}" class="px-3 py-1.5 rounded-xl bg-[#1e3a8a] hover:bg-blue-900 text-white text-xs font-bold transition shadow-sm inline-flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                    Isi Evaluasi
+                                </a>
+                            @endif
                         @else
-                            <span class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600">Akumulasi HM</span>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                                Akumulasi HM
+                            </span>
                         @endif
-                        <div class="text-right">
-                            <p class="text-xs text-slate-500">Evaluasi Selesai</p>
-                            <p class="text-lg font-extrabold text-[#1e3a8a]">{{ $t['completed_count'] }} <span class="text-xs font-normal text-slate-400">/ {{ $t['evaluations_count'] }} total</span></p>
+
+                        <div class="text-right pl-3 border-l border-slate-200">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Evaluasi Selesai</p>
+                            <p class="text-base font-black text-[#1e3a8a]">
+                                {{ $t['completed_count'] }} <span class="text-xs font-normal text-slate-400">/ {{ $t['evaluations_count'] }}</span>
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                @if(($t['progress']['total'] ?? 0) < 100)
-                    <div class="px-5 pt-4">
-                        <div class="flex justify-between text-xs text-slate-600 mb-1">
-                            <span>Progress HM Fase {{ $t['current_phase_label'] }}</span>
-                            <span class="font-bold">{{ number_format($t['hm']['total'], 1) }} jam ({{ $t['progress']['total'] }}%)</span>
+                <!-- HM Progress Bar Section -->
+                <div class="px-5 pt-4 pb-2 bg-slate-50/40">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-xs text-slate-600 mb-1.5">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-slate-700">Progress Jam Terbang (HM) - Fase {{ $t['current_phase_label'] }}</span>
+                            <span class="text-[11px] text-slate-400">(Siang: {{ number_format($t['hm']['day'], 1) }}h | Malam: {{ number_format($t['hm']['night'], 1) }}h)</span>
                         </div>
-                        <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                            <div class="h-full bg-[#2563eb]" style="width: {{ $t['progress']['total'] }}%"></div>
+                        <div class="flex items-center gap-2 font-black text-[#1e3a8a]">
+                            <span>{{ number_format($t['hm']['total'], 1) }} HM</span>
+                            <span class="px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 text-[10px] font-extrabold">{{ $t['progress']['total'] }}%</span>
                         </div>
                     </div>
-                @endif
+                    <div class="h-3 bg-slate-200/80 rounded-full overflow-hidden p-0.5 flex">
+                        <div class="h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full transition-all duration-500" style="width: {{ min(100, $t['progress']['total']) }}%"></div>
+                    </div>
+                </div>
 
+                <!-- Multi-Phase Grid Timeline -->
                 <div class="p-4 sm:p-5">
-                    <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Rincian Evaluasi per Fase</p>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Rangkaian Fase Evaluasi OJT</p>
+                        <span class="text-[10px] text-slate-400">Titik biru menandakan fase aktif saat ini</span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2.5">
                         @foreach($t['phases'] as $p)
-                            <div class="rounded-xl border p-3 {{ $p['is_current'] ? 'border-[#2563eb] bg-[#2563eb]/5' : 'border-slate-200' }}">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-[11px] font-bold text-slate-700">{{ $p['label'] }}</span>
-                                    @if($p['is_current'])<span class="text-[9px] font-extrabold text-[#2563eb]">●</span>@endif
+                            @php
+                                $isCurrent = $p['is_current'];
+                                $isCompleted = $p['completed'] > 0;
+                                $isPending = $p['pending'] > 0;
+                                $isRejected = $p['rejected'] > 0;
+                            @endphp
+                            <div class="rounded-xl border p-3 transition-all relative {{ $isCurrent ? 'border-[#2563eb] bg-blue-50/40 shadow-sm ring-1 ring-blue-400/50' : ($isCompleted ? 'border-emerald-200 bg-emerald-50/20' : 'border-slate-200 bg-white') }}">
+                                <div class="flex items-center justify-between gap-1 mb-1.5">
+                                    <span class="text-xs font-bold {{ $isCurrent ? 'text-[#1e3a8a]' : ($isCompleted ? 'text-emerald-800' : 'text-slate-700') }} truncate">
+                                        {{ $p['label'] }}
+                                    </span>
+                                    @if($isCurrent)
+                                        <span class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-ping" title="Fase Aktif"></span>
+                                    @elseif($isCompleted)
+                                        <span class="text-emerald-600 font-bold text-xs" title="Selesai">✓</span>
+                                    @endif
                                 </div>
-                                <p class="text-[10px] text-slate-500 mt-0.5">Selesai: <span class="font-bold text-[#2563eb]">{{ $p['completed'] }}</span></p>
-                                @if($p['pending'] > 0)
-                                    <p class="text-[10px] text-amber-600">Proses: {{ $p['pending'] }}</p>
-                                @endif
-                                @if($p['rejected'] > 0)
-                                    <p class="text-[10px] text-red-600">Ditolak: {{ $p['rejected'] }}</p>
-                                @endif
-                                @if($p['total'] == 0)
-                                    <p class="text-[10px] text-slate-300">Belum ada</p>
-                                @endif
+
+                                <div class="space-y-0.5 text-[10px]">
+                                    @if($isCompleted)
+                                        <p class="font-bold text-emerald-700 flex items-center gap-1">
+                                            <span>✓ Selesai Final</span> ({{ $p['completed'] }})
+                                        </p>
+                                    @endif
+                                    @if($isPending)
+                                        <p class="font-bold text-amber-600 flex items-center gap-1">
+                                            <span>⏳ Approval:</span> {{ $p['pending'] }}
+                                        </p>
+                                    @endif
+                                    @if($isRejected)
+                                        <p class="font-bold text-rose-600 flex items-center gap-1">
+                                            <span>⚠️ Revisi:</span> {{ $p['rejected'] }}
+                                        </p>
+                                    @endif
+                                    @if($p['total'] == 0 && !$isCurrent)
+                                        <p class="text-slate-400 font-medium">Belum dimulai</p>
+                                    @elseif($p['total'] == 0 && $isCurrent)
+                                        <p class="text-blue-600 font-semibold">Sedang berjalan</p>
+                                    @endif
+                                </div>
                             </div>
                         @endforeach
                     </div>
                 </div>
             </div>
         @empty
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-10 text-center text-slate-400 text-sm">
-                Tidak ada trainee yang sesuai.
+            <div class="bg-white rounded-3xl border border-slate-200 p-12 text-center shadow-sm">
+                <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3 text-2xl">
+                    🔍
+                </div>
+                <h3 class="text-base font-bold text-slate-700">Tidak ada trainee yang sesuai filter</h3>
+                <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Coba ubah kata kunci pencarian, pilihan sertifikasi, atau filter departemen.</p>
+                <a href="{{ url()->current() }}" class="inline-flex mt-4 px-4 py-2 rounded-xl bg-[#1e3a8a] text-white text-xs font-bold hover:bg-blue-900 transition">
+                    Reset Semua Filter
+                </a>
             </div>
         @endforelse
     </div>
+
+    <!-- Chart Script (ApexCharts) -->
+    @if($trainees->isNotEmpty())
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const Apex = window.ApexCharts || ApexCharts;
+                if (!Apex) return;
+
+                // 1. Chart Sertifikasi
+                const certData = @json($analytics['cert_distribution']);
+                const certChart = new Apex(document.querySelector("#chart-certification"), {
+                    series: certData.data,
+                    labels: certData.labels,
+                    chart: { type: 'donut', height: 220, fontFamily: 'inherit' },
+                    colors: ['#22c55e', '#6366f1', '#a855f7', '#3b82f6'],
+                    legend: { position: 'bottom', fontSize: '11px' },
+                    dataLabels: { enabled: true, formatter: (val) => Math.round(val) + '%' },
+                    plotOptions: {
+                        pie: {
+                            donut: {
+                                size: '65%',
+                                labels: {
+                                    show: true,
+                                    total: { show: true, label: 'Total', fontSize: '12px', fontWeight: 700 }
+                                }
+                            }
+                        }
+                    }
+                });
+                certChart.render();
+
+                // 2. Chart Departemen
+                const deptMap = @json($analytics['dept_distribution']);
+                const deptLabels = Object.keys(deptMap);
+                const deptValues = Object.values(deptMap);
+                const deptChart = new Apex(document.querySelector("#chart-department"), {
+                    series: [{ name: 'Trainee', data: deptValues }],
+                    chart: { type: 'bar', height: 220, toolbar: { show: false }, fontFamily: 'inherit' },
+                    colors: ['#1e3a8a'],
+                    plotOptions: { bar: { borderRadius: 6, horizontal: true, distributed: false, dataLabels: { position: 'top' } } },
+                    xaxis: { categories: deptLabels, labels: { style: { fontSize: '10px' } } },
+                    yaxis: { labels: { style: { fontSize: '11px', fontWeight: 600 } } },
+                    dataLabels: { enabled: true, offsetX: 10, style: { fontSize: '11px', colors: ['#1e3a8a'] } },
+                    grid: { strokeDashArray: 3 }
+                });
+                deptChart.render();
+
+                // 3. Chart Kesiapan Evaluasi
+                const readyChart = new Apex(document.querySelector("#chart-readiness"), {
+                    series: [{{ $analytics['eligible_count'] }}, {{ $analytics['in_progress_count'] }}],
+                    labels: ['Siap Dievaluasi', 'Akumulasi HM'],
+                    chart: { type: 'pie', height: 220, fontFamily: 'inherit' },
+                    colors: ['#10b981', '#f59e0b'],
+                    legend: { position: 'bottom', fontSize: '11px' },
+                    dataLabels: { enabled: true }
+                });
+                readyChart.render();
+            });
+        </script>
+    @endif
 </x-app-layout>
-
-

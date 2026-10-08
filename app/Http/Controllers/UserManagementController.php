@@ -6,6 +6,7 @@ use App\Models\TraineePhaseHistory;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class UserManagementController extends Controller
@@ -21,11 +22,17 @@ class UserManagementController extends Controller
             $term = $request->search;
             $query->where(fn ($q) => $q->where('name', 'like', "%{$term}%")
                 ->orWhere('sid', 'like', "%{$term}%")
-                ->orWhere('email', 'like', "%{$term}%"));
+                ->orWhere('email', 'like', "%{$term}%")
+                ->orWhere('company', 'like', "%{$term}%")
+                ->orWhere('department', 'like', "%{$term}%"));
         }
 
         if ($request->filled('role')) {
             $query->where('role', $request->role);
+        }
+
+        if ($request->filled('department')) {
+            $query->where('department', $request->department);
         }
 
         $users = $query->latest()->paginate(20)->withQueryString();
@@ -37,7 +44,13 @@ class UserManagementController extends Controller
             'total' => User::count(),
         ];
 
-        return view('training-centre.users.index', compact('admin', 'users', 'counts'));
+        $departments = User::whereNotNull('department')
+            ->where('department', '!=', '')
+            ->distinct()
+            ->orderBy('department')
+            ->pluck('department');
+
+        return view('training-centre.users.index', compact('admin', 'users', 'counts', 'departments'));
     }
 
     public function create()
@@ -47,8 +60,9 @@ class UserManagementController extends Controller
 
         $trainers = User::where('role', 'trainer')->get()->groupBy('trainer_type');
         $categories = \App\Models\EquipmentCategory::all();
+        $departments = User::whereNotNull('department')->where('department', '!=', '')->distinct()->pluck('department');
 
-        return view('training-centre.users.create', compact('admin', 'trainers', 'categories'));
+        return view('training-centre.users.create', compact('admin', 'trainers', 'categories', 'departments'));
     }
 
     public function store(Request $request)
@@ -71,6 +85,7 @@ class UserManagementController extends Controller
             'assigned_trainers.operator_pendamping.*' => ['exists:users,id'],
             'certification' => ['nullable', Rule::in(['Green', 'Skill-up', 'Experience_internal', 'Experience_external'])],
             'company' => ['nullable', 'string', 'max:255'],
+            'department' => ['nullable', 'string', 'max:255'],
             'equipment_category_id' => ['nullable', 'exists:equipment_categories,id'],
             'initial_hm_day' => ['nullable', 'numeric', 'min:0', 'max:999999.9'],
             'initial_hm_night' => ['nullable', 'numeric', 'min:0', 'max:999999.9'],
@@ -84,6 +99,10 @@ class UserManagementController extends Controller
         $data['must_change_password'] = true;
         $data['initial_hm_day'] = floatval($data['initial_hm_day'] ?? 0);
         $data['initial_hm_night'] = floatval($data['initial_hm_night'] ?? 0);
+
+        if ($data['role'] === 'trainee' && !empty($data['certification'])) {
+            $data['current_phase'] = \App\Services\PhaseService::firstPhase($data['certification']);
+        }
 
         $user = User::create($data);
 
@@ -112,8 +131,9 @@ class UserManagementController extends Controller
             'operator_pendamping' => $user->assignedOperatorPendamping->pluck('id')->toArray(),
         ];
         $categories = \App\Models\EquipmentCategory::all();
+        $departments = User::whereNotNull('department')->where('department', '!=', '')->distinct()->pluck('department');
 
-        return view('training-centre.users.edit', compact('admin', 'user', 'trainers', 'assignedTrainers', 'categories'));
+        return view('training-centre.users.edit', compact('admin', 'user', 'trainers', 'assignedTrainers', 'categories', 'departments'));
     }
 
     public function update(Request $request, $id)
@@ -142,6 +162,7 @@ class UserManagementController extends Controller
             'assigned_trainers.operator_pendamping.*' => ['exists:users,id'],
             'certification' => ['nullable', Rule::in(['Green', 'Skill-up', 'Experience_internal', 'Experience_external'])],
             'company' => ['nullable', 'string', 'max:255'],
+            'department' => ['nullable', 'string', 'max:255'],
             'equipment_category_id' => ['nullable', 'exists:equipment_categories,id'],
             'initial_hm_day' => ['nullable', 'numeric', 'min:0', 'max:999999.9'],
             'initial_hm_night' => ['nullable', 'numeric', 'min:0', 'max:999999.9'],
