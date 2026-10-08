@@ -228,7 +228,7 @@
                         @if($activeStatus === 'finalized')
                             <th class="px-5 py-3">Trainee & Departemen</th>
                             <th class="px-5 py-3">Instruktur</th>
-                            <th class="px-5 py-3">Total Form OJT Disahkan</th>
+                            <th class="px-5 py-3">Total Dokumen Disahkan</th>
                             <th class="px-5 py-3 text-right">Aksi</th>
                         @else
                             <th class="px-5 py-3">Form OJT / Trainee</th>
@@ -241,7 +241,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @if($activeStatus === 'finalized' && isset($groupedFinalized))
-                        @forelse($groupedFinalized as $traineeId => $group)
+                        @forelse($groupedFinalized as $group)
                             <tr class="hover:bg-blue-50/30">
                                 <td class="px-5 py-4">
                                     <p class="text-xs font-bold text-slate-800">{{ $group['trainee']->name ?? '-' }}</p>
@@ -258,15 +258,29 @@
                                     {{ $group['trainer']->name ?? '-' }}
                                 </td>
                                 <td class="px-5 py-4 text-xs text-slate-600">
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
-                                        ✓ {{ $group['count'] }} Form OJT
-                                    </span>
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 font-extrabold text-[11px]">
+                                            <span>✓</span> {{ $group['ojt_count'] ?? $group['count'] ?? 0 }} Form OJT
+                                        </span>
+                                        @if(($group['eval_count'] ?? 0) > 0)
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 font-extrabold text-[11px]">
+                                                <span>📋</span> {{ $group['eval_count'] }} Form Evaluasi
+                                                @if(($group['eval_final_count'] ?? 0) > 0)
+                                                    <span class="text-[9px] bg-indigo-200/60 px-1 py-0.2 rounded font-black text-indigo-900">Final HSE</span>
+                                                @endif
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-400 text-[10px] font-medium">
+                                                0 Form Evaluasi
+                                            </span>
+                                        @endif
+                                    </div>
                                     <span class="block text-[10px] text-slate-400 mt-1">
                                         Terakhir: {{ $group['latest_date'] ? $group['latest_date']->format('d M Y') : '-' }}
                                     </span>
                                 </td>
                                 <td class="px-5 py-4 text-right">
-                                    <a href="{{ route('training-centre.trainee-documents', $traineeId) }}" class="inline-flex items-center px-4 py-2 rounded-xl bg-[#1e3a8a] hover:bg-blue-900 text-white text-xs font-bold shadow-sm transition" title="Lihat Detail Dokumen Trainee">
+                                    <a href="{{ route('training-centre.trainee-documents', $group['trainee']->id ?? $loop->index) }}" class="inline-flex items-center px-4 py-2 rounded-xl bg-[#1e3a8a] hover:bg-blue-900 text-white text-xs font-bold shadow-sm transition" title="Lihat Detail Dokumen Trainee">
                                         <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         Buka Dokumen
                                     </a>

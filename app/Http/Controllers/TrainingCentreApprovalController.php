@@ -61,26 +61,91 @@ class TrainingCentreApprovalController extends Controller
 
         $groupedFinalized = collect();
         if ($activeStatus === 'finalized') {
-            $groupedFinalized = OjtLogbook::query()
-                ->select('id', 'trainee_id', 'trainer_id', 'status', 'training_centre_decided_at', 'updated_at')
-                ->with(['trainee' => fn ($q) => $q->select('id', 'name', 'sid', 'department', 'company'), 'trainer' => fn ($q) => $q->select('id', 'name')])
+            $logbookTraineeIds = OjtLogbook::where('status', 'final_approved')
+                ->whereNotNull('training_centre_decided_at')
+                ->pluck('trainee_id')
+                ->filter()
+                ->unique();
+
+            $evalTraineeNames = \App\Models\FinalEvaluation::whereNotNull('tc_approved_at')
+                ->orWhereIn('status', ['tc_approved', 'pjo_approved', 'hse_approved'])
+                ->pluck('nama_operator')
+                ->filter()
+                ->unique();
+
+            $evalTraineeIds = User::where('role', 'trainee')
+                ->whereIn('name', $evalTraineeNames)
+                ->pluck('id');
+
+            $allTraineeIds = $logbookTraineeIds->merge($evalTraineeIds)->unique();
+
+            $trainees = User::whereIn('id', $allTraineeIds)
+                ->when($request->filled('department'), fn ($q) => $q->where('department', $request->department))
+                ->when($request->filled('search'), function ($q) use ($request) {
+                    $term = $request->search;
+                    $q->where(function ($sub) use ($term) {
+                        $sub->where('name', 'like', "%{$term}%")
+                            ->orWhere('sid', 'like', "%{$term}%")
+                            ->orWhere('company', 'like', "%{$term}%");
+                    });
+                })
+                ->get();
+
+            $approvedLogbooks = OjtLogbook::whereIn('trainee_id', $trainees->pluck('id'))
                 ->where('status', 'final_approved')
                 ->whereNotNull('training_centre_decided_at')
-                ->when($request->filled('department'), fn ($q) => $q->whereHas('trainee', fn ($u) => $u->where('department', $request->department)))
-                ->latest('updated_at')
+                ->with('trainer')
                 ->get()
-                ->groupBy('trainee_id')
-                ->map(fn ($items) => [
-                    'trainee' => $items->first()->trainee,
-                    'trainer' => $items->first()->trainer,
-                    'count' => $items->count(),
-                    'latest_date' => $items->max('updated_at'),
-                ]);
+                ->groupBy('trainee_id');
+
+            $approvedEvaluations = \App\Models\FinalEvaluation::whereIn('nama_operator', $trainees->pluck('name'))
+                ->where(function ($q) {
+                    $q->whereNotNull('tc_approved_at')
+                        ->orWhereIn('status', ['tc_approved', 'pjo_approved', 'hse_approved']);
+                })
+                ->with('trainer')
+                ->get()
+                ->groupBy('nama_operator');
+
+            $groupedFinalized = $trainees->map(function ($trainee) use ($approvedLogbooks, $approvedEvaluations) {
+                $tLogbooks = $approvedLogbooks->get($trainee->id, collect());
+                $tEvaluations = $approvedEvaluations->get($trainee->name, collect());
+
+                $trainer = $tLogbooks->first()?->trainer ?? $tEvaluations->first()?->trainer;
+
+                $latestLogbookDate = $tLogbooks->max('updated_at');
+                $latestEvalDate = $tEvaluations->max('updated_at');
+                $latestDate = collect([$latestLogbookDate, $latestEvalDate])->filter()->max();
+
+                return [
+                    'trainee' => $trainee,
+                    'trainer' => $trainer,
+                    'ojt_count' => $tLogbooks->count(),
+                    'eval_count' => $tEvaluations->count(),
+                    'eval_final_count' => $tEvaluations->where('status', 'hse_approved')->count(),
+                    'count' => $tLogbooks->count(),
+                    'latest_date' => $latestDate ? \Carbon\Carbon::parse($latestDate) : null,
+                ];
+            })->filter(function ($item) {
+                return $item['ojt_count'] > 0 || $item['eval_count'] > 0;
+            })->sortByDesc('latest_date')->values();
         }
+
+        $finalizedCount = OjtLogbook::where('status', 'final_approved')
+            ->whereNotNull('training_centre_decided_at')
+            ->pluck('trainee_id')
+            ->merge(
+                User::where('role', 'trainee')
+                    ->whereIn('name', \App\Models\FinalEvaluation::whereNotNull('tc_approved_at')->orWhereIn('status', ['tc_approved', 'pjo_approved', 'hse_approved'])->pluck('nama_operator'))
+                    ->pluck('id')
+            )
+            ->filter()
+            ->unique()
+            ->count();
 
         $counts = [
             'pending' => $this->pendingQuery()->count(),
-            'finalized' => OjtLogbook::where('status', 'final_approved')->whereNotNull('training_centre_decided_at')->distinct()->count('trainee_id'),
+            'finalized' => $finalizedCount,
             'revision' => OjtLogbook::where('status', 'revision')->whereNotNull('training_centre_decided_at')->count(),
         ];
 
