@@ -151,6 +151,20 @@ class PhaseService
         return null;
     }
 
+    public static function phaseLogbookCount(User $trainee, ?string $phase = null): int
+    {
+        $phase = $phase ?? self::currentPhaseKey($trainee);
+        $query = OjtLogbook::where('trainee_id', $trainee->id)
+            ->whereIn('status', ['submitted', 'verified', 'final_approved']);
+
+        $startDate = self::currentPhaseStartDate($trainee, $phase);
+        if ($startDate) {
+            $query->where('created_at', '>=', $startDate);
+        }
+
+        return $query->count();
+    }
+
     public static function isEligible(User $trainee, ?string $phase = null): bool
     {
         $phase = $phase ?? self::currentPhaseKey($trainee);
@@ -161,7 +175,7 @@ class PhaseService
         }
 
         if ($meta['type'] === 'bulanan') {
-            return true;
+            return self::phaseLogbookCount($trainee, $phase) >= 4;
         }
 
         $progress = self::hmProgress($trainee, $phase);
@@ -183,12 +197,39 @@ class PhaseService
     {
         $phase = $phase ?? self::currentPhaseKey($trainee);
         $meta = self::meta($trainee->certification ?? 'Green', $phase);
-        $progress = self::hmProgress($trainee, $phase);
 
-        if (! $meta || $meta['type'] === 'bulanan') {
-            return ['total' => 100, 'day' => 100, 'night' => 100, 'eligible' => true];
+        if (! $meta) {
+            return [
+                'type' => 'evaluasi',
+                'total' => 100,
+                'day' => 100,
+                'night' => 100,
+                'eligible' => true,
+                'count' => 0,
+                'target' => 0,
+                'fraction' => '0/0',
+            ];
         }
 
+        if ($meta['type'] === 'bulanan') {
+            $count = self::phaseLogbookCount($trainee, $phase);
+            $target = 4;
+            $fraction = min($count, $target) . '/' . $target;
+            $pct = min(100, (int) round(($count / $target) * 100));
+
+            return [
+                'type' => 'bulanan',
+                'total' => $pct,
+                'day' => $pct,
+                'night' => $pct,
+                'count' => $count,
+                'target' => $target,
+                'fraction' => $fraction,
+                'eligible' => $count >= $target,
+            ];
+        }
+
+        $progress = self::hmProgress($trainee, $phase);
         $totalPct = $meta['total_hm'] > 0 ? min(100, (int) round($progress['total'] / $meta['total_hm'] * 100)) : 100;
         $dayPct = (! is_null($meta['day_hm']) && $meta['day_hm'] > 0)
             ? min(100, (int) round($progress['day'] / $meta['day_hm'] * 100)) : 100;
@@ -196,9 +237,13 @@ class PhaseService
             ? min(100, (int) round($progress['night'] / $meta['night_hm'] * 100)) : 100;
 
         return [
+            'type' => 'evaluasi',
             'total' => $totalPct,
             'day' => $dayPct,
             'night' => $nightPct,
+            'count' => 0,
+            'target' => 0,
+            'fraction' => '',
             'eligible' => self::isEligible($trainee, $phase),
         ];
     }

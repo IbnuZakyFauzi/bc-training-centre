@@ -83,7 +83,7 @@ class FinalEvaluationController extends Controller
             $selectedTrainee = User::where('role', 'trainee')->find($selectedTraineeId);
             if ($selectedTrainee && $selectedTrainee->isMonthlyEvaluationLocked()) {
                 return redirect()->route('trainer.final-evaluations.index')
-                    ->with('error', 'Form evaluasi untuk trainee ini masih dikunci. Pastikan trainee sudah memenuhi syarat HM untuk evaluasi 3/4 atau berada di akhir bulan untuk evaluasi bulanan (5-10).');
+                    ->with('error', 'Form evaluasi untuk trainee ini masih dikunci. Pastikan trainee sudah memenuhi syarat HM (untuk Evaluasi 3/4) atau minimal telah mengirim 4 Form OJT (untuk Evaluasi Bulanan 5-10).');
             }
         }
 
@@ -100,7 +100,7 @@ class FinalEvaluationController extends Controller
         $trainee = $evaluation->trainee;
         if ($trainee && $trainee->isMonthlyEvaluationLocked()) {
             return redirect()->route('trainer.final-evaluations.index')
-                ->with('error', 'Form evaluasi untuk trainee ini masih dikunci. Pastikan trainee sudah memenuhi syarat HM untuk evaluasi 3/4 atau berada di akhir bulan untuk evaluasi bulanan (5-10).');
+                ->with('error', 'Form evaluasi untuk trainee ini masih dikunci. Pastikan trainee sudah memenuhi syarat HM (untuk Evaluasi 3/4) atau minimal telah mengirim 4 Form OJT (untuk Evaluasi Bulanan 5-10).');
         }
 
         $trainees = User::where('role', 'trainee')
@@ -134,7 +134,7 @@ class FinalEvaluationController extends Controller
         $trainee = User::where('name', $request->input('nama_operator'))->where('role', 'trainee')->first();
         if ($trainee && $trainee->isMonthlyEvaluationLocked()) {
             return redirect()->route('trainer.final-evaluations.index')
-                ->with('error', 'Form evaluasi untuk trainee ini masih dikunci. Pastikan trainee sudah memenuhi syarat HM untuk evaluasi 3/4 atau berada di akhir bulan untuk evaluasi bulanan (5-10).');
+                ->with('error', 'Form evaluasi untuk trainee ini masih dikunci. Pastikan trainee sudah memenuhi syarat HM (untuk Evaluasi 3/4) atau minimal telah mengirim 4 Form OJT (untuk Evaluasi Bulanan 5-10).');
         }
 
         $validated = $request->validate([
@@ -194,7 +194,7 @@ class FinalEvaluationController extends Controller
         $trainee = $evaluation->trainee;
         if ($trainee && $trainee->isMonthlyEvaluationLocked()) {
             return redirect()->route('trainer.final-evaluations.index')
-                ->with('error', 'Form evaluasi untuk trainee ini masih dikunci. Pastikan trainee sudah memenuhi syarat HM untuk evaluasi 3/4 atau berada di akhir bulan untuk evaluasi bulanan (5-10).');
+                ->with('error', 'Form evaluasi untuk trainee ini masih dikunci. Pastikan trainee sudah memenuhi syarat HM (untuk Evaluasi 3/4) atau minimal telah mengirim 4 Form OJT (untuk Evaluasi Bulanan 5-10).');
         }
 
         $validated = $request->validate([

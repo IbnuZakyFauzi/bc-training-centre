@@ -176,20 +176,7 @@ class User extends Authenticatable
             return true;
         }
 
-        if ($meta['type'] === 'evaluasi') {
-            return !$this->isPhaseEligible($phase);
-        }
-
-        if ($meta['type'] === 'bulanan') {
-            $approvedLogbookCount = OjtLogbook::where('trainee_id', $this->id)
-                ->whereIn('status', ['verified', 'final_approved'])
-                ->where('created_at', '>=', \App\Services\PhaseService::currentPhaseStartDate($this, $phase))
-                ->count();
-
-            return $approvedLogbookCount < 4;
-        }
-
-        return false;
+        return !$this->isPhaseEligible($phase);
     }
 
     public function phaseProgressPercent(?string $phase = null): array

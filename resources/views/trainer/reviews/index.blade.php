@@ -128,7 +128,11 @@
                             <div class="flex items-center justify-between gap-2 mb-1.5">
                                 <p class="text-xs font-extrabold text-slate-800 truncate">{{ $t['name'] }}</p>
                                 <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                    {{ $t['progress']['total'] }}% HM
+                                    @if(($t['progress']['type'] ?? '') === 'bulanan')
+                                        {{ $t['progress']['fraction'] ?? '4/4' }} Form ({{ $t['progress']['total'] }}%)
+                                    @else
+                                        {{ $t['progress']['total'] }}% HM
+                                    @endif
                                 </span>
                             </div>
                             <p class="text-[11px] text-slate-500">
@@ -139,7 +143,13 @@
                             @endif
                         </div>
                         <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
-                            <span class="text-[10px] text-emerald-700 font-bold">✓ Syarat HM Terpenuhi</span>
+                            <span class="text-[10px] text-emerald-700 font-bold">
+                                @if(($t['progress']['type'] ?? '') === 'bulanan')
+                                    ✓ Syarat 4 Form OJT Terpenuhi
+                                @else
+                                    ✓ Syarat HM Terpenuhi
+                                @endif
+                            </span>
                             <a href="{{ route('trainer.final-evaluations.create', ['trainee' => $t['id']]) }}" class="px-3 py-1.5 rounded-xl bg-[#1e3a8a] hover:bg-blue-900 text-white text-[11px] font-bold shadow-sm transition">
                                 Evaluasi →
                             </a>

@@ -109,7 +109,28 @@
                         </div>
                     </div>
                 @else
-                    <p class="text-xs text-slate-500 mt-3 leading-relaxed">Fase bulanan: isi form OJT minimal 1× per minggu selama periode berjalan. Evaluasi dilakukan di akhir periode oleh Trainer.</p>
+                    <div class="space-y-3 mt-3">
+                        <div class="p-3 bg-blue-50/80 border border-blue-200/80 rounded-xl text-xs text-blue-900">
+                            <p class="font-bold">Ketentuan Fase Bulanan (Evaluasi 5–10):</p>
+                            <p class="text-[11px] text-blue-700 mt-0.5">Kirim minimal <strong>4 Form OJT</strong> (1 form per minggu) untuk memenuhi syarat evaluasi akhir fase ini.</p>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-600 mb-1">
+                                <span class="font-semibold">Progress Form OJT Terkirim</span>
+                                <span class="font-extrabold text-[#1e3a8a]">{{ $phaseProgress['fraction'] ?? ($phaseProgress['count'] ?? 0) . '/4' }} ({{ $phaseProgress['total'] }}%)</span>
+                            </div>
+                            <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden p-0.5 flex">
+                                <div class="h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full transition-all duration-500" style="width: {{ min(100, $phaseProgress['total']) }}%"></div>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-500">
+                            @if(($phaseProgress['count'] ?? 0) >= 4)
+                                <span class="text-emerald-700 font-bold">✓ Syarat 4 Form OJT telah terpenuhi. Trainee siap dievaluasi oleh Trainer.</span>
+                            @else
+                                <span class="text-amber-700 font-semibold">Memerlukan {{ 4 - ($phaseProgress['count'] ?? 0) }} form OJT lagi agar siap dievaluasi.</span>
+                            @endif
+                        </p>
+                    </div>
                 @endif
             </div>
             <div class="bg-slate-50 rounded-xl p-4">

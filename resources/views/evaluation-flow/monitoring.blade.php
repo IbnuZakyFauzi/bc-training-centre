@@ -229,7 +229,11 @@
                         @else
                             <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
                                 <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                                Akumulasi HM
+                                @if(($t['progress']['type'] ?? '') === 'bulanan')
+                                    Isi Form OJT ({{ $t['progress']['fraction'] ?? ($t['progress']['count'] ?? 0) . '/4' }})
+                                @else
+                                    Akumulasi HM
+                                @endif
                             </span>
                         @endif
 
@@ -242,15 +246,24 @@
                     </div>
                 </div>
 
-                <!-- HM Progress Bar Section -->
+                <!-- Progress Bar Section (HM / Form OJT Bulanan) -->
                 <div class="px-5 pt-4 pb-2 bg-slate-50/40">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-xs text-slate-600 mb-1.5">
                         <div class="flex items-center gap-2">
-                            <span class="font-bold text-slate-700">Progress Jam Terbang (HM) - Fase {{ $t['current_phase_label'] }}</span>
-                            <span class="text-[11px] text-slate-400">(Siang: {{ number_format($t['hm']['day'], 1) }}h | Malam: {{ number_format($t['hm']['night'], 1) }}h)</span>
+                            @if(($t['progress']['type'] ?? '') === 'bulanan')
+                                <span class="font-bold text-slate-700">Progress Form OJT Mingguan - Fase {{ $t['current_phase_label'] }}</span>
+                                <span class="text-[11px] text-slate-400">({{ $t['progress']['count'] ?? 0 }}/4 Form OJT Terkirim)</span>
+                            @else
+                                <span class="font-bold text-slate-700">Progress Jam Terbang (HM) - Fase {{ $t['current_phase_label'] }}</span>
+                                <span class="text-[11px] text-slate-400">(Siang: {{ number_format($t['hm']['day'], 1) }}h | Malam: {{ number_format($t['hm']['night'], 1) }}h)</span>
+                            @endif
                         </div>
                         <div class="flex items-center gap-2 font-black text-[#1e3a8a]">
-                            <span>{{ number_format($t['hm']['total'], 1) }} HM</span>
+                            @if(($t['progress']['type'] ?? '') === 'bulanan')
+                                <span>{{ $t['progress']['fraction'] ?? ($t['progress']['count'] ?? 0) . '/4' }} Form</span>
+                            @else
+                                <span>{{ number_format($t['hm']['total'], 1) }} HM</span>
+                            @endif
                             <span class="px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 text-[10px] font-extrabold">{{ $t['progress']['total'] }}%</span>
                         </div>
                     </div>
