@@ -193,17 +193,19 @@
     </div>
 </section>
 
-<div class="p-5 space-y-5">
+<div class="p-4 sm:p-5 space-y-5">
     @forelse(data_get($checklist, 'groups', []) as $groupIndex => $group)
-        <div class="rounded-xl border border-slate-200 overflow-hidden">
+        <div class="rounded-2xl border border-slate-200 overflow-hidden">
             <div class="bg-[#1e3a8a] px-4 py-3 text-white">
                 <p class="text-xs font-bold uppercase">{{ $group['title'] ?? 'Checklist Unit '.($groupIndex + 1) }}</p>
                 <p class="text-[10px] text-blue-100 mt-1">{{ $group['subtitle'] ?? 'Tipe kompetensi sesuai SOP unit' }}</p>
             </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-[760px] w-full table-fixed text-xs">
-                    <colgroup><col class="w-14"><col class="w-16"><col><col class="w-14"><col class="w-14"><col class="w-72"></colgroup>
-                    <thead class="bg-slate-50 text-slate-500 uppercase">
+            <div class="w-full">
+                <table class="w-full text-xs block md:table">
+                    <colgroup class="hidden md:table-column-group">
+                        <col class="w-14"><col class="w-16"><col><col class="w-14"><col class="w-14"><col class="w-72">
+                    </colgroup>
+                    <thead class="hidden md:table-header-group bg-slate-50 text-slate-500 uppercase">
                         <tr>
                             <th class="px-3 py-2 text-left">No</th>
                             <th class="px-3 py-2 text-left">Tipe</th>
@@ -213,14 +215,50 @@
                             <th class="px-3 py-2 text-left">Trainee Feedback</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="block md:table-row-group divide-y divide-slate-100">
                         @foreach($group['items'] ?? [] as $itemIndex => $item)
-                            <tr class="align-top">
-                                <td class="px-3 py-3 font-bold">{{ $item['code'] ?? ($groupIndex + 1).'.'.($itemIndex + 1) }}</td>
-                                <td class="px-3 py-3 text-slate-500">{{ $item['kind'] ?? '-' }}</td>
-                                <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] ?? 'Item checklist SOP' }}</td>
-                                @include('ojt.logbooks.partials.kbk-readonly', ['status' => $item['status'] ?? null])
-                                <td class="px-3 py-3 text-slate-500 leading-relaxed break-words">{{ $item['trainee_feedback'] ?? $item['note'] ?? '-' }}</td>
+                            @php
+                                $itemStatus = $item['status'] ?? null;
+                                $kbkStatus = \App\Support\CompetencyScale::toStatus($itemStatus);
+                                $kbkScale = \App\Support\CompetencyScale::toScale($itemStatus);
+                                $kbkLabel = \App\Support\CompetencyScale::label($itemStatus);
+                            @endphp
+                            <tr class="block md:table-row p-3.5 space-y-2 bg-white md:p-0 md:space-y-0">
+                                <td class="block md:table-cell p-0 md:px-3 md:py-3 font-bold">
+                                    <div class="flex items-center gap-1.5 md:block">
+                                        <span class="inline-flex px-2 py-0.5 rounded bg-blue-50 text-[#1e3a8a] text-[10px] font-black border border-blue-200 md:bg-transparent md:text-slate-700 md:border-0 md:p-0 md:text-xs">
+                                            {{ $item['code'] ?? ($groupIndex + 1).'.'.($itemIndex + 1) }}
+                                        </span>
+                                        <span class="md:hidden px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-bold">
+                                            {{ $item['kind'] ?? '-' }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="hidden md:table-cell px-3 py-3 text-slate-500">{{ $item['kind'] ?? '-' }}</td>
+                                <td class="block md:table-cell p-0 md:px-3 md:py-3 text-slate-700 leading-relaxed font-medium md:font-normal break-words">
+                                    {{ $item['label'] ?? 'Item checklist SOP' }}
+                                </td>
+                                @include('ojt.logbooks.partials.kbk-readonly', ['status' => $itemStatus])
+                                <td class="block md:hidden p-0">
+                                    <div class="text-[10px] font-bold text-slate-500 uppercase mb-1">Status Penilaian:</div>
+                                    @if($kbkStatus === \App\Support\CompetencyScale::STATUS_KOMPETEN)
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
+                                            <span>✓</span> Kompeten (K) · Skala {{ $kbkScale }} ({{ $kbkLabel }})
+                                        </span>
+                                    @elseif($kbkStatus === \App\Support\CompetencyScale::STATUS_BELUM_KOMPETEN)
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold">
+                                            <span>⚠️</span> Belum Kompeten (BK) · Skala {{ $kbkScale }} ({{ $kbkLabel }})
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-slate-100 text-slate-400 text-xs font-medium">
+                                            Belum dinilai
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="block md:table-cell p-0 md:px-3 md:py-3 text-slate-500 leading-relaxed break-words">
+                                    <div class="md:hidden text-[10px] font-bold text-slate-500 uppercase mb-0.5">Trainee Feedback:</div>
+                                    <span class="text-xs">{{ $item['trainee_feedback'] ?? $item['note'] ?? '-' }}</span>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -232,14 +270,16 @@
     @endforelse
 
     @if(data_get($checklist, 'compliance'))
-        <div class="rounded-xl border border-slate-200 overflow-hidden">
+        <div class="rounded-2xl border border-slate-200 overflow-hidden">
             <div class="bg-[#1e3a8a] px-4 py-3 text-white">
                 <p class="text-xs font-bold uppercase">Kepatuhan Terhadap Peraturan Kerja</p>
             </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-[760px] w-full table-fixed text-xs">
-                    <colgroup><col class="w-14"><col class="w-16"><col><col class="w-14"><col class="w-14"><col class="w-72"></colgroup>
-                    <thead class="bg-slate-50 text-slate-500 uppercase">
+            <div class="w-full">
+                <table class="w-full text-xs block md:table">
+                    <colgroup class="hidden md:table-column-group">
+                        <col class="w-14"><col class="w-16"><col><col class="w-14"><col class="w-14"><col class="w-72">
+                    </colgroup>
+                    <thead class="hidden md:table-header-group bg-slate-50 text-slate-500 uppercase">
                         <tr>
                             <th class="px-3 py-2 text-left">No</th>
                             <th class="px-3 py-2 text-left">Tipe</th>
@@ -249,14 +289,50 @@
                             <th class="px-3 py-2 text-left">Trainee Feedback</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="block md:table-row-group divide-y divide-slate-100">
                         @foreach(data_get($checklist, 'compliance', []) as $itemIndex => $item)
-                            <tr class="align-top">
-                                <td class="px-3 py-3 font-bold">{{ $item['code'] ?? ($itemIndex + 1) }}</td>
-                                <td class="px-3 py-3 text-slate-500">{{ $item['kind'] ?? '-' }}</td>
-                                <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] ?? 'Item kepatuhan' }}</td>
-                                @include('ojt.logbooks.partials.kbk-readonly', ['status' => $item['status'] ?? null])
-                                <td class="px-3 py-3 text-slate-500 leading-relaxed break-words">{{ $item['trainee_feedback'] ?? $item['note'] ?? '-' }}</td>
+                            @php
+                                $itemStatus = $item['status'] ?? null;
+                                $kbkStatus = \App\Support\CompetencyScale::toStatus($itemStatus);
+                                $kbkScale = \App\Support\CompetencyScale::toScale($itemStatus);
+                                $kbkLabel = \App\Support\CompetencyScale::label($itemStatus);
+                            @endphp
+                            <tr class="block md:table-row p-3.5 space-y-2 bg-white md:p-0 md:space-y-0">
+                                <td class="block md:table-cell p-0 md:px-3 md:py-3 font-bold">
+                                    <div class="flex items-center gap-1.5 md:block">
+                                        <span class="inline-flex px-2 py-0.5 rounded bg-blue-50 text-[#1e3a8a] text-[10px] font-black border border-blue-200 md:bg-transparent md:text-slate-700 md:border-0 md:p-0 md:text-xs">
+                                            {{ $item['code'] ?? ($itemIndex + 1) }}
+                                        </span>
+                                        <span class="md:hidden px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-bold">
+                                            {{ $item['kind'] ?? '-' }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="hidden md:table-cell px-3 py-3 text-slate-500">{{ $item['kind'] ?? '-' }}</td>
+                                <td class="block md:table-cell p-0 md:px-3 md:py-3 text-slate-700 leading-relaxed font-medium md:font-normal break-words">
+                                    {{ $item['label'] ?? 'Item kepatuhan' }}
+                                </td>
+                                @include('ojt.logbooks.partials.kbk-readonly', ['status' => $itemStatus])
+                                <td class="block md:hidden p-0">
+                                    <div class="text-[10px] font-bold text-slate-500 uppercase mb-1">Status Penilaian:</div>
+                                    @if($kbkStatus === \App\Support\CompetencyScale::STATUS_KOMPETEN)
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
+                                            <span>✓</span> Kompeten (K) · Skala {{ $kbkScale }} ({{ $kbkLabel }})
+                                        </span>
+                                    @elseif($kbkStatus === \App\Support\CompetencyScale::STATUS_BELUM_KOMPETEN)
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold">
+                                            <span>⚠️</span> Belum Kompeten (BK) · Skala {{ $kbkScale }} ({{ $kbkLabel }})
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-slate-100 text-slate-400 text-xs font-medium">
+                                            Belum dinilai
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="block md:table-cell p-0 md:px-3 md:py-3 text-slate-500 leading-relaxed break-words">
+                                    <div class="md:hidden text-[10px] font-bold text-slate-500 uppercase mb-0.5">Trainee Feedback:</div>
+                                    <span class="text-xs">{{ $item['trainee_feedback'] ?? $item['note'] ?? '-' }}</span>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -266,14 +342,16 @@
     @endif
 
     @if(data_get($checklist, 'behavior'))
-        <div class="rounded-xl border border-slate-200 overflow-hidden">
+        <div class="rounded-2xl border border-slate-200 overflow-hidden">
             <div class="bg-[#1e3a8a] px-4 py-3 text-white">
                 <p class="text-xs font-bold uppercase">Kedisiplinan dan Komunikasi</p>
             </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-[760px] w-full table-fixed text-xs">
-                    <colgroup><col class="w-14"><col class="w-16"><col><col class="w-14"><col class="w-14"><col class="w-72"></colgroup>
-                    <thead class="bg-slate-50 text-slate-500 uppercase">
+            <div class="w-full">
+                <table class="w-full text-xs block md:table">
+                    <colgroup class="hidden md:table-column-group">
+                        <col class="w-14"><col class="w-16"><col><col class="w-14"><col class="w-14"><col class="w-72">
+                    </colgroup>
+                    <thead class="hidden md:table-header-group bg-slate-50 text-slate-500 uppercase">
                         <tr>
                             <th class="px-3 py-2 text-left">No</th>
                             <th class="px-3 py-2 text-left">Tipe</th>
@@ -283,14 +361,50 @@
                             <th class="px-3 py-2 text-left">Trainee Feedback</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="block md:table-row-group divide-y divide-slate-100">
                         @foreach(data_get($checklist, 'behavior', []) as $itemIndex => $item)
-                            <tr class="align-top">
-                                <td class="px-3 py-3 font-bold">{{ $item['code'] ?? ($itemIndex + 1) }}</td>
-                                <td class="px-3 py-3 text-slate-500">{{ $item['kind'] ?? '-' }}</td>
-                                <td class="px-3 py-3 text-slate-700 leading-relaxed">{{ $item['label'] ?? 'Item kedisiplinan' }}</td>
-                                @include('ojt.logbooks.partials.kbk-readonly', ['status' => $item['status'] ?? null])
-                                <td class="px-3 py-3 text-slate-500 leading-relaxed break-words">{{ $item['trainee_feedback'] ?? $item['note'] ?? '-' }}</td>
+                            @php
+                                $itemStatus = $item['status'] ?? null;
+                                $kbkStatus = \App\Support\CompetencyScale::toStatus($itemStatus);
+                                $kbkScale = \App\Support\CompetencyScale::toScale($itemStatus);
+                                $kbkLabel = \App\Support\CompetencyScale::label($itemStatus);
+                            @endphp
+                            <tr class="block md:table-row p-3.5 space-y-2 bg-white md:p-0 md:space-y-0">
+                                <td class="block md:table-cell p-0 md:px-3 md:py-3 font-bold">
+                                    <div class="flex items-center gap-1.5 md:block">
+                                        <span class="inline-flex px-2 py-0.5 rounded bg-blue-50 text-[#1e3a8a] text-[10px] font-black border border-blue-200 md:bg-transparent md:text-slate-700 md:border-0 md:p-0 md:text-xs">
+                                            {{ $item['code'] ?? ($itemIndex + 1) }}
+                                        </span>
+                                        <span class="md:hidden px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-bold">
+                                            {{ $item['kind'] ?? '-' }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="hidden md:table-cell px-3 py-3 text-slate-500">{{ $item['kind'] ?? '-' }}</td>
+                                <td class="block md:table-cell p-0 md:px-3 md:py-3 text-slate-700 leading-relaxed font-medium md:font-normal break-words">
+                                    {{ $item['label'] ?? 'Item kedisiplinan' }}
+                                </td>
+                                @include('ojt.logbooks.partials.kbk-readonly', ['status' => $itemStatus])
+                                <td class="block md:hidden p-0">
+                                    <div class="text-[10px] font-bold text-slate-500 uppercase mb-1">Status Penilaian:</div>
+                                    @if($kbkStatus === \App\Support\CompetencyScale::STATUS_KOMPETEN)
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
+                                            <span>✓</span> Kompeten (K) · Skala {{ $kbkScale }} ({{ $kbkLabel }})
+                                        </span>
+                                    @elseif($kbkStatus === \App\Support\CompetencyScale::STATUS_BELUM_KOMPETEN)
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold">
+                                            <span>⚠️</span> Belum Kompeten (BK) · Skala {{ $kbkScale }} ({{ $kbkLabel }})
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-slate-100 text-slate-400 text-xs font-medium">
+                                            Belum dinilai
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="block md:table-cell p-0 md:px-3 md:py-3 text-slate-500 leading-relaxed break-words">
+                                    <div class="md:hidden text-[10px] font-bold text-slate-500 uppercase mb-0.5">Trainee Feedback:</div>
+                                    <span class="text-xs">{{ $item['trainee_feedback'] ?? $item['note'] ?? '-' }}</span>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
