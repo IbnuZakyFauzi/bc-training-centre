@@ -264,10 +264,7 @@
                                         </span>
                                         @if(($group['eval_count'] ?? 0) > 0)
                                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 font-extrabold text-[11px]">
-                                                <span>📋</span> {{ $group['eval_count'] }} Form Evaluasi
-                                                @if(($group['eval_final_count'] ?? 0) > 0)
-                                                    <span class="text-[9px] bg-indigo-200/60 px-1 py-0.2 rounded font-black text-indigo-900">Final HSE</span>
-                                                @endif
+                                                <span>✓</span> {{ $group['eval_count'] }} Form Evaluasi Final
                                             </span>
                                         @else
                                             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-400 text-[10px] font-medium">
