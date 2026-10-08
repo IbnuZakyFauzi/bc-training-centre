@@ -7,11 +7,84 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\CompetencyEvaluation;
+use App\Models\FinalEvaluation;
+use App\Models\LogbookAssignment;
+use App\Models\LogbookEvidence;
+use App\Models\LogbookHistory;
 use App\Models\OjtLogbook;
+use App\Models\TraineePhaseHistory;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
+
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user) {
+            // 1. Hapus file tanda tangan & avatar fisik pengguna jika ada
+            if ($user->signature_path && Storage::disk('public')->exists($user->signature_path)) {
+                Storage::disk('public')->delete($user->signature_path);
+            }
+            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            // 2. Lepas relasi penugasan trainer & trainee
+            $user->assignedTrainers()->detach();
+            DB::table('trainee_trainer')
+                ->where('trainer_id', $user->id)
+                ->orWhere('trainee_id', $user->id)
+                ->delete();
+
+            // 3. Hapus histori fase trainee
+            TraineePhaseHistory::where('user_id', $user->id)->delete();
+
+            // 4. Hapus seluruh Form OJT Logbook & data/dokumen pendukungnya
+            $logbooks = OjtLogbook::where('trainee_id', $user->id)->get();
+            $logbookIds = $logbooks->pluck('id')->toArray();
+
+            if (!empty($logbookIds)) {
+                // Hapus file evidence fisik jika ada
+                $evidences = LogbookEvidence::whereIn('ojt_logbook_id', $logbookIds)->get();
+                foreach ($evidences as $evidence) {
+                    if ($evidence->file_path && Storage::disk('public')->exists($evidence->file_path)) {
+                        Storage::disk('public')->delete($evidence->file_path);
+                    }
+                }
+                LogbookEvidence::whereIn('ojt_logbook_id', $logbookIds)->delete();
+
+                // Hapus evaluasi kompetensi & tanda tangan logbook
+                CompetencyEvaluation::whereIn('ojt_logbook_id', $logbookIds)->delete();
+                LogbookHistory::whereIn('ojt_logbook_id', $logbookIds)->delete();
+                LogbookAssignment::whereIn('ojt_logbook_id', $logbookIds)->delete();
+
+                // Hapus evaluasi final yang terikat dengan logbook-logbook ini
+                $evalsFromLogbooks = FinalEvaluation::whereIn('ojt_logbook_id', $logbookIds)->get();
+                foreach ($evalsFromLogbooks as $eval) {
+                    TraineePhaseHistory::where('evaluation_id', $eval->id)->delete();
+                    $eval->delete();
+                }
+
+                // Hapus data logbook
+                OjtLogbook::whereIn('id', $logbookIds)->delete();
+            }
+
+            // 5. Hapus Form Evaluasi Final & Dokumen yang bersangkutan dengan nama trainee
+            if ($user->role === 'trainee') {
+                $finalEvaluations = FinalEvaluation::where('nama_operator', $user->name)->get();
+                foreach ($finalEvaluations as $eval) {
+                    TraineePhaseHistory::where('evaluation_id', $eval->id)->delete();
+                    $eval->delete();
+                }
+            }
+
+            // 6. Hapus notifikasi yang bersangkutan
+            DB::table('notifications')->where('notifiable_id', $user->id)->delete();
+        });
+    }
 
     protected $fillable = [
         'sid',

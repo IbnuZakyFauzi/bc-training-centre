@@ -218,9 +218,11 @@ class UserManagementController extends Controller
             abort(403, 'Tidak memiliki akses untuk menghapus Super Admin.');
         }
 
-        $user->delete();
+        DB::transaction(function () use ($user) {
+            $user->delete();
+        });
 
-        return redirect()->route('training-centre.users.index')->with('success', 'Pengguna berhasil dihapus.');
+        return redirect()->route('training-centre.users.index')->with('success', "Pengguna {$user->name} beserta seluruh data dan dokumen terkait berhasil dihapus.");
     }
 
     public function resetPassword($id)
