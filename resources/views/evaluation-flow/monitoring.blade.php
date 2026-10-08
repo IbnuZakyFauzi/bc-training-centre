@@ -173,143 +173,16 @@
         </form>
     </div>
 
-    <!-- Interactive View Mode Selector -->
-    <div x-data="{ viewMode: 'timeline' }" class="space-y-4">
+    <!-- Trainee Progress Cards Section -->
+    <div class="space-y-4">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <h2 class="text-sm font-black text-slate-800">Visualisasi Progress Trainee OJT</h2>
+                <h2 class="text-sm font-black text-slate-800">Daftar Progress Trainee OJT</h2>
                 <span class="text-xs text-slate-400">({{ $trainees->count() }} Trainee Terdaftar)</span>
             </div>
-            <div class="inline-flex p-1 bg-slate-200/70 rounded-xl text-xs font-bold">
-                <button @click="viewMode = 'timeline'" :class="viewMode === 'timeline' ? 'bg-white text-[#1e3a8a] shadow-xs' : 'text-slate-600 hover:text-slate-800'" class="px-3 py-1.5 rounded-lg transition inline-flex items-center gap-1.5">
-                    <span>📊</span> Timeline Roadmap
-                </button>
-                <button @click="viewMode = 'cards'" :class="viewMode === 'cards' ? 'bg-white text-[#1e3a8a] shadow-xs' : 'text-slate-600 hover:text-slate-800'" class="px-3 py-1.5 rounded-lg transition inline-flex items-center gap-1.5">
-                    <span>🗂️</span> Tampilan Kartu
-                </button>
-            </div>
         </div>
 
-        <!-- ================= VIEW 1: TIMELINE ROADMAP MATRIX (DEFAULT) ================= -->
-        <div x-show="viewMode === 'timeline'" class="space-y-3">
-            @forelse($trainees as $t)
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition p-4 sm:p-5">
-                    <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
-                        <!-- Left: Trainee Info & Live Status -->
-                        <div class="min-w-[280px] max-w-sm flex items-start gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1e3a8a] to-[#2563eb] text-white font-black text-xs flex items-center justify-center flex-shrink-0 shadow-sm">
-                                {{ collect(explode(' ', $t['name']))->take(2)->map(fn($p)=>strtoupper(substr($p,0,1)))->implode('') }}
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <h3 class="text-xs sm:text-sm font-black text-slate-800 truncate" title="{{ $t['name'] }}">{{ $t['name'] }}</h3>
-                                    @if($t['department'])
-                                        <span class="px-1.5 py-0.2 rounded text-[10px] font-extrabold bg-blue-50 text-[#1e3a8a] border border-blue-200">
-                                            🏢 {{ $t['department'] }}
-                                        </span>
-                                    @endif
-                                </div>
-                                <p class="text-[11px] text-slate-500 mt-0.5">
-                                    SID: <strong class="text-slate-700">{{ $t['sid'] }}</strong> · {{ $t['equipment_category_name'] }}
-                                </p>
-                                <div class="flex items-center gap-2 mt-2">
-                                    @if($t['eligible'])
-                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                            <span>✓</span> Siap Dievaluasi
-                                        </span>
-                                        @if($user->isTrainer())
-                                            <a href="{{ route('trainer.final-evaluations.create', ['trainee' => $t['id']]) }}" class="px-2.5 py-0.5 rounded-md bg-[#1e3a8a] hover:bg-blue-900 text-white text-[10px] font-bold shadow-xs transition">
-                                                Evaluasi →
-                                            </a>
-                                        @endif
-                                    @else
-                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                                            @if(($t['progress']['type'] ?? '') === 'bulanan')
-                                                Isi Form OJT ({{ $t['progress']['fraction'] ?? ($t['progress']['count'] ?? 0) . '/4' }})
-                                            @else
-                                                Akumulasi HM ({{ $t['progress']['total'] }}%)
-                                            @endif
-                                        </span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Right: Visual Connected Multi-Phase Stepper Timeline -->
-                        <div class="flex-1 overflow-x-auto py-2 pr-2">
-                            <div class="flex items-center gap-1 min-w-[550px] relative">
-                                @foreach($t['phases'] as $idx => $p)
-                                    @php
-                                        $isCurrent = $p['is_current'];
-                                        $isCompleted = $p['completed'] > 0;
-                                        $isPending = $p['pending'] > 0;
-                                    @endphp
-
-                                    <!-- Step Node -->
-                                    <div class="flex-1 flex flex-col items-center text-center relative group">
-                                        <!-- Step Milestone Badge / Circle -->
-                                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-black text-[11px] transition-all relative z-10 
-                                            {{ $isCompleted ? 'bg-emerald-500 text-white shadow-sm ring-2 ring-emerald-200' : ($isCurrent ? 'bg-[#1e3a8a] text-white shadow-md ring-4 ring-blue-100 animate-pulse' : ($isPending ? 'bg-amber-500 text-white ring-2 ring-amber-200' : 'bg-slate-100 text-slate-400 border border-slate-200')) }}">
-                                            @if($isCompleted)
-                                                ✓
-                                            @elseif($isPending)
-                                                ⏳
-                                            @elseif($isCurrent)
-                                                ★
-                                            @else
-                                                {{ $idx + 1 }}
-                                            @endif
-                                        </div>
-
-                                        <!-- Phase Label & State -->
-                                        <p class="text-[10px] font-extrabold mt-1.5 max-w-[80px] leading-tight truncate {{ $isCurrent ? 'text-[#1e3a8a]' : ($isCompleted ? 'text-emerald-800' : 'text-slate-500') }}" title="{{ $p['label'] }}">
-                                            {{ str_replace('Evaluasi ', 'Eval ', str_replace('Evaluasi Bulanan ', 'Bulan ', $p['label'])) }}
-                                        </p>
-
-                                        <!-- Sub Status / HM / Form Details -->
-                                        @if($isCurrent)
-                                            <span class="mt-0.5 px-1.5 py-0.2 rounded text-[9px] font-black bg-blue-100 text-blue-800">
-                                                @if(($t['progress']['type'] ?? '') === 'bulanan')
-                                                    {{ $t['progress']['fraction'] ?? ($t['progress']['count'] ?? 0) . '/4' }}
-                                                @else
-                                                    {{ $t['progress']['total'] }}%
-                                                @endif
-                                            </span>
-                                        @elseif($isCompleted)
-                                            <span class="mt-0.5 text-[9px] font-bold text-emerald-600">Lulus</span>
-                                        @elseif($isPending)
-                                            <span class="mt-0.5 text-[9px] font-bold text-amber-600">Review</span>
-                                        @else
-                                            <span class="mt-0.5 text-[9px] text-slate-300">—</span>
-                                        @endif
-                                    </div>
-
-                                    <!-- Connector Line Between Nodes -->
-                                    @if(!$loop->last)
-                                        <div class="flex-1 h-1.5 rounded-full -mt-7 -mx-1 {{ $isCompleted ? 'bg-emerald-400' : 'bg-slate-200' }}"></div>
-                                    @endif
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @empty
-                <div class="bg-white rounded-3xl border border-slate-200 p-12 text-center shadow-sm">
-                    <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3 text-2xl">
-                        🔍
-                    </div>
-                    <h3 class="text-base font-bold text-slate-700">Tidak ada trainee yang sesuai filter</h3>
-                    <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Coba ubah kata kunci pencarian, pilihan sertifikasi, atau filter departemen.</p>
-                    <a href="{{ url()->current() }}" class="inline-flex mt-4 px-4 py-2 rounded-xl bg-[#1e3a8a] text-white text-xs font-bold hover:bg-blue-900 transition">
-                        Reset Semua Filter
-                    </a>
-                </div>
-            @endforelse
-        </div>
-
-        <!-- ================= VIEW 2: DETAILED CARDS VIEW ================= -->
-        <div x-show="viewMode === 'cards'" class="space-y-4 sm:space-y-5">
+        <div class="space-y-4 sm:space-y-5">
             @forelse($trainees as $t)
                 <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition-all overflow-hidden">
                     <!-- Card Header -->
