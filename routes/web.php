@@ -128,3 +128,6 @@ Route::middleware(['auth', 'must.change.password', 'role:hse_ct'])->prefix('hse-
     Route::post('/final-evaluations/{id}/approve', ['App\Http\Controllers\EvaluationFlowController', 'hseApprove'])->name('final-evaluations.approve');
     Route::post('/final-evaluations/{id}/reject', ['App\Http\Controllers\EvaluationFlowController', 'reject'])->name('final-evaluations.reject');
 });
+
+// Modular Routes: Evaluasi 1 & Evaluasi 2
+require __DIR__ . '/evaluasi.php';

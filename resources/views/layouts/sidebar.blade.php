@@ -36,8 +36,16 @@
             'tag' => 'TRAINEE',
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'ojt.dashboard', 'match' => 'ojt.dashboard'],
-                ['label' => 'My Submission', 'route' => 'ojt.logbooks.index', 'match' => 'ojt.logbooks.*'],
-                ['label' => 'Create Form OJT', 'route' => 'ojt.logbooks.create', 'match' => 'ojt.logbooks.create'],
+                ['label' => 'Evaluasi 1', 'route' => 'evaluasi1.trainee.lms', 'match' => 'evaluasi1.*'],
+                ['label' => 'Evaluasi 2', 'route' => 'evaluasi2.assessments.index', 'match' => 'evaluasi2.*'],
+                ['label' => 'Evaluasi 3', 'route' => 'ojt.logbooks.index', 'match' => 'ojt.logbooks.*', 'phase' => 'evaluasi_3'],
+                ['label' => 'Evaluasi 4', 'route' => 'ojt.logbooks.index', 'match' => 'ojt.logbooks.*', 'phase' => 'evaluasi_4'],
+                ['label' => 'Evaluasi 5', 'route' => 'ojt.logbooks.index', 'match' => 'ojt.logbooks.*', 'phase' => 'bulanan_5'],
+                ['label' => 'Evaluasi 6', 'route' => 'ojt.logbooks.index', 'match' => 'ojt.logbooks.*', 'phase' => 'bulanan_6'],
+                ['label' => 'Evaluasi 7', 'route' => 'ojt.logbooks.index', 'match' => 'ojt.logbooks.*', 'phase' => 'bulanan_7'],
+                ['label' => 'Evaluasi 8', 'route' => 'ojt.logbooks.index', 'match' => 'ojt.logbooks.*', 'phase' => 'bulanan_8'],
+                ['label' => 'Evaluasi 9', 'route' => 'ojt.logbooks.index', 'match' => 'ojt.logbooks.*', 'phase' => 'bulanan_9'],
+                ['label' => 'Evaluasi 10', 'route' => 'ojt.logbooks.index', 'match' => 'ojt.logbooks.*', 'phase' => 'bulanan_10'],
             ],
         ],
         'trainer' => [
@@ -45,6 +53,8 @@
             'tag' => 'TRAINER',
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'trainer.dashboard', 'match' => 'trainer.dashboard'],
+                ['label' => 'Evaluasi 1: CBT & Proctoring', 'route' => 'evaluasi1.trainer.dashboard', 'match' => 'evaluasi1.trainer.*'],
+                ['label' => 'Evaluasi 2: Penilaian Gerdas', 'route' => 'evaluasi2.assessments.index', 'match' => 'evaluasi2.*'],
                 ['label' => 'Review Form OJT', 'route' => 'trainer.reviews.index', 'match' => 'trainer.reviews.*'],
                 ['label' => 'Form Evaluasi OJT A2B', 'route' => 'trainer.final-evaluations.index', 'match' => 'trainer.final-evaluations.*'],
             ],
@@ -72,6 +82,9 @@
             'tag' => 'ADMIN',
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'training-centre.dashboard', 'match' => 'training-centre.dashboard'],
+                ['label' => 'Monitoring Evaluasi 1 & 2', 'route' => 'monitoring.evaluasi1-2', 'match' => 'monitoring.evaluasi1-2'],
+                ['label' => 'Evaluasi 1: CBT & Proctoring', 'route' => 'evaluasi1.trainer.dashboard', 'match' => 'evaluasi1.trainer.*'],
+                ['label' => 'Evaluasi 2: Penilaian Gerdas', 'route' => 'evaluasi2.assessments.index', 'match' => 'evaluasi2.*'],
                 ['label' => 'Manajemen Pengguna', 'route' => 'training-centre.users.index', 'match' => 'training-centre.users.*'],
                 ['label' => 'Persetujuan Evaluasi', 'route' => 'training-centre.final-evaluations.index', 'match' => 'training-centre.final-evaluations.*'],
             ],
@@ -137,9 +150,24 @@
                 <nav class="space-y-1">
                     @foreach($currentSection['items'] as $item)
                         @continue($item['route'] === $dashboardRoute)
-                        <a href="{{ route($item['route']) }}"
-                           class="flex items-center px-3 py-2.5 text-xs font-semibold rounded-lg transition-colors group {{ request()->routeIs($item['match']) ? 'bg-[#2563eb] text-white shadow-md' : 'text-blue-100 hover:bg-blue-900/60 hover:text-white' }}">
-                             <svg class="w-4 h-4 mr-3 {{ request()->routeIs($item['match']) ? 'text-white' : 'text-blue-400 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        @php
+                            $routeParams = isset($item['phase']) ? ['phase' => $item['phase']] : ($item['params'] ?? []);
+                            $isActive = false;
+                            if (isset($item['phase'])) {
+                                if (request()->routeIs($item['match'])) {
+                                    if (request()->filled('phase')) {
+                                        $isActive = request('phase') === $item['phase'];
+                                    } else {
+                                        $isActive = ($user?->current_phase ?? 'evaluasi_3') === $item['phase'];
+                                    }
+                                }
+                            } else {
+                                $isActive = request()->routeIs($item['match']);
+                            }
+                        @endphp
+                        <a href="{{ route($item['route'], $routeParams) }}"
+                           class="flex items-center px-3 py-2 text-xs font-semibold rounded-lg transition-colors group {{ $isActive ? 'bg-[#2563eb] text-white shadow-md' : 'text-blue-100 hover:bg-blue-900/60 hover:text-white' }}">
+                             <svg class="w-4 h-4 mr-3 {{ $isActive ? 'text-white' : 'text-blue-400 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6M8 8h8m-9 8h10"/>
                             </svg>
                             <span>{{ $item['label'] }}</span>

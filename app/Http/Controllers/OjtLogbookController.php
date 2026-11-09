@@ -26,6 +26,12 @@ class OjtLogbookController extends Controller
         $query = OjtLogbook::where('trainee_id', $traineeId)
             ->with(['equipment', 'equipmentCategory', 'trainer']);
 
+        // Phase Filter (Evaluasi 3, Evaluasi 4, Evaluasi 5, dll)
+        $selectedPhase = $request->get('phase');
+        if ($selectedPhase && $selectedPhase !== 'all') {
+            \App\Services\PhaseService::applyPhaseFilter($query, $user, $selectedPhase);
+        }
+
         // Search
         if ($request->filled('search')) {
             $search = $request->search;
@@ -93,15 +99,32 @@ class OjtLogbookController extends Controller
         $usersMap = User::whereIn('id', $allPengawasIds->merge($allOperatorIds))->get()->mapWithKeys(fn ($user) => [$user->id => $user]);
 
         $equipments = Equipment::with('category')->where('status', 'active')->get();
+
+        $countQuery = OjtLogbook::where('trainee_id', $traineeId);
+        if ($selectedPhase && $selectedPhase !== 'all') {
+            \App\Services\PhaseService::applyPhaseFilter($countQuery, $user, $selectedPhase);
+        }
+
         $statusCounts = [
-            'all' => OjtLogbook::where('trainee_id', $traineeId)->count(),
-            'draft' => OjtLogbook::where('trainee_id', $traineeId)->where('status', 'draft')->count(),
-            'submitted' => OjtLogbook::where('trainee_id', $traineeId)->where('status', 'submitted')->count(),
-            'revision' => OjtLogbook::where('trainee_id', $traineeId)->where('status', 'revision')->whereNull('training_centre_decided_at')->count(),
-            'approved' => OjtLogbook::where('trainee_id', $traineeId)->whereIn('status', ['verified', 'final_approved'])->count(),
+            'all' => (clone $countQuery)->count(),
+            'draft' => (clone $countQuery)->where('status', 'draft')->count(),
+            'submitted' => (clone $countQuery)->where('status', 'submitted')->count(),
+            'revision' => (clone $countQuery)->where('status', 'revision')->whereNull('training_centre_decided_at')->count(),
+            'approved' => (clone $countQuery)->whereIn('status', ['verified', 'final_approved'])->count(),
         ];
 
-        return view('ojt.logbooks.index', compact('logbooks', 'equipments', 'statusCounts', 'usersMap'));
+        $availablePhases = \App\Services\PhaseService::sequence($user->certification ?? 'Green');
+        $phaseMeta = $selectedPhase ? \App\Services\PhaseService::meta($user->certification ?? 'Green', $selectedPhase) : null;
+
+        $phaseCounts = [];
+        $totalAllPhases = OjtLogbook::where('trainee_id', $traineeId)->count();
+        foreach ($availablePhases as $ph) {
+            $phQuery = OjtLogbook::where('trainee_id', $traineeId);
+            \App\Services\PhaseService::applyPhaseFilter($phQuery, $user, $ph['key']);
+            $phaseCounts[$ph['key']] = $phQuery->count();
+        }
+
+        return view('ojt.logbooks.index', compact('logbooks', 'equipments', 'statusCounts', 'usersMap', 'selectedPhase', 'phaseMeta', 'availablePhases', 'phaseCounts', 'totalAllPhases'));
     }
 
     public function create()
@@ -132,6 +155,10 @@ class OjtLogbookController extends Controller
         $next = $last ? (int) substr($last, -4) + 1 : 1;
         $logbookNumber = $prefix . str_pad($next, 4, '0', STR_PAD_LEFT);
 
+        $sopPayload = $request->input('sop_payload', []);
+        $currentPhase = \App\Services\PhaseService::currentPhaseKey($user);
+        data_set($sopPayload, 'meta.phase', $currentPhase);
+
         $logbook = OjtLogbook::create([
             'logbook_number' => $logbookNumber,
             'trainee_id' => $traineeId,
@@ -149,7 +176,7 @@ class OjtLogbookController extends Controller
             'total_hm' => $totalHm,
             'hm_day' => $hmDay,
             'hm_night' => $hmNight,
-            'sop_payload' => $request->input('sop_payload', []),
+            'sop_payload' => $sopPayload,
             'status' => $status,
             'submitted_at' => $status === 'submitted' ? now() : null,
         ]);

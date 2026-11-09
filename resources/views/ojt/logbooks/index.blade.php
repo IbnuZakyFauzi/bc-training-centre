@@ -4,8 +4,19 @@
     <!-- Page Header & Action Bar -->
     <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-            <h1 class="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">Daftar Submission Saya</h1>
-            <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Kelola, tinjau status verifikasi, dan perbarui submission.</p>
+            <h1 class="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">
+                Daftar Submission Saya
+                @if($selectedPhase && $phaseMeta)
+                    <span class="text-[#2563eb] font-bold">— {{ $phaseMeta['label'] }}</span>
+                @endif
+            </h1>
+            <p class="text-[10px] sm:text-xs text-slate-500 mt-1">
+                @if($selectedPhase && $phaseMeta)
+                    Menampilkan riwayat form OJT khusus periode {{ $phaseMeta['label'] }}.
+                @else
+                    Kelola, tinjau status verifikasi, dan perbarui seluruh submission OJT Anda.
+                @endif
+            </p>
         </div>
         <div>
             <a href="{{ route('ojt.logbooks.create') }}" class="inline-flex items-center justify-center px-4 py-3 bg-[#2563eb] hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all min-h-[44px]">
@@ -15,26 +26,107 @@
         </div>
     </div>
 
+    <!-- Phase Navigation Switcher Tabs -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-2.5 mb-4">
+        <div class="flex items-center justify-between px-2 pb-2 mb-2 border-b border-slate-100">
+            <div class="flex items-center space-x-2">
+                <svg class="w-4 h-4 text-[#2563eb]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Pilih Fase Evaluasi:</span>
+            </div>
+            @if($selectedPhase && $selectedPhase !== 'all')
+                <div class="flex items-center space-x-2">
+                    <span class="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+                        Filter Aktif: {{ $phaseMeta['label'] ?? \App\Services\PhaseService::phaseLabel($selectedPhase) }}
+                    </span>
+                    <a href="{{ route('ojt.logbooks.index', request()->except('phase', 'page')) }}" class="text-[11px] font-bold text-slate-500 hover:text-slate-800 underline">
+                        Reset Fase
+                    </a>
+                </div>
+            @else
+                <span class="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                    Menampilkan Semua Fase
+                </span>
+            @endif
+        </div>
+        <div class="flex items-center space-x-1.5 overflow-x-auto pb-1 pt-0.5 min-w-max">
+            @php
+                $isAllPhases = empty($selectedPhase) || $selectedPhase === 'all';
+                $basePhaseParams = request()->only(['status', 'equipment_id', 'date_from', 'date_to', 'search']);
+            @endphp
+            <a href="{{ route('ojt.logbooks.index', $basePhaseParams) }}"
+               class="px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 {{ $isAllPhases ? 'bg-[#1e3a8a] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100' }}">
+                <span>Semua Fase</span>
+                <span class="px-1.5 py-0.5 rounded-full text-[10px] {{ $isAllPhases ? 'bg-blue-800 text-blue-100' : 'bg-slate-100 text-slate-600' }}">{{ $totalAllPhases ?? $statusCounts['all'] }}</span>
+            </a>
+
+            @foreach($availablePhases as $ph)
+                @php
+                    $isThisPhase = ($selectedPhase === $ph['key']);
+                    $countThisPhase = $phaseCounts[$ph['key']] ?? 0;
+                @endphp
+                <a href="{{ route('ojt.logbooks.index', array_merge($basePhaseParams, ['phase' => $ph['key']])) }}"
+                   class="px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 {{ $isThisPhase ? 'bg-[#2563eb] text-white shadow-sm ring-2 ring-blue-300' : 'text-slate-600 hover:bg-slate-100' }}">
+                    <span>{{ $ph['label'] }}</span>
+                    <span class="px-1.5 py-0.5 rounded-full text-[10px] {{ $isThisPhase ? 'bg-blue-800 text-white' : ($countThisPhase > 0 ? 'bg-blue-50 text-blue-700 font-semibold' : 'bg-slate-100 text-slate-400') }}">
+                        {{ $countThisPhase }}
+                    </span>
+                </a>
+            @endforeach
+        </div>
+    </div>
+
+    @if($selectedPhase && $selectedPhase !== 'all' && $phaseMeta)
+        <!-- Phase Highlight Banner -->
+        <div class="bg-gradient-to-r from-[#1e3a8a] to-[#2563eb] text-white rounded-2xl p-4 sm:p-5 mb-4 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-gray-900">
+                        {{ $phaseMeta['label'] }}
+                    </span>
+                    <span class="text-xs text-blue-100 font-medium">
+                        {{ $phaseCounts[$selectedPhase] ?? 0 }} Form Disubmit Pada Periode Ini
+                    </span>
+                </div>
+                <p class="text-xs text-blue-100 mt-1.5 font-medium">
+                    @if(($phaseMeta['type'] ?? '') === 'evaluasi')
+                        Persyaratan HM Fase: <strong class="text-amber-300 font-bold">{{ $phaseMeta['total_hm'] ?? '-' }} HM Total</strong> (Siang: {{ $phaseMeta['day_hm'] ?? '-' }} HM | Malam: {{ $phaseMeta['night_hm'] ?? '-' }} HM)
+                    @elseif(($phaseMeta['type'] ?? '') === 'bulanan')
+                        Persyaratan Fase: <strong class="text-amber-300 font-bold">Minimal 4 Form OJT Bulanan</strong>
+                    @endif
+                </p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <a href="{{ route('ojt.logbooks.index', request()->except('phase', 'page')) }}" class="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold backdrop-blur transition inline-flex items-center">
+                    <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    Tampilkan Semua Fase
+                </a>
+            </div>
+        </div>
+    @endif
+
     <!-- Status Tabs Header -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-2 mb-6 overflow-x-auto">
         <div class="flex items-center space-x-1 min-w-max">
-            <a href="{{ route('ojt.logbooks.index') }}" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 {{ !request('status') || request('status') === 'all' ? 'bg-[#1e3a8a] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100' }}">
+            @php
+                $baseStatusQuery = request()->only(['phase', 'equipment_id', 'date_from', 'date_to', 'search']);
+            @endphp
+            <a href="{{ route('ojt.logbooks.index', array_merge($baseStatusQuery, ['status' => 'all'])) }}" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 {{ !request('status') || request('status') === 'all' ? 'bg-[#1e3a8a] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100' }}">
                 <span>Semua</span>
                 <span class="px-2 py-0.5 rounded-full text-[10px] {{ !request('status') || request('status') === 'all' ? 'bg-blue-800 text-blue-100' : 'bg-slate-100 text-slate-600' }}">{{ $statusCounts['all'] }}</span>
             </a>
-            <a href="{{ route('ojt.logbooks.index', ['status' => 'draft']) }}" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 {{ request('status') === 'draft' ? 'bg-slate-800 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100' }}">
+            <a href="{{ route('ojt.logbooks.index', array_merge($baseStatusQuery, ['status' => 'draft'])) }}" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 {{ request('status') === 'draft' ? 'bg-slate-800 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100' }}">
                 <span>Draft</span>
                 <span class="px-2 py-0.5 rounded-full text-[10px] {{ request('status') === 'draft' ? 'bg-slate-700 text-slate-100' : 'bg-slate-100 text-slate-600' }}">{{ $statusCounts['draft'] }}</span>
             </a>
-            <a href="{{ route('ojt.logbooks.index', ['status' => 'submitted']) }}" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 {{ request('status') === 'submitted' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100' }}">
+            <a href="{{ route('ojt.logbooks.index', array_merge($baseStatusQuery, ['status' => 'submitted'])) }}" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 {{ request('status') === 'submitted' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100' }}">
                 <span>Submitted</span>
                 <span class="px-2 py-0.5 rounded-full text-[10px] {{ request('status') === 'submitted' ? 'bg-blue-700 text-blue-100' : 'bg-blue-50 text-blue-700' }}">{{ $statusCounts['submitted'] }}</span>
             </a>
-            <a href="{{ route('ojt.logbooks.index', ['status' => 'revision']) }}" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 {{ request('status') === 'revision' ? 'bg-amber-500 text-gray-900 shadow-xs' : 'text-amber-700 hover:bg-amber-50' }}">
+            <a href="{{ route('ojt.logbooks.index', array_merge($baseStatusQuery, ['status' => 'revision'])) }}" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 {{ request('status') === 'revision' ? 'bg-amber-500 text-gray-900 shadow-xs' : 'text-amber-700 hover:bg-amber-50' }}">
                 <span>Returned for Revision</span>
                 <span class="px-2 py-0.5 rounded-full text-[10px] bg-amber-100 text-amber-900">{{ $statusCounts['revision'] }}</span>
             </a>
-            <a href="{{ route('ojt.logbooks.index', ['status' => 'approved']) }}" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 {{ request('status') === 'approved' ? 'bg-[#2563eb] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100' }}">
+            <a href="{{ route('ojt.logbooks.index', array_merge($baseStatusQuery, ['status' => 'approved'])) }}" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 {{ request('status') === 'approved' ? 'bg-[#2563eb] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100' }}">
                 <span>Approved</span>
                 <span class="px-2 py-0.5 rounded-full text-[10px] {{ request('status') === 'approved' ? 'bg-blue-700 text-blue-100' : 'bg-amber-50 text-amber-700' }}">{{ $statusCounts['approved'] }}</span>
             </a>
@@ -44,6 +136,9 @@
     <!-- Filter & Search Section -->
     <div class="bg-white p-3 sm:p-4 rounded-2xl shadow-sm border border-slate-200 mb-4 sm:mb-6">
         <form action="{{ route('ojt.logbooks.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            @if(request('phase'))
+                <input type="hidden" name="phase" value="{{ request('phase') }}">
+            @endif
             @if(request('status'))
                 <input type="hidden" name="status" value="{{ request('status') }}">
             @endif
@@ -80,7 +175,7 @@
                     Filter
                 </button>
                 @if(request()->hasAny(['search', 'equipment_id', 'date_from', 'date_to', 'sort_by', 'sort_dir']))
-                    <a href="{{ route('ojt.logbooks.index', ['status' => request('status')]) }}" class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition min-h-[44px] inline-flex items-center justify-center">
+                    <a href="{{ route('ojt.logbooks.index', array_filter(['status' => request('status'), 'phase' => request('phase')])) }}" class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition min-h-[44px] inline-flex items-center justify-center">
                         Reset
                     </a>
                 @endif
@@ -146,9 +241,18 @@
                         <tr class="hover:bg-slate-50/80 transition">
                             <!-- Form OJT Number -->
                             <td class="py-4 px-5 font-bold text-slate-900">
-                                <a href="{{ route('ojt.logbooks.show', $log->id) }}" class="hover:text-[#2563eb] transition flex items-center space-x-2">
-                                    <span>{{ $log->logbook_number }}</span>
-                                </a>
+                                @php
+                                    $rowPhaseKey = \App\Services\PhaseService::resolveLogbookPhase($log);
+                                    $rowPhaseLabel = \App\Services\PhaseService::phaseLabel($rowPhaseKey);
+                                @endphp
+                                <div class="flex items-center space-x-2">
+                                    <a href="{{ route('ojt.logbooks.show', $log->id) }}" class="hover:text-[#2563eb] transition">
+                                        <span>{{ $log->logbook_number }}</span>
+                                    </a>
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                        {{ $rowPhaseLabel }}
+                                    </span>
+                                </div>
                                 <span class="text-[10px] text-slate-400 font-normal block mt-0.5">{{ $log->location }}</span>
                             </td>
 
@@ -245,8 +349,13 @@
                         <tr>
                             <td colspan="12" class="py-12 text-center text-slate-400">
                                 <svg class="w-12 h-12 mx-auto text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                <p class="text-sm font-semibold text-slate-600">Tidak ada data form OJT yang ditemukan.</p>
-                                <p class="text-xs text-slate-400 mt-1">Coba sesuaikan kata kunci pencarian atau buat form OJT baru.</p>
+                                @if(!empty($selectedPhase) && $selectedPhase !== 'all')
+                                    <p class="text-sm font-semibold text-slate-700">Tidak ada submission form OJT pada {{ $phaseMeta['label'] ?? \App\Services\PhaseService::phaseLabel($selectedPhase) }}.</p>
+                                    <p class="text-xs text-slate-400 mt-1">Gunakan tombol "Create Form OJT" untuk menambahkan submission baru pada fase ini, atau pilih tab fase lainnya.</p>
+                                @else
+                                    <p class="text-sm font-semibold text-slate-600">Tidak ada data form OJT yang ditemukan.</p>
+                                    <p class="text-xs text-slate-400 mt-1">Coba sesuaikan kata kunci pencarian atau buat form OJT baru.</p>
+                                @endif
                             </td>
                         </tr>
                     @endforelse
