@@ -21,7 +21,7 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        $data = $request->validate([
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => [
                 'nullable',
@@ -32,8 +32,17 @@ class ProfileController extends Controller
             ],
             'phone' => ['required', 'string', 'max:30'],
             'signature' => ['nullable', 'file', 'mimes:png,jpg,jpeg', 'max:2048'],
-            'current_password' => ['nullable', 'current_password'],
-            'new_password' => ['nullable', 'string', 'min:6', 'confirmed'],
+        ];
+
+        if ($request->filled('new_password')) {
+            $rules['current_password'] = ['required', 'current_password'];
+            $rules['new_password'] = ['required', 'string', 'min:6', 'confirmed'];
+        }
+
+        $data = $request->validate($rules, [
+            'current_password.current_password' => 'Password saat ini tidak sesuai.',
+            'new_password.min' => 'Password baru minimal 6 karakter.',
+            'new_password.confirmed' => 'Konfirmasi password baru tidak cocok.',
         ]);
 
         $signaturePath = $user->signature_path;
