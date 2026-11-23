@@ -1,5 +1,6 @@
 @php
-    $isEditing = isset($logbook);
+    $logbook = $logbook ?? null;
+    $isEditing = isset($logbook) && $logbook !== null;
     $isTrainerEditing = $isTrainerEditing ?? false;
     $isTrainerCreating = $isTrainerCreating ?? false;
     $assignedPengawas = $assignedPengawas ?? collect();
@@ -489,7 +490,7 @@
         @method('PUT')
     @endif
 
-    @if($errors->any())
+    @if(isset($errors) && $errors->any())
         <div class="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-xs text-rose-900">
             <p class="font-bold">Submit gagal. Periksa field berikut:</p>
             <ul class="mt-2 list-disc pl-5 space-y-1">
@@ -1719,7 +1720,7 @@
 
     <!-- Evidence OJT Upload Section (Above Section C Ringkasan HM) -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" x-data="{
-        previewUrl: '{{ ($existingEvidence = $logbook?->evidences?->first()?->file_path ?? data_get($formPayload, 'meta.evidence_path')) ? (str_starts_with($existingEvidence, 'http') ? $existingEvidence : asset('storage/' . $existingEvidence)) : '' }}',
+        previewUrl: '{{ ($existingEvidence = ($logbook ? $logbook->evidences?->first()?->file_path : null) ?? data_get($formPayload ?? [], 'meta.evidence_path')) ? (str_starts_with($existingEvidence, 'http') ? $existingEvidence : asset('storage/' . $existingEvidence)) : '' }}',
         hasFile: false,
         fileName: '',
         fileSize: '',
