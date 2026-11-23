@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\LogbookHistory;
 use App\Models\LogbookAssignment;
 use App\Models\FinalEvaluation;
+use App\Models\LogbookEvidence;
 use App\Http\Requests\StoreLogbookRequest;
 use App\Http\Requests\UpdateLogbookRequest;
 use App\Support\CompetencyScale;
@@ -107,6 +108,11 @@ class OjtLogbookController extends Controller
     public function create()
     {
         $user = Auth::user() ?? User::where('role', 'trainee')->first();
+        if ($user && $user->isTrainee()) {
+            return redirect()->route('ojt.logbooks.index')
+                ->with('info', 'Pengisian formulir logbook OJT dilakukan oleh Trainer pembimbing. Anda dapat memeriksa dan menyetujui logbook yang masuk di daftar ini.');
+        }
+
         $categories = EquipmentCategory::whereIn('code', ['EXC', 'DZ', 'MG', 'HDT', 'SDT', 'WL'])->with('equipments')->get();
         $trainers = User::where('role', 'trainer')->get();
         $equipments = Equipment::with('category')->where('status', 'active')->get();
@@ -153,6 +159,21 @@ class OjtLogbookController extends Controller
             'status' => $status,
             'submitted_at' => $status === 'submitted' ? now() : null,
         ]);
+
+        if ($request->hasFile('evidence')) {
+            $file = $request->file('evidence');
+            $path = $file->store('evidences', 'public');
+            LogbookEvidence::create([
+                'ojt_logbook_id' => $logbook->id,
+                'file_path' => $path,
+                'file_name' => $file->getClientOriginalName(),
+                'file_type' => $file->getClientMimeType(),
+                'file_size' => $file->getSize(),
+            ]);
+            $currentPayload = $logbook->sop_payload ?? [];
+            data_set($currentPayload, 'meta.evidence_path', $path);
+            $logbook->update(['sop_payload' => $currentPayload]);
+        }
 
         if ($status === 'submitted') {
             $assignments = [];

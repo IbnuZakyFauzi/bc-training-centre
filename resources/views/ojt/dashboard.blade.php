@@ -270,20 +270,6 @@
             
             <!-- Quick Action Cards Grid -->
             <div class="grid flex-1 grid-cols-1 gap-3 sm:gap-5 sm:grid-cols-2">
-                <a href="{{ route('ojt.logbooks.create') }}" class="h-full p-5 sm:p-7 bg-white rounded-2xl shadow-sm border border-slate-200 hover:shadow-md hover:border-[#2563eb] transition group flex flex-col justify-between">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-bold tracking-widest text-blue-600 uppercase">Aksi Cepat</span>
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-[#2563eb] group-hover:text-white transition">
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                        </div>
-                    </div>
-                    <div class="py-4 sm:py-6">
-                        <h3 class="text-base sm:text-lg font-bold text-slate-800 group-hover:text-[#1e3a8a] transition">Create Form OJT</h3>
-                        <p class="text-xs sm:text-sm text-slate-500 mt-2 leading-relaxed">Catat HM awal, HM akhir, lokasi pit, dan isi checklist SOP harian.</p>
-                    </div>
-                        <span class="inline-flex items-center border-t border-slate-100 pt-4 sm:pt-5 text-xs sm:text-sm font-bold text-[#2563eb]">Input Form OJT<svg class="w-4 h-4 sm:w-5 sm:h-5 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></span>
-                </a>
-
                 <a href="{{ route('ojt.logbooks.index') }}" class="h-full p-5 sm:p-7 bg-white rounded-2xl shadow-sm border border-slate-200 hover:shadow-md hover:border-blue-400 transition group flex flex-col justify-between">
                     <div class="flex items-center justify-between">
                         <span class="text-[10px] font-bold tracking-widest text-blue-600 uppercase">Manajemen Data</span>
@@ -293,10 +279,26 @@
                     </div>
                     <div class="py-4 sm:py-6">
                         <h3 class="text-base sm:text-lg font-bold text-slate-800 group-hover:text-blue-700 transition">My Form OJT Directory</h3>
-                        <p class="text-xs sm:text-sm text-slate-500 mt-2 leading-relaxed">Kelola daftar seluruh riwayat form OJT, status verifikasi, dan cetak PDF.</p>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-2 leading-relaxed">Periksa logbook yang diisikan Trainer, berikan persetujuan, dan pantau status persetujuan Admin TC.</p>
                     </div>
                     <span class="inline-flex items-center border-t border-slate-100 pt-4 sm:pt-5 text-xs sm:text-sm font-bold text-blue-600">Buka Tabel Form OJT<svg class="w-4 h-4 sm:w-5 sm:h-5 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></span>
                 </a>
+
+                <div class="h-full p-5 sm:p-7 bg-gradient-to-br from-blue-50/50 to-indigo-50/30 rounded-2xl border border-blue-100/80 shadow-sm flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold tracking-widest text-blue-700 uppercase">Informasi OJT</span>
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                    </div>
+                    <div class="py-4 sm:py-6">
+                        <h3 class="text-base sm:text-lg font-bold text-slate-800">Alur Pengisian Form OJT</h3>
+                        <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">Form OJT diisikan langsung oleh Trainer pembimbing. Silakan buka menu logbook untuk meninjau dan menyetujui logbook harian.</p>
+                    </div>
+                    <a href="{{ route('ojt.logbooks.index') }}" class="inline-flex items-center border-t border-blue-100/80 pt-4 sm:pt-5 text-xs sm:text-sm font-bold text-blue-700 hover:text-blue-900 transition">
+                        Lihat Logbook Masuk<svg class="w-4 h-4 sm:w-5 sm:h-5 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </a>
+                </div>
             </div>
 
         </div>

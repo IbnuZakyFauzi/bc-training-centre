@@ -184,7 +184,8 @@
 
         <div class="space-y-4 sm:space-y-5">
             @forelse($trainees as $t)
-                <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition-all overflow-hidden">
+                <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition-all overflow-hidden"
+                     x-data="{ activePhase: '{{ $t['current_phase_key'] ?? ($t['phases']->first()['key'] ?? '') }}' }">
                     <!-- Card Header -->
                     <div class="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-gradient-to-r from-slate-50/50 to-white border-b border-slate-100">
                         <div class="flex items-start sm:items-center gap-3.5">
@@ -280,11 +281,11 @@
                         </div>
                     </div>
 
-                    <!-- Multi-Phase Grid Breakdown -->
+                    <!-- Multi-Phase Grid Breakdown & History Panel (Interactive Timeline) -->
                     <div class="p-4 sm:p-5">
                         <div class="flex items-center justify-between mb-3">
                             <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Rangkaian Fase Evaluasi OJT</p>
-                            <span class="text-[10px] text-slate-400">Titik biru menandakan fase aktif saat ini</span>
+                            <span class="text-[10px] text-slate-400">Titik biru menandakan fase aktif saat ini · Klik fase untuk melihat riwayat</span>
                         </div>
                         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2.5">
                             @foreach($t['phases'] as $p)
@@ -294,9 +295,12 @@
                                     $isPending = $p['pending'] > 0;
                                     $isRejected = $p['rejected'] > 0;
                                 @endphp
-                                <div class="rounded-xl border p-3 transition-all relative {{ $isCurrent ? 'border-[#2563eb] bg-blue-50/40 shadow-sm ring-1 ring-blue-400/50' : ($isCompleted ? 'border-emerald-200 bg-emerald-50/20' : 'border-slate-200 bg-white') }}">
+                                <button type="button"
+                                        @click="activePhase = '{{ $p['key'] }}'"
+                                        :class="activePhase === '{{ $p['key'] }}' ? 'border-[#2563eb] bg-blue-50/70 shadow-sm ring-2 ring-blue-500/40 text-left' : '{{ $isCurrent ? 'border-blue-300 bg-blue-50/30' : ($isCompleted ? 'border-emerald-200 bg-emerald-50/20 hover:border-emerald-300' : 'border-slate-200 bg-white hover:border-slate-300') }} text-left'"
+                                        class="rounded-xl border p-3 transition-all relative w-full text-left cursor-pointer group">
                                     <div class="flex items-center justify-between gap-1 mb-1.5">
-                                        <span class="text-xs font-bold {{ $isCurrent ? 'text-[#1e3a8a]' : ($isCompleted ? 'text-emerald-800' : 'text-slate-700') }} truncate">
+                                        <span class="text-xs font-bold" :class="activePhase === '{{ $p['key'] }}' ? 'text-[#1e3a8a]' : '{{ $isCurrent ? 'text-[#1e3a8a]' : ($isCompleted ? 'text-emerald-800' : 'text-slate-700') }}' truncate">
                                             {{ $p['label'] }}
                                         </span>
                                         @if($isCompleted)
@@ -320,9 +324,112 @@
                                             <p class="text-blue-600 font-semibold">Sedang berjalan</p>
                                         @endif
                                     </div>
-                                </div>
+                                </button>
                             @endforeach
                         </div>
+
+                        <!-- Riwayat Fase Aktif (Gambar 2 Design) -->
+                        @foreach($t['phases'] as $p)
+                            <div x-show="activePhase === '{{ $p['key'] }}'" x-cloak class="mt-5 pt-4 border-t border-slate-100">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-lg bg-blue-100 text-[#1e3a8a] flex items-center justify-center text-xs font-bold">
+                                            📋
+                                        </div>
+                                        <h4 class="font-extrabold text-slate-800 text-xs sm:text-sm">Riwayat {{ $p['label'] }}</h4>
+                                        <span class="text-[10px] font-semibold text-slate-400">({{ count($p['history']) }} Catatan Progres)</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400 italic">Riwayat form & evaluasi fase ini</span>
+                                </div>
+
+                                @if(count($p['history']) > 0)
+                                    <div class="overflow-x-auto rounded-xl border border-slate-200">
+                                        <table class="w-full text-left text-xs">
+                                            <thead class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200">
+                                                <tr>
+                                                    <th class="py-2.5 px-3">Tanggal</th>
+                                                    <th class="py-2.5 px-3">Status</th>
+                                                    <th class="py-2.5 px-3">Evaluator</th>
+                                                    <th class="py-2.5 px-3">Catatan</th>
+                                                    <th class="py-2.5 px-3 text-center w-36">Bukti</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-slate-100 bg-white">
+                                                @foreach($p['history'] as $h)
+                                                    <tr class="hover:bg-slate-50/60 transition">
+                                                        <td class="py-3 px-3 whitespace-nowrap">
+                                                            <div class="flex items-center gap-1.5 font-bold text-slate-800">
+                                                                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                                                <span>{{ $h['date'] }}</span>
+                                                            </div>
+                                                            <span class="text-[10px] text-slate-400 mt-0.5 block">{{ $h['type'] }}</span>
+                                                        </td>
+                                                        <td class="py-3 px-3 whitespace-nowrap">
+                                                            @php
+                                                                $badgeBg = match($h['status']) {
+                                                                    'hse_approved', 'final_approved' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                                                    'verified', 'tc_approved', 'pjo_approved' => 'bg-blue-50 text-blue-700 border-blue-200',
+                                                                    'submitted' => 'bg-amber-50 text-amber-700 border-amber-200',
+                                                                    'rejected', 'revision' => 'bg-rose-50 text-rose-700 border-rose-200',
+                                                                    default => 'bg-slate-100 text-slate-700 border-slate-200',
+                                                                };
+                                                                $dotColor = match($h['status']) {
+                                                                    'hse_approved', 'final_approved' => 'bg-emerald-500',
+                                                                    'verified', 'tc_approved', 'pjo_approved' => 'bg-blue-500',
+                                                                    'submitted' => 'bg-amber-500',
+                                                                    'rejected', 'revision' => 'bg-rose-500',
+                                                                    default => 'bg-slate-400',
+                                                                };
+                                                            @endphp
+                                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border {{ $badgeBg }}">
+                                                                <span class="w-1.5 h-1.5 rounded-full {{ $dotColor }}"></span>
+                                                                {{ $h['status_label'] }}
+                                                            </span>
+                                                        </td>
+                                                        <td class="py-3 px-3">
+                                                            <div class="flex items-center gap-1.5 font-bold text-slate-700">
+                                                                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                                                <span>{{ $h['evaluator'] }}</span>
+                                                            </div>
+                                                            <span class="text-[10px] text-slate-400 block">{{ $h['evaluator_role'] }}</span>
+                                                        </td>
+                                                        <td class="py-3 px-3 text-slate-600 max-w-xs leading-relaxed text-[11px]">
+                                                            {{ $h['notes'] }}
+                                                        </td>
+                                                        <td class="py-3 px-3 text-center whitespace-nowrap">
+                                                            @if($h['evidence_url'])
+                                                                <div class="flex items-center justify-center gap-2">
+                                                                    <img src="{{ $h['evidence_url'] }}"
+                                                                         alt="Thumbnail"
+                                                                         class="w-9 h-9 object-cover rounded-lg border border-slate-200 cursor-pointer shadow-sm hover:scale-105 transition"
+                                                                         @click="$dispatch('open-evidence-modal', { url: '{{ $h['evidence_url'] }}', title: 'Bukti OJT: {{ $t['name'] }} ({{ $h['date'] }})' })">
+                                                                    <button type="button"
+                                                                            class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#1e3a8a] text-[11px] font-bold border border-blue-200 transition inline-flex items-center gap-1"
+                                                                            @click="$dispatch('open-evidence-modal', { url: '{{ $h['evidence_url'] }}', title: 'Bukti OJT: {{ $t['name'] }} ({{ $h['date'] }})' })">
+                                                                        <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                                                        Lihat Bukti
+                                                                    </button>
+                                                                </div>
+                                                            @else
+                                                                <span class="text-[11px] text-slate-400 italic">Tidak ada foto</span>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @else
+                                    <div class="p-6 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 text-center">
+                                        <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-1.5 text-sm">
+                                            📄
+                                        </div>
+                                        <p class="text-xs font-bold text-slate-600">Belum ada riwayat tercatat pada {{ $p['label'] }}</p>
+                                        <p class="text-[11px] text-slate-400 mt-0.5">Form OJT atau evaluasi yang dilaksanakan pada tahap ini akan otomatis tampil di sini.</p>
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             @empty
@@ -400,4 +507,56 @@
             });
         </script>
     @endif
+    <!-- Global Lightbox Modal for Evidence Images -->
+    <div x-data="{
+            isOpen: false,
+            imageUrl: '',
+            imageTitle: '',
+            open(data) {
+                this.imageUrl = data.url;
+                this.imageTitle = data.title || 'Bukti OJT';
+                this.isOpen = true;
+            },
+            close() {
+                this.isOpen = false;
+                this.imageUrl = '';
+            }
+         }"
+         @open-evidence-modal.window="open($event.detail)"
+         @keydown.escape.window="close()"
+         x-show="isOpen"
+         x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-slate-200 transform transition-all"
+             @click.away="close()">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center text-sm font-bold">
+                        📷
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-slate-800 text-sm" x-text="imageTitle">Bukti OJT</h3>
+                        <p class="text-[11px] text-slate-400">Dokumentasi pelaksanaan OJT peserta</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a :href="imageUrl" download target="_blank" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition inline-flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        Download
+                    </a>
+                    <button type="button" @click="close()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-sm font-bold transition">
+                        ✕
+                    </button>
+                </div>
+            </div>
+            <div class="p-6 bg-slate-950/5 flex items-center justify-center min-h-[300px] max-h-[70vh] overflow-auto">
+                <img :src="imageUrl" :alt="imageTitle" class="max-h-[65vh] w-auto max-w-full rounded-2xl shadow-md object-contain border border-slate-200 bg-white">
+            </div>
+            <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 text-right">
+                <button type="button" @click="close()" class="px-4 py-2 bg-[#1e3a8a] text-white rounded-xl text-xs font-bold hover:bg-blue-900 transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
 </x-app-layout>

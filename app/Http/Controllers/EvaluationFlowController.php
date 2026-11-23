@@ -463,10 +463,84 @@ class EvaluationFlowController extends Controller
             $cert = $t->certification ?? 'Green';
             $seq = PhaseService::sequence($cert);
             $currentKey = $t->currentPhaseKey();
-            $evals = FinalEvaluation::where('nama_operator', $t->name)->get();
+            $evals = FinalEvaluation::with(['trainer', 'tcApprover', 'pjoApprover', 'hseApprover'])
+                ->where('nama_operator', $t->name)
+                ->get();
+            $logbooks = \App\Models\OjtLogbook::with(['trainer', 'evidences'])
+                ->where('trainee_id', $t->id)
+                ->orderBy('date', 'desc')
+                ->get();
 
-            $phaseRows = collect($seq)->map(function ($p) use ($evals, $currentKey) {
+            $phaseRows = collect($seq)->map(function ($p) use ($evals, $logbooks, $currentKey, $t) {
                 $pe = $evals->where('phase', $p['key']);
+
+                // Filter logbooks matching this phase
+                $pl = $logbooks->filter(function ($log) use ($p, $currentKey) {
+                    $logPhase = data_get($log->sop_payload, 'meta.phase');
+                    if ($logPhase) {
+                        return $logPhase === $p['key'];
+                    }
+                    return $p['key'] === $currentKey;
+                });
+
+                $historyItems = collect();
+
+                foreach ($pe as $e) {
+                    $approver = $e->hseApprover->name ?? ($e->pjoApprover->name ?? ($e->tcApprover->name ?? ($e->trainer->name ?? 'Evaluator')));
+                    $statusLabel = match($e->status) {
+                        'hse_approved' => 'Disetujui HSE CT',
+                        'pjo_approved' => 'Disetujui PJO',
+                        'tc_approved' => 'Disetujui Admin TC',
+                        'submitted' => 'Menunggu Persetujuan',
+                        'rejected' => 'Perlu Revisi',
+                        default => ucfirst($e->status),
+                    };
+                    $historyItems->push([
+                        'id' => 'eval-' . $e->id,
+                        'type' => 'Evaluasi Final',
+                        'date' => $e->tanggal_penilaian ? \Carbon\Carbon::parse($e->tanggal_penilaian)->translatedFormat('d M Y') : $e->created_at->translatedFormat('d M Y'),
+                        'raw_date' => $e->tanggal_penilaian ?? $e->created_at,
+                        'status' => $e->status,
+                        'status_label' => $statusLabel,
+                        'evaluator' => $approver,
+                        'evaluator_role' => 'Evaluator HSE CT',
+                        'notes' => $e->catatan ?: ($e->tc_notes ?: ($e->pjo_notes ?: ($e->kesimpulan ?: 'Evaluasi tahap ' . $p['label']))),
+                        'evidence_url' => null,
+                        'evidence_name' => null,
+                    ]);
+                }
+
+                foreach ($pl as $l) {
+                    $evidence = $l->evidences->first();
+                    $evidencePath = $evidence?->file_path ?? data_get($l->sop_payload, 'meta.evidence_path');
+                    $evidenceUrl = $evidencePath ? (str_starts_with($evidencePath, 'http') ? $evidencePath : asset('storage/' . $evidencePath)) : null;
+
+                    $statusLabel = match($l->status) {
+                        'final_approved' => 'Disetujui Admin TC',
+                        'verified' => 'Disetujui Trainee',
+                        'submitted' => 'Menunggu Persetujuan',
+                        'revision' => 'Perlu Revisi',
+                        'draft' => 'Draft',
+                        default => ucfirst($l->status),
+                    };
+
+                    $historyItems->push([
+                        'id' => 'log-' . $l->id,
+                        'type' => 'Logbook OJT (' . ($l->logbook_number ?? '-') . ')',
+                        'date' => \Carbon\Carbon::parse($l->date)->translatedFormat('d M Y'),
+                        'raw_date' => $l->date,
+                        'status' => $l->status,
+                        'status_label' => $statusLabel,
+                        'evaluator' => $l->trainer->name ?? 'Trainer',
+                        'evaluator_role' => 'Trainer Pembimbing',
+                        'notes' => $l->revision_notes ?: (data_get($l->sop_payload, 'meta.notes') ?: 'Pelaksanaan OJT Unit ' . ($l->unit_code ?: '-') . ' (HM: ' . number_format($l->total_hm, 1) . ' jam)'),
+                        'evidence_url' => $evidenceUrl,
+                        'evidence_name' => $evidence?->file_name ?? 'Foto Bukti OJT',
+                    ]);
+                }
+
+                $sortedHistory = $historyItems->sortByDesc('raw_date')->values()->all();
+
                 return [
                     'key' => $p['key'],
                     'label' => $p['label'],
@@ -476,6 +550,7 @@ class EvaluationFlowController extends Controller
                     'pending' => $pe->whereIn('status', ['submitted', 'tc_approved', 'pjo_approved'])->count(),
                     'rejected' => $pe->where('status', 'rejected')->count(),
                     'total' => $pe->count(),
+                    'history' => $sortedHistory,
                 ];
             });
 
@@ -487,6 +562,7 @@ class EvaluationFlowController extends Controller
                 'company' => $t->company,
                 'department' => $t->department,
                 'equipment_category_name' => $t->equipmentCategory->name ?? '-',
+                'current_phase_key' => $currentKey,
                 'current_phase_label' => $t->currentPhaseMeta()['label'] ?? $currentKey,
                 'eligible' => $t->isPhaseEligible(),
                 'hm' => $t->hmProgress(),

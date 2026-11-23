@@ -9,6 +9,7 @@ use App\Models\LogbookHistory;
 use App\Models\OjtLogbook;
 use App\Models\User;
 use App\Models\LogbookAssignment;
+use App\Models\LogbookEvidence;
 use App\Support\CompetencyScale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -218,6 +219,7 @@ class TrainerReviewController extends Controller
             'sop_payload.*.compliance.*.trainee_feedback' => ['nullable', 'string'],
             'sop_payload.*.behavior.*.status' => ['nullable', 'integer', 'between:1,4'],
             'sop_payload.*.behavior.*.trainee_feedback' => ['nullable', 'string'],
+            'evidence' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
         ], [
             'sop_payload.meta.unit_type.required' => 'Pilih tipe unit (DZ/GR, HDT/LDT, atau SDT/ADT) sesuai kategori alat.',
             'sop_payload.meta.unit_type.in' => 'Tipe unit yang dipilih tidak valid.',
@@ -244,6 +246,21 @@ class TrainerReviewController extends Controller
             if ($existingStickerExp && empty($data['sop_payload']['meta']['sticker_expired_at'])) {
                 data_set($data['sop_payload'], 'meta.sticker_expired_at', $existingStickerExp);
             }
+        }
+
+        if ($request->hasFile('evidence')) {
+            $file = $request->file('evidence');
+            $path = $file->store('evidences', 'public');
+            LogbookEvidence::updateOrCreate(
+                ['ojt_logbook_id' => $logbook->id],
+                [
+                    'file_path' => $path,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_type' => $file->getClientMimeType(),
+                    'file_size' => $file->getSize(),
+                ]
+            );
+            data_set($data['sop_payload'], 'meta.evidence_path', $path);
         }
 
         $data['total_hm'] = max(0, (float) $data['hm_end'] - (float) $data['hm_start']);
@@ -531,6 +548,7 @@ class TrainerReviewController extends Controller
             'hm_end' => ['required', 'numeric', 'gte:hm_start'],
             'action_type' => ['required', 'in:draft,submit'],
             'sop_payload' => ['nullable', 'array'],
+            'evidence' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
         ]);
 
         $trainee = User::with('equipmentCategory')->findOrFail($request->trainee_id);
@@ -559,6 +577,7 @@ class TrainerReviewController extends Controller
         data_set($sopPayload, 'meta.trainee_name', $trainee->name);
         data_set($sopPayload, 'meta.company', $company);
         data_set($sopPayload, 'meta.certification', $certification);
+        data_set($sopPayload, 'meta.phase', $trainee->currentPhaseKey());
 
         $logbook = OjtLogbook::create([
             'logbook_number' => $logbookNumber,
@@ -582,6 +601,20 @@ class TrainerReviewController extends Controller
             'submitted_at' => $status === 'submitted' ? now() : null,
             'trainer_signature_path' => $trainer->signature_path,
         ]);
+
+        if ($request->hasFile('evidence')) {
+            $file = $request->file('evidence');
+            $path = $file->store('evidences', 'public');
+            LogbookEvidence::create([
+                'ojt_logbook_id' => $logbook->id,
+                'file_path' => $path,
+                'file_name' => $file->getClientOriginalName(),
+                'file_type' => $file->getClientMimeType(),
+                'file_size' => $file->getSize(),
+            ]);
+            data_set($sopPayload, 'meta.evidence_path', $path);
+            $logbook->update(['sop_payload' => $sopPayload]);
+        }
 
         // Assignments
         $assignments = [

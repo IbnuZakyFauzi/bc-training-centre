@@ -479,6 +479,7 @@
     </script>
 
     <form id="logbookForm" action="{{ $formAction ?? ($isTrainerEditing ? route('trainer.reviews.update', $logbook->id) : ($isEditing ? route('ojt.logbooks.update', $logbook->id) : route('ojt.logbooks.store'))) }}" method="POST"
+      enctype="multipart/form-data"
       x-data="logbookFormData()"
         x-init="$nextTick(() => { fillExistingChecklist(); initSelectedTrainers(); if (isTrainerCreating) initTrainee(); })"
         class="space-y-3 sm:space-y-3 pb-6 sm:pb-10"
@@ -782,13 +783,18 @@
                             <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#2563eb] text-white flex items-center justify-center text-[9px] sm:text-[10px]">A</span>
                             <span>BAGIAN A: TEKNIK PENGOPERASIAN (DOZING &amp; DIGGING, SPREADING &amp; LEVELING, RIPPING, FINISHING)</span>
                         </div>
-                        <div class="flex gap-3 sm:gap-4" x-show="unitFamily === 'track'" x-cloak>
-                            <label class="flex items-center gap-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
-                                <input type="radio" name="sop_payload[meta][unit_type]" value="DZ" x-model="unitType" class="accent-slate-800"> DZ (Bulldozer)
-                            </label>
-                            <label class="flex items-center gap-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
-                                <input type="radio" name="sop_payload[meta][unit_type]" value="GR" x-model="unitType" class="accent-slate-800"> GR (Motor Grader)
-                            </label>
+                        <div class="flex flex-wrap items-center gap-2 sm:gap-3" x-show="unitFamily === 'track'" x-cloak>
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-300">
+                                <span class="text-rose-600">*</span> Wajib Pilih Tipe Unit
+                            </span>
+                            <div class="flex items-center gap-3">
+                                <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
+                                    <input type="radio" name="sop_payload[meta][unit_type]" value="DZ" x-model="unitType" class="accent-[#1e3a8a]"> DZ (Bulldozer)
+                                </label>
+                                <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
+                                    <input type="radio" name="sop_payload[meta][unit_type]" value="GR" x-model="unitType" class="accent-[#1e3a8a]"> GR (Motor Grader)
+                                </label>
+                            </div>
                         </div>
                     </div>
                     @foreach($trackGroups as $groupIndex => $group)
@@ -1152,13 +1158,18 @@
                             <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#2563eb] text-white flex items-center justify-center text-[9px] sm:text-[10px]">A</span>
                             <span>BAGIAN A: TEKNIK PENGOPERASIAN (LOADING, HAULING &amp; DUMPING)</span>
                         </div>
-                        <div class="flex gap-3 sm:gap-4" x-show="unitFamily === 'dumptruck'" x-cloak>
-                            <label class="flex items-center gap-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
-                                <input type="radio" name="sop_payload[meta][unit_type]" value="HDT" x-model="unitType" class="accent-slate-800"> HDT (Heavy Dump Truck)
-                            </label>
-                            <label class="flex items-center gap-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
-                                <input type="radio" name="sop_payload[meta][unit_type]" value="LDT" x-model="unitType" class="accent-slate-800"> LDT (Light Dump Truck)
-                            </label>
+                        <div class="flex flex-wrap items-center gap-2 sm:gap-3" x-show="unitFamily === 'dumptruck'" x-cloak>
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-300">
+                                <span class="text-rose-600">*</span> Wajib Pilih Tipe Unit
+                            </span>
+                            <div class="flex items-center gap-3">
+                                <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
+                                    <input type="radio" name="sop_payload[meta][unit_type]" value="HDT" x-model="unitType" class="accent-[#1e3a8a]"> HDT (Heavy Dump Truck)
+                                </label>
+                                <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
+                                    <input type="radio" name="sop_payload[meta][unit_type]" value="LDT" x-model="unitType" class="accent-[#1e3a8a]"> LDT (Light Dump Truck)
+                                </label>
+                            </div>
                         </div>
                     </div>
                     @foreach($dumptruckGroups as $groupIndex => $group)
@@ -1342,13 +1353,18 @@
                             <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#2563eb] text-white flex items-center justify-center text-[9px] sm:text-[10px]">A</span>
                             <span>BAGIAN A: TEKNIK PENGOPERASIAN (LOADING, HAULING &amp; DUMPING)</span>
                         </div>
-                        <div class="flex gap-3 sm:gap-4" x-show="unitFamily === 'semidump'" x-cloak>
-                            <label class="flex items-center gap-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
-                                <input type="radio" name="sop_payload[meta][unit_type]" value="SDT" x-model="unitType" class="accent-slate-800"> SDT (Semi Dump Trailer)
-                            </label>
-                            <label class="flex items-center gap-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
-                                <input type="radio" name="sop_payload[meta][unit_type]" value="ADT" x-model="unitType" class="accent-slate-800"> ADT (Articulated Dump Truck)
-                            </label>
+                        <div class="flex flex-wrap items-center gap-2 sm:gap-3" x-show="unitFamily === 'semidump'" x-cloak>
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-300">
+                                <span class="text-rose-600">*</span> Wajib Pilih Tipe Unit
+                            </span>
+                            <div class="flex items-center gap-3">
+                                <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
+                                    <input type="radio" name="sop_payload[meta][unit_type]" value="SDT" x-model="unitType" class="accent-[#1e3a8a]"> SDT (Semi Dump Trailer)
+                                </label>
+                                <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
+                                    <input type="radio" name="sop_payload[meta][unit_type]" value="ADT" x-model="unitType" class="accent-[#1e3a8a]"> ADT (Articulated Dump Truck)
+                                </label>
+                            </div>
                         </div>
                     </div>
                     @foreach($semidumpGroups as $groupIndex => $group)
@@ -1701,6 +1717,95 @@
     </div>
     </div>
 
+    <!-- Evidence OJT Upload Section (Above Section C Ringkasan HM) -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" x-data="{
+        previewUrl: '{{ ($existingEvidence = $logbook?->evidences?->first()?->file_path ?? data_get($formPayload, 'meta.evidence_path')) ? (str_starts_with($existingEvidence, 'http') ? $existingEvidence : asset('storage/' . $existingEvidence)) : '' }}',
+        hasFile: false,
+        fileName: '',
+        fileSize: '',
+        onFileChange(e) {
+            const file = e.target.files[0];
+            if (file) {
+                this.hasFile = true;
+                this.fileName = file.name;
+                this.fileSize = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    this.previewUrl = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        },
+        removeFile() {
+            this.previewUrl = '';
+            this.hasFile = false;
+            this.fileName = '';
+            this.fileSize = '';
+            const input = document.getElementById('evidence_file_input');
+            if (input) input.value = '';
+        }
+    }">
+        <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center space-x-3">
+                <span class="w-7 h-7 rounded-lg bg-[#1e3a8a] text-white font-bold text-xs flex items-center justify-center">📷</span>
+                <div>
+                    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Upload Evidence OJT (Foto Kegiatan)</h2>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Unggah foto bukti pelaksanaan OJT hari ini sebagai dokumentasi evaluasi.</p>
+                </div>
+            </div>
+            <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200">
+                Tidak Dicetak ke Lembar PDF
+            </span>
+        </div>
+
+        <div class="p-5 sm:p-6 space-y-4">
+            <div class="p-3 bg-blue-50/70 border border-blue-200/80 rounded-xl text-xs text-blue-800 flex items-start gap-2.5">
+                <svg class="w-4 h-4 text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>Foto evidence ini disimpan untuk keperluan monitoring & evaluasi oleh Trainer dan Admin TC. Bukti ini <strong>tidak akan dicetak</strong> pada dokumen formulir PDF akhir.</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Pilih File Foto Bukti</label>
+                    <div class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-2xl p-6 text-center transition cursor-pointer bg-slate-50/50 hover:bg-blue-50/20 relative"
+                         @click="$refs.evidenceInput.click()">
+                        <input type="file" id="evidence_file_input" name="evidence" x-ref="evidenceInput" accept="image/png,image/jpeg,image/jpg,image/webp" class="hidden" @change="onFileChange($event)">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                        <p class="text-xs font-bold text-slate-700">Klik untuk memilih gambar kegiatan OJT</p>
+                        <p class="text-[11px] text-slate-400 mt-1">Format: JPG, JPEG, PNG, WEBP (Maksimal 5 MB)</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Preview Foto Evidence</label>
+                    <div class="border border-slate-200 rounded-2xl p-4 bg-slate-50 min-h-[160px] flex flex-col items-center justify-center">
+                        <template x-if="previewUrl">
+                            <div class="w-full text-center">
+                                <div class="relative inline-block max-h-56 rounded-xl overflow-hidden shadow-sm border border-slate-300">
+                                    <img :src="previewUrl" alt="Evidence Preview" class="max-h-56 w-auto object-contain mx-auto">
+                                </div>
+                                <div class="mt-3 flex items-center justify-center gap-3">
+                                    <span class="text-xs text-slate-600 font-medium" x-show="fileName" x-text="fileName + ' (' + fileSize + ')'"></span>
+                                    <button type="button" @click="removeFile()" class="px-2.5 py-1 text-[11px] font-bold text-rose-600 bg-rose-50 border border-rose-200 rounded-lg hover:bg-rose-100 transition">
+                                        Hapus Foto
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="!previewUrl">
+                            <div class="text-center py-6 text-slate-400">
+                                <svg class="w-10 h-10 mx-auto text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                <p class="text-xs">Belum ada foto evidence yang diunggah</p>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -1756,8 +1861,17 @@
                     <div>
                         <span class="text-xs font-bold text-blue-800">{{ $isTrainerCreating ? 'Kirim Logbook ke Trainee' : ($isTrainerEditing ? 'Simpan Perubahan' : ($isEditing ? 'Kirim Ulang ke Trainer' : 'Submit Form OJT')) }}</span>
                         <p class="mt-1 text-[11px] text-blue-700 leading-relaxed">{{ $isTrainerCreating ? 'Logbook akan dikirim ke Trainee untuk diperiksa dan disetujui sebelum diteruskan ke Admin TC.' : 'Kirim logbook untuk dievaluasi trainer. Pastikan semua checklist dan HM sudah terisi dengan benar.' }}</p>
+                        <p class="mt-2 text-[10px] font-bold text-amber-800 bg-amber-100/90 border border-amber-300 rounded-md px-2 py-1 inline-flex items-center gap-1">
+                            ⚠️ Perhatian: Form yang sudah dikirim tidak dapat diubah kembali.
+                        </p>
                     </div>
                 </button>
+            </div>
+            <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2.5 text-xs text-amber-900">
+                <svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <div class="leading-relaxed">
+                    <strong class="font-bold">Keterangan Pengiriman:</strong> Form OJT yang telah dikirim ke Trainee <strong>tidak dapat diubah kembali</strong> untuk mengurangi kesalahan pengisian. Pastikan seluruh checklist SOP dan angka HM telah terisi dengan benar sebelum mengirim.
+                </div>
             </div>
         </div>
     </div>

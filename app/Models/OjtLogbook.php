@@ -129,4 +129,9 @@ class OjtLogbook extends Model
     {
         return $this->hasMany(LogbookAssignment::class);
     }
+
+    public function evidences(): HasMany
+    {
+        return $this->hasMany(LogbookEvidence::class, 'ojt_logbook_id');
+    }
 }
