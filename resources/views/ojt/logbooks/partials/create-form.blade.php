@@ -17,14 +17,14 @@
             'label' => $eq->unit_code . ' - ' . $eq->model_name,
         ])->values())
         ->toArray();
-    $trainee = $isEditing ? $logbook->trainee : ($trainee ?? $user);
-    $selectedCategoryId = old('equipment_category_id', $isEditing ? $logbook->equipment_category_id : ($trainee->equipment_category_id ?? ''));
+    $trainee = $isEditing ? $logbook->trainee : ($isTrainerCreating ? ($selectedTraineeId ? ($trainees->firstWhere('id', $selectedTraineeId) ?? null) : null) : ($trainee ?? $user));
+    $selectedCategoryId = old('equipment_category_id', $isEditing ? $logbook->equipment_category_id : ($trainee?->equipment_category_id ?? ''));
     $selectedCategoryCode = $selectedCategoryId ? ($categoryMap[$selectedCategoryId] ?? '') : '';
 
     $defaultAssessmentMode = '';
     $defaultAssessmentStage = '';
     $defaultAssessmentStageDetail = '';
-    if (!$isEditing || !data_get($formPayload, 'meta.assessment_mode')) {
+    if ((!$isEditing || !data_get($formPayload, 'meta.assessment_mode')) && $trainee) {
         $traineeCert = $trainee->certification ?? 'Green';
         $traineePhase = $trainee->current_phase ?? \App\Services\PhaseService::firstPhase($traineeCert);
         $phaseMeta = \App\Services\PhaseService::meta($traineeCert, $traineePhase);
@@ -359,14 +359,14 @@
             isTrainerCreating: @js($isTrainerCreating),
             selectedTraineeId: @js(old('trainee_id', $selectedTraineeId ?? '')),
             traineesMap: @js($traineesMap ?? []),
-            traineeName: @js(old('sop_payload.meta.trainee_name', data_get($formPayload, 'meta.trainee_name', $trainee->name ?? ''))),
-            categoryId: @js(old('equipment_category_id', $selectedCategoryId)),
+            traineeName: @js(old('sop_payload.meta.trainee_name', data_get($formPayload, 'meta.trainee_name', $trainee?->name ?? ''))),
+            categoryId: @js(old('equipment_category_id', $selectedCategoryId ? (string)$selectedCategoryId : '')),
             equipmentId: @js(old('equipment_id', $isEditing ? $logbook->equipment_id : '')),
             categoryMap: @js($categoryMap),
             equipmentMap: @js($equipmentMap),
-            company: @js(old('sop_payload.meta.company', data_get($formPayload, 'meta.company', $trainee->company ?? ''))),
-            certification: @js(old('sop_payload.meta.certification', data_get($formPayload, 'meta.certification', $trainee->certification ?? 'Green'))),
-            stickerExpiredAt: @js(old('sop_payload.meta.sticker_expired_at', data_get($formPayload, 'meta.sticker_expired_at', $trainee->sticker_expired_at ?? ''))),
+            company: @js(old('sop_payload.meta.company', data_get($formPayload, 'meta.company', $trainee?->company ?? ''))),
+            certification: @js(old('sop_payload.meta.certification', data_get($formPayload, 'meta.certification', $trainee?->certification ?? ''))),
+            stickerExpiredAt: @js(old('sop_payload.meta.sticker_expired_at', data_get($formPayload, 'meta.sticker_expired_at', $trainee?->sticker_expired_at ?? ''))),
             assessmentMode: @js(old('sop_payload.meta.assessment_mode', data_get($formPayload, 'meta.assessment_mode', $defaultAssessmentMode))),
             assessmentStage: @js(old('sop_payload.meta.assessment_stage', data_get($formPayload, 'meta.assessment_stage', $defaultAssessmentStage))),
             assessmentStageDetail: @js(old('sop_payload.meta.assessment_stage_detail', data_get($formPayload, 'meta.assessment_stage_detail', $defaultAssessmentStageDetail))),
@@ -385,11 +385,23 @@
                     this.company = t.company || 'PT Mutiara Tanjung Lestari';
                     this.certification = t.certification || 'Green';
                     this.categoryId = t.equipment_category_id ? String(t.equipment_category_id) : '';
+                } else {
+                    this.traineeName = '';
+                    this.company = '';
+                    this.certification = '';
+                    this.categoryId = '';
                 }
             },
             initTrainee() {
-                if (this.isTrainerCreating && this.selectedTraineeId && this.traineesMap[this.selectedTraineeId]) {
-                    this.onTraineeChange(this.selectedTraineeId);
+                if (this.isTrainerCreating) {
+                    if (this.selectedTraineeId && this.traineesMap[this.selectedTraineeId]) {
+                        this.onTraineeChange(this.selectedTraineeId);
+                    } else {
+                        this.traineeName = '';
+                        this.company = '';
+                        this.certification = '';
+                        this.categoryId = '';
+                    }
                 }
             },
             get selectedCategoryCode() {
@@ -541,7 +553,7 @@
                     <div class="px-3 py-2 font-semibold">SERTIFIKASI</div>
                     <div class="px-3 py-1.5">
                         @if($isTrainerCreating ?? false)
-                            <input type="text" :value="certification" readonly class="w-full border-0 bg-transparent p-0 text-[11px] font-medium text-slate-800 focus:ring-0">
+                            <input type="text" :value="certification" readonly placeholder="Pilih Trainee terlebih dahulu" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium text-slate-800 placeholder-slate-400 focus:ring-0">
                             <input type="hidden" name="sop_payload[meta][certification]" :value="certification">
                         @else
                             <select name="sop_payload[meta][certification]" x-model="certification" {{ (!$isEditing && $trainee->certification) || $isEditing ? 'disabled' : '' }} class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0 {{ (!$isEditing && $trainee->certification) || $isEditing ? 'appearance-none' : '' }}">

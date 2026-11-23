@@ -5,7 +5,7 @@
         $isTrainerCreating = true;
         $formAction = route('trainer.logbooks.store');
         $user = $trainer;
-        $trainee = $trainees->firstWhere('id', $selectedTraineeId) ?? $trainees->first() ?? new \App\Models\User();
+        $trainee = $selectedTraineeId ? $trainees->firstWhere('id', $selectedTraineeId) : null;
     @endphp
 
     @include('ojt.logbooks.partials.create-form', [
