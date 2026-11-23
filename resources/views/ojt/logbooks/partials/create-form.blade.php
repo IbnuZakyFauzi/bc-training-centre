@@ -520,6 +520,7 @@
                             <option value="{{ $categories->firstWhere('code', 'HDT')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'HDT')?->id) ? 'selected' : '' }}>Heavy Dump Truck (HDT) / Light Dump Truck (LDT)</option>
                             <option value="{{ $categories->firstWhere('code', 'SDT')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'SDT')?->id) ? 'selected' : '' }}>Semi Dump Trailler (SDT) / Articulated Dump Truck (ADT)</option>
                             <option value="{{ $categories->firstWhere('code', 'WL')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'WL')?->id) ? 'selected' : '' }}>Wheel Loader (WL)</option>
+                            <option value="{{ $categories->firstWhere('code', 'OTH')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'OTH')?->id) ? 'selected' : '' }}>Lainnya</option>
                         </select>
                         @if((!$isEditing && $trainee->equipment_category_id) || $isEditing)
                             <input type="hidden" name="equipment_category_id" value="{{ old('equipment_category_id', $selectedCategoryId) }}">

@@ -50,7 +50,7 @@
                 <select name="department" class="text-xs rounded-xl border-slate-300 min-h-[44px]">
                     <option value="">Semua Departemen</option>
                     @php
-                        $deptOptions = collect(['CHCPP', 'RIM', 'HRGS'])->merge($departments ?? [])->filter()->unique()->values();
+                        $deptOptions = collect(['CHCPP', 'CHID', 'FPM', 'Logistik', 'RIM', 'HRGS'])->merge($departments ?? [])->filter()->unique()->values();
                     @endphp
                     @foreach($deptOptions as $d)
                         <option value="{{ $d }}" {{ request('department') === $d ? 'selected' : '' }}>{{ $d }}</option>

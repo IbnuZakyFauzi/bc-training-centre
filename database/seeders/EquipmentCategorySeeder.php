@@ -18,6 +18,7 @@ class EquipmentCategorySeeder extends Seeder
             ['code' => 'SDT', 'name' => 'Semi Dump Trailler', 'description' => 'Semi Dump Trailler Units'],
             ['code' => 'ADT', 'name' => 'Articulated Dump Truck', 'description' => 'Articulated Dump Truck Units'],
             ['code' => 'WL', 'name' => 'Wheel Loader', 'description' => 'Wheel Loading Units'],
+            ['code' => 'OTH', 'name' => 'Lainnya', 'description' => 'Tipe Unit / Alat Lainnya'],
         ];
 
         foreach ($categories as $cat) {

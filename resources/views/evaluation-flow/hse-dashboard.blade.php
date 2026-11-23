@@ -150,7 +150,7 @@
                 <select name="department" class="w-full text-xs rounded-xl border-slate-300 focus:border-brand-500 focus:ring-brand-500 min-h-[44px] bg-white">
                     <option value="">Semua Departemen</option>
                     @php
-                        $hseDeptOptions = collect(['CHCPP', 'RIM', 'HRGS'])->merge($departments ?? [])->filter()->unique()->values();
+                        $hseDeptOptions = collect(['CHCPP', 'CHID', 'FPM', 'Logistik', 'RIM', 'HRGS'])->merge($departments ?? [])->filter()->unique()->values();
                     @endphp
                     @foreach($hseDeptOptions as $d)
                         <option value="{{ $d }}" {{ request('department') === $d ? 'selected' : '' }}>{{ $d }}</option>
