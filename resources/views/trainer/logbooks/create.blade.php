@@ -12,9 +12,15 @@
         'isTrainerCreating' => true,
         'formAction' => route('trainer.logbooks.store'),
         'user' => $trainer,
+        'trainer' => $trainer,
         'trainee' => $trainee,
         'trainees' => $trainees,
         'traineesMap' => $traineesMap,
         'selectedTraineeId' => $selectedTraineeId,
+        'allInstruktur' => $allInstruktur ?? collect(),
+        'allPengawas' => $allPengawas ?? collect(),
+        'allOperators' => $allOperators ?? collect(),
+        'assignedPengawas' => $assignedPengawas ?? collect(),
+        'assignedOperators' => $assignedOperators ?? collect(),
     ])
 </x-app-layout>

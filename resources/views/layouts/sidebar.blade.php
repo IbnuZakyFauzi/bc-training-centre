@@ -45,7 +45,6 @@
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'trainer.dashboard', 'match' => 'trainer.dashboard'],
                 ['label' => 'Input Logbook OJT', 'route' => 'trainer.logbooks.create', 'match' => 'trainer.logbooks.*'],
-                ['label' => 'Review Form OJT', 'route' => 'trainer.reviews.index', 'match' => 'trainer.reviews.*'],
                 ['label' => 'Form Evaluasi OJT A2B', 'route' => 'trainer.final-evaluations.index', 'match' => 'trainer.final-evaluations.*'],
             ],
         ],
@@ -55,7 +54,6 @@
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'trainer.dashboard', 'match' => 'trainer.dashboard'],
                 ['label' => 'Input Logbook OJT', 'route' => 'trainer.logbooks.create', 'match' => 'trainer.logbooks.*'],
-                ['label' => 'Review Form OJT', 'route' => 'trainer.reviews.index', 'match' => 'trainer.reviews.*'],
                 ['label' => 'Evaluasi Akhir A2B', 'route' => 'trainer.final-evaluations.index', 'match' => 'trainer.final-evaluations.*'],
             ],
         ],
@@ -65,7 +63,6 @@
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'trainer.dashboard', 'match' => 'trainer.dashboard'],
                 ['label' => 'Input Logbook OJT', 'route' => 'trainer.logbooks.create', 'match' => 'trainer.logbooks.*'],
-                ['label' => 'Review Form OJT', 'route' => 'trainer.reviews.index', 'match' => 'trainer.reviews.*'],
                 ['label' => 'Evaluasi Akhir A2B', 'route' => 'trainer.final-evaluations.index', 'match' => 'trainer.final-evaluations.*'],
             ],
         ],

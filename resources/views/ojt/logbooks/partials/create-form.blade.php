@@ -2,6 +2,13 @@
     $isEditing = isset($logbook);
     $isTrainerEditing = $isTrainerEditing ?? false;
     $isTrainerCreating = $isTrainerCreating ?? false;
+    $assignedPengawas = $assignedPengawas ?? collect();
+    $assignedOperators = $assignedOperators ?? collect();
+    $allInstruktur = $allInstruktur ?? \App\Models\User::where('role', 'trainer')->where(function ($q) {
+        $q->whereNull('trainer_type')->orWhere('trainer_type', 'instruktur');
+    })->get();
+    $allPengawas = $allPengawas ?? \App\Models\User::where('role', 'trainer')->where('trainer_type', 'pengawas')->get();
+    $allOperators = $allOperators ?? \App\Models\User::where('role', 'trainer')->where('trainer_type', 'operator_pendamping')->get();
     $formPayload = old('sop_payload', $isEditing ? ($logbook->sop_payload ?? []) : []);
     $categoryMap = $categories->pluck('code', 'id')->all();
     $equipmentMap = $equipments->groupBy('equipment_category_id')
@@ -425,13 +432,26 @@
                 });
             },
             initSelectedTrainers() {
-                const trainerId = @js(old('trainer_id', $isEditing ? $logbook->trainer_id : ''));
+                const isTrainer = @js($isTrainerCreating ?? false);
+                const currentUserId = @js($user?->id ?? '');
+                const currentTrainerType = @js($user?->trainer_type ?? 'instruktur');
+
+                let trainerId = @js(old('trainer_id', $isEditing ? $logbook->trainer_id : ''));
+                if (!trainerId && isTrainer && (!currentTrainerType || currentTrainerType === 'instruktur')) {
+                    trainerId = currentUserId;
+                }
                 this.selectedTrainerId = trainerId ? Number(trainerId) : '';
 
-                const pengawasIds = @js(old('selected_pengawas_ids', $isEditing ? ($logbook->selected_pengawas_ids ?? []) : []));
+                let pengawasIds = @js(old('selected_pengawas_ids', $isEditing ? ($logbook->selected_pengawas_ids ?? []) : []));
+                if (pengawasIds.length === 0 && isTrainer && currentTrainerType === 'pengawas') {
+                    pengawasIds = [currentUserId];
+                }
                 this.selectedPengawasIds = pengawasIds.map(Number);
 
-                const operatorIds = @js(old('selected_operator_pendamping_ids', $isEditing ? ($logbook->selected_operator_pendamping_ids ?? []) : []));
+                let operatorIds = @js(old('selected_operator_pendamping_ids', $isEditing ? ($logbook->selected_operator_pendamping_ids ?? []) : []));
+                if (operatorIds.length === 0 && isTrainer && currentTrainerType === 'operator_pendamping') {
+                    operatorIds = [currentUserId];
+                }
                 this.selectedOperatorIds = operatorIds.map(Number);
             },
             toggleOperator(userId, event) {
@@ -674,50 +694,61 @@
                 <div>
                     <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Instruktur</label>
                     <select name="trainer_id" x-model="selectedTrainerId" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white transition min-h-[44px]">
-                    <option value="">Pilih instruktur</option>
-                    @foreach($user->assignedInstruktur as $instruktur)
-                        <option value="{{ $instruktur->id }}" {{ old('trainer_id', $isEditing ? $logbook->trainer_id : '') == $instruktur->id ? 'selected' : '' }}>{{ $instruktur->name }}</option>
-                    @endforeach
-                </select>
-                @if($user->assignedInstruktur->isEmpty())
-                    <p class="text-[10px] text-slate-400 mt-1">Belum ada instruktur yang ditugaskan.</p>
-                @endif
-            </div>
-            <div>
-                <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Pengawas</label>
-                <div class="space-y-2">
-                    @foreach($assignedPengawas as $pengawas)
-                        <label class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
-                            <input type="checkbox" name="selected_pengawas_ids[]" value="{{ $pengawas->id }}" {{ in_array($pengawas->id, old('selected_pengawas_ids', $isEditing ? ($logbook->selected_pengawas_ids ?? []) : [])) ? 'checked' : '' }} x-model="selectedPengawasIds" class="accent-blue-600">
-                            <span class="text-xs">{{ $pengawas->name }}</span>
-                        </label>
-                    @endforeach
-                    @if($assignedPengawas->isEmpty())
-                        <span class="text-[10px] text-slate-400">Belum ada pengawas yang ditugaskan.</span>
+                        <option value="">Pilih instruktur</option>
+                        @php
+                            $instrukturList = ($isTrainerCreating ?? false) ? $allInstruktur : ($user->assignedInstruktur ?? collect());
+                        @endphp
+                        @foreach($instrukturList as $instruktur)
+                            <option value="{{ $instruktur->id }}" {{ old('trainer_id', ($isTrainerCreating ?? false) ? (($user->id == $instruktur->id) ? $user->id : '') : ($isEditing ? $logbook->trainer_id : '')) == $instruktur->id ? 'selected' : '' }}>
+                                {{ $instruktur->name }} ({{ $instruktur->sid ?? '-' }})
+                            </option>
+                        @endforeach
+                    </select>
+                    @if($instrukturList->isEmpty())
+                        <p class="text-[10px] text-slate-400 mt-1">Belum ada instruktur yang tersedia.</p>
                     @endif
                 </div>
-                @error('selected_pengawas_ids')
-                    <p class="text-[10px] text-rose-600 mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-            <div>
-                <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Operator Pendamping</label>
-                <div class="space-y-2">
-                    @foreach($assignedOperators as $operator)
-                        <label class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
-                            <input type="checkbox" name="selected_operator_pendamping_ids[]" value="{{ $operator->id }}" {{ in_array($operator->id, old('selected_operator_pendamping_ids', $isEditing ? ($logbook->selected_operator_pendamping_ids ?? []) : [])) ? 'checked' : '' }} @click="toggleOperator({{ $operator->id }}, $event)" class="accent-blue-600">
-                            <span class="text-xs">{{ $operator->name }}</span>
-                        </label>
-                    @endforeach
-                    @if($assignedOperators->isEmpty())
-                        <span class="text-[10px] text-slate-400">Belum ada operator pendamping yang ditugaskan.</span>
-                    @endif
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Pengawas</label>
+                    <div class="space-y-2">
+                        @php
+                            $pengawasList = ($isTrainerCreating ?? false) ? $allPengawas : $assignedPengawas;
+                        @endphp
+                        @foreach($pengawasList as $pengawas)
+                            <label class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
+                                <input type="checkbox" name="selected_pengawas_ids[]" value="{{ $pengawas->id }}" {{ in_array($pengawas->id, old('selected_pengawas_ids', ($isTrainerCreating ?? false) ? (($user->id == $pengawas->id) ? [$user->id] : []) : ($isEditing ? ($logbook->selected_pengawas_ids ?? []) : []))) ? 'checked' : '' }} x-model="selectedPengawasIds" class="accent-blue-600">
+                                <span class="text-xs">{{ $pengawas->name }}</span>
+                            </label>
+                        @endforeach
+                        @if($pengawasList->isEmpty())
+                            <span class="text-[10px] text-slate-400">Belum ada pengawas yang tersedia.</span>
+                        @endif
+                    </div>
+                    @error('selected_pengawas_ids')
+                        <p class="text-[10px] text-rose-600 mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
-                @error('selected_operator_pendamping_ids')
-                    <p class="text-[10px] text-rose-600 mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-            <p class="text-[10px] text-slate-500 mt-2">Pilih minimal salah satu: Instruktur, Pengawas, atau Operator Pendamping.</p>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-2">Operator Pendamping</label>
+                    <div class="space-y-2">
+                        @php
+                            $operatorList = ($isTrainerCreating ?? false) ? $allOperators : $assignedOperators;
+                        @endphp
+                        @foreach($operatorList as $operator)
+                            <label class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer">
+                                <input type="checkbox" name="selected_operator_pendamping_ids[]" value="{{ $operator->id }}" {{ in_array($operator->id, old('selected_operator_pendamping_ids', ($isTrainerCreating ?? false) ? (($user->id == $operator->id) ? [$user->id] : []) : ($isEditing ? ($logbook->selected_operator_pendamping_ids ?? []) : []))) ? 'checked' : '' }} @click="toggleOperator({{ $operator->id }}, $event)" class="accent-blue-600">
+                                <span class="text-xs">{{ $operator->name }}</span>
+                            </label>
+                        @endforeach
+                        @if($operatorList->isEmpty())
+                            <span class="text-[10px] text-slate-400">Belum ada operator pendamping yang tersedia.</span>
+                        @endif
+                    </div>
+                    @error('selected_operator_pendamping_ids')
+                        <p class="text-[10px] text-rose-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                <p class="text-[10px] text-slate-500 mt-2">Pilih minimal salah satu: Instruktur, Pengawas, atau Operator Pendamping.</p>
         </div>
     </div>
 

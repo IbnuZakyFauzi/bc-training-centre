@@ -21,7 +21,7 @@
             <div class="flex flex-wrap items-center gap-2.5">
                 <a href="{{ route('trainer.logbooks.create') }}" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-extrabold shadow-md transition-all min-h-[44px]">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    + Input Logbook OJT
+                    Input Logbook OJT
                 </a>
                 <div class="rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2.5 text-xs">
                     <p class="text-blue-200 text-[10px] font-medium uppercase">Trainer Aktif</p>

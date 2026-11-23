@@ -497,11 +497,20 @@ class TrainerReviewController extends Controller
 
         $categories = EquipmentCategory::all();
         $trainers = User::where('role', 'trainer')->get();
+        $allInstruktur = User::where('role', 'trainer')->where(function ($q) {
+            $q->whereNull('trainer_type')->orWhere('trainer_type', 'instruktur');
+        })->get();
+        $allPengawas = User::where('role', 'trainer')->where('trainer_type', 'pengawas')->get();
+        $allOperators = User::where('role', 'trainer')->where('trainer_type', 'operator_pendamping')->get();
+        $assignedPengawas = $allPengawas;
+        $assignedOperators = $allOperators;
         $equipments = Equipment::with('category')->where('status', 'active')->get();
         $selectedTraineeId = $request->get('trainee_id');
 
         return view('trainer.logbooks.create', compact(
-            'trainer', 'trainees', 'allTrainees', 'traineesMap', 'categories', 'trainers', 'equipments', 'selectedTraineeId'
+            'trainer', 'trainees', 'allTrainees', 'traineesMap', 'categories', 'trainers',
+            'allInstruktur', 'allPengawas', 'allOperators', 'assignedPengawas', 'assignedOperators',
+            'equipments', 'selectedTraineeId'
         ));
     }
 
