@@ -304,7 +304,12 @@
                     @forelse($logbooks as $logbook)
                         <tr class="hover:bg-blue-50/30">
                             <td class="px-5 py-4">
-                                <p class="text-xs font-bold text-slate-800">{{ $logbook->logbook_number }}</p>
+                                <div class="flex items-center gap-2">
+                                    <p class="text-xs font-bold text-slate-800">{{ $logbook->logbook_number }}</p>
+                                    <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-blue-50 text-[#1e3a8a] border border-blue-200">
+                                        {{ $logbook->phase_label }}
+                                    </span>
+                                </div>
                                 <p class="text-[11px] text-slate-500 mt-0.5">{{ $logbook->trainee->name ?? '-' }} · {{ $logbook->trainee->sid ?? '-' }}</p>
                                 @if($logbook->is_locked ?? false)
                                     <p class="text-[10px] text-rose-600 font-bold mt-1 flex items-center gap-1">
@@ -333,13 +338,13 @@
                             </td>
                             <td class="px-5 py-4 text-right">
                                 <div class="inline-flex items-center space-x-2">
-                                    @if($logbook->status === 'revision')
+                                    @if(in_array($logbook->status, ['submitted', 'revision', 'draft']))
                                         <a href="{{ route('trainer.reviews.edit', $logbook->id) }}" class="inline-flex px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs font-bold border border-amber-200 transition">
-                                            Edit Revisi
+                                            {{ $logbook->status === 'submitted' ? 'Buka & Edit' : ($logbook->status === 'draft' ? 'Lanjutkan Draft' : 'Edit Revisi') }}
                                         </a>
                                     @endif
                                     <a href="{{ route('trainer.reviews.show', $logbook->id) }}" class="inline-flex px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-bold transition">
-                                        {{ in_array($logbook->status, ['verified', 'final_approved']) ? 'Lihat Evaluasi' : ($logbook->status === 'revision' ? 'Lihat Detail' : 'Review & Nilai') }}
+                                        Lihat Detail
                                     </a>
                                 </div>
                             </td>

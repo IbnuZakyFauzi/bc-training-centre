@@ -352,6 +352,7 @@
                                                     <th class="py-2.5 px-3">Evaluator</th>
                                                     <th class="py-2.5 px-3">Catatan</th>
                                                     <th class="py-2.5 px-3 text-center w-36">Bukti</th>
+                                                    <th class="py-2.5 px-3 text-right">Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody class="divide-y divide-slate-100 bg-white">
@@ -412,6 +413,29 @@
                                                                 </div>
                                                             @else
                                                                 <span class="text-[11px] text-slate-400 italic">Tidak ada foto</span>
+                                                            @endif
+                                                        </td>
+                                                        <td class="py-3 px-3 text-right whitespace-nowrap">
+                                                            @if(!empty($h['logbook_id']))
+                                                                @if($user->isTrainer())
+                                                                    <a href="{{ route('trainer.reviews.show', $h['logbook_id']) }}" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#1e3a8a] text-[11px] font-bold border border-blue-200 transition inline-flex items-center gap-1">
+                                                                        Buka Logbook
+                                                                    </a>
+                                                                @else
+                                                                    <a href="{{ route('ojt.logbooks.print', $h['logbook_id']) }}" target="_blank" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition inline-flex items-center gap-1">
+                                                                        Buka / Cetak
+                                                                    </a>
+                                                                @endif
+                                                            @elseif(!empty($h['evaluation_id']))
+                                                                @if($user->isTrainer())
+                                                                    <a href="{{ route('trainer.final-evaluations.show', $h['evaluation_id']) }}" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#1e3a8a] text-[11px] font-bold border border-blue-200 transition inline-flex items-center gap-1">
+                                                                        Buka Evaluasi
+                                                                    </a>
+                                                                @else
+                                                                    <a href="{{ route('training-centre.final-evaluations.show', $h['evaluation_id']) }}" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#1e3a8a] text-[11px] font-bold border border-blue-200 transition inline-flex items-center gap-1">
+                                                                        Buka Evaluasi
+                                                                    </a>
+                                                                @endif
                                                             @endif
                                                         </td>
                                                     </tr>

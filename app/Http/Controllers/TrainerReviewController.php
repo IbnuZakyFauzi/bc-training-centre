@@ -149,10 +149,15 @@ class TrainerReviewController extends Controller
 
     public function show($id)
     {
-        $logbook = OjtLogbook::with(['trainee', 'trainer', 'equipment', 'equipmentCategory', 'histories.user', 'evaluation', 'assignedPjo', 'assignedTc'])->findOrFail($id);
+        $logbook = OjtLogbook::with(['trainee', 'trainer', 'equipment', 'equipmentCategory', 'histories.user', 'evaluation', 'assignedPjo', 'assignedTc', 'evidences'])->findOrFail($id);
         $trainer = auth()->user();
-        abort_unless($logbook->status !== 'draft', 403);
-        abort_unless($logbook->trainer_id === $trainer->id || $logbook->assignments()->where('user_id', $trainer->id)->exists(), 403);
+        abort_unless(
+            $logbook->trainer_id == $trainer->id
+            || $logbook->assignments()->where('user_id', $trainer->id)->exists()
+            || ($trainer->isTrainer() && $logbook->trainee && $logbook->trainee->assignedTrainers()->where('trainer_id', $trainer->id)->exists())
+            || ($trainer->isAdmin()),
+            403
+        );
 
         $blockingLogbook = OjtLogbook::where('trainee_id', $logbook->trainee_id)
             ->where('date', '<', $logbook->date)
@@ -170,9 +175,15 @@ class TrainerReviewController extends Controller
     {
         $trainer = auth()->user();
         abort_unless($trainer && $trainer->isTrainer(), 403);
-        $logbook = OjtLogbook::with(['equipmentCategory'])->findOrFail($id);
-        abort_unless(in_array($logbook->status, ['submitted', 'revision']), 403);
-        abort_unless($logbook->trainer_id === $trainer->id || $logbook->assignments()->where('user_id', $trainer->id)->exists(), 403);
+        $logbook = OjtLogbook::with(['equipmentCategory', 'evidences'])->findOrFail($id);
+        abort_unless(in_array($logbook->status, ['submitted', 'revision', 'draft']), 403);
+        abort_unless(
+            $logbook->trainer_id == $trainer->id
+            || $logbook->assignments()->where('user_id', $trainer->id)->exists()
+            || ($logbook->trainee && $logbook->trainee->assignedTrainers()->where('trainer_id', $trainer->id)->exists())
+            || ($trainer->isAdmin()),
+            403
+        );
 
         $user = $logbook->trainee;
         $categories = EquipmentCategory::whereIn('code', ['EXC', 'DZ', 'MG', 'HDT', 'SDT', 'WL'])->get();
@@ -193,8 +204,14 @@ class TrainerReviewController extends Controller
         $trainer = auth()->user();
         abort_unless($trainer && $trainer->isTrainer(), 403);
         $logbook = OjtLogbook::findOrFail($id);
-        abort_unless(in_array($logbook->status, ['submitted', 'revision']), 403);
-        abort_unless($logbook->trainer_id === $trainer->id || $logbook->assignments()->where('user_id', $trainer->id)->exists(), 403);
+        abort_unless(in_array($logbook->status, ['submitted', 'revision', 'draft']), 403);
+        abort_unless(
+            $logbook->trainer_id == $trainer->id
+            || $logbook->assignments()->where('user_id', $trainer->id)->exists()
+            || ($logbook->trainee && $logbook->trainee->assignedTrainers()->where('trainer_id', $trainer->id)->exists())
+            || ($trainer->isAdmin()),
+            403
+        );
 
         // Nilai item evaluasi memakai skala 1-4; nilai legacy 'K'/'BK' dikonversi
         // lebih dulu agar tetap kompatibel dengan logbook lama.

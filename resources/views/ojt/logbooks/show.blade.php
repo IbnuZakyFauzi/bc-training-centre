@@ -20,8 +20,11 @@
         </div>
 
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
-            @if($trainerReview && $logbook->status === 'submitted')
-                <a href="{{ route('trainer.reviews.edit', $logbook->id) }}" class="inline-flex items-center justify-center px-4 py-3 bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold text-xs rounded-xl shadow-xs transition min-h-[44px]">Edit Form OJT</a>
+            @if($trainerReview && in_array($logbook->status, ['submitted', 'revision', 'draft']))
+                <a href="{{ route('trainer.reviews.edit', $logbook->id) }}" class="inline-flex items-center justify-center px-4 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow-xs transition min-h-[44px]">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    Buka & Edit Form OJT
+                </a>
             @endif
             @if($trainerReview && $logbook->status === 'verified')
                 <a href="{{ route('trainer.reviews.index') }}" class="inline-flex items-center justify-center px-4 py-3 bg-[#2563eb] hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow-xs transition min-h-[44px]">Approval Pengawas</a>
@@ -85,9 +88,42 @@
         </div>
     @endif
 
-    @if($trainerReview || $trainingCentreApproval)
-        @include('trainer.reviews.partials.submitted-checklist')
+    @php
+        $evidence = $logbook->evidences->first();
+        $evidencePath = $evidence?->file_path ?? data_get($logbook->sop_payload, 'meta.evidence_path');
+        $evidenceUrl = $evidencePath ? (str_starts_with($evidencePath, 'http') ? $evidencePath : asset('storage/' . $evidencePath)) : null;
+    @endphp
+
+    @if($evidenceUrl)
+        <div class="mb-6 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <span class="w-7 h-7 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-xs">📷</span>
+                    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Evidence / Foto Bukti Pelaksanaan OJT</h2>
+                </div>
+                <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200">
+                    Dokumentasi Lapangan
+                </span>
+            </div>
+            <div class="p-6 flex flex-col sm:flex-row items-center gap-6">
+                <div class="max-w-xs rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-50 p-1">
+                    <img src="{{ $evidenceUrl }}" alt="Evidence OJT" class="w-full h-auto object-cover max-h-56 rounded-lg">
+                </div>
+                <div class="space-y-2 text-xs">
+                    <p class="font-bold text-slate-800 text-sm">{{ $evidence?->file_name ?? 'Foto Dokumentasi OJT' }}</p>
+                    <p class="text-slate-500 text-[11px] leading-relaxed">
+                        Foto bukti pelaksanaan kegiatan OJT yang diunggah Trainer pada formulir ini. Bukti ini tersimpan untuk monitoring evaluasi dan tidak dicetak pada dokumen PDF.
+                    </p>
+                    <a href="{{ $evidenceUrl }}" target="_blank" download class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-50 text-[#1e3a8a] hover:bg-blue-100 font-bold border border-blue-200 transition text-xs">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        Buka Foto Ukuran Penuh
+                    </a>
+                </div>
+            </div>
+        </div>
     @endif
+
+    @include('trainer.reviews.partials.submitted-checklist')
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
 
@@ -338,26 +374,25 @@
     @endif
 
     @if($trainerReview && $logbook->status === 'submitted')
-        @if($locked ?? false)
-            <div class="mt-6 bg-amber-50 border border-amber-200 rounded-2xl p-5 sm:p-6">
+        <div class="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div class="flex items-start gap-3">
-                    <div class="p-2 bg-amber-100 rounded-xl text-amber-700 flex-shrink-0">
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <div class="p-2.5 bg-blue-600 rounded-xl text-white flex-shrink-0 shadow-sm">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </div>
                     <div>
-                        <h3 class="text-sm font-bold text-amber-900">Approval Verifikasi Dikunci</h3>
-                        <p class="text-xs text-amber-800 mt-1 leading-relaxed">
-                            Anda harus menyelesaikan approval logbook tanggal <b>{{ $blockingLogbook->date->format('d-m-Y') }}</b> terlebih dahulu sebelum dapat <b>mengapprove</b> logbook ini. Anda masih dapat meminta revisi dari trainee.
+                        <h3 class="text-sm font-black text-blue-950">Form OJT Terkirim & Menunggu Persetujuan Trainee</h3>
+                        <p class="text-xs text-blue-800 mt-1 leading-relaxed">
+                            Form OJT ini telah Anda ajukan ke Trainee <strong>{{ $logbook->trainee->name ?? '-' }}</strong>. Saat ini Trainee sedang meninjau dan menyetujui form sebelum diteruskan ke Admin TC. Jika ada data atau checklist yang perlu diubah, Anda dapat membuka kembali dan mengedit formulir ini.
                         </p>
-                        <a href="{{ route('trainer.reviews.show', $blockingLogbook->id) }}" class="inline-flex items-center mt-3 px-4 py-2.5 rounded-xl bg-amber-600 text-white text-xs font-bold hover:bg-amber-700 transition">
-                            Review Logbook {{ $blockingLogbook->logbook_number }}
-                        </a>
                     </div>
                 </div>
+                <a href="{{ route('trainer.reviews.edit', $logbook->id) }}" class="w-full sm:w-auto px-5 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2 whitespace-nowrap min-h-[44px]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    Buka Kembali & Edit Form
+                </a>
             </div>
-        @else
-            @include('trainer.reviews.partials.decision-form')
-        @endif
+        </div>
     @endif
 
     @if($trainerReview && $logbook->status === 'revision')

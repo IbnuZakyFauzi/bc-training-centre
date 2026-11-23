@@ -497,6 +497,7 @@ class EvaluationFlowController extends Controller
                     };
                     $historyItems->push([
                         'id' => 'eval-' . $e->id,
+                        'evaluation_id' => $e->id,
                         'type' => 'Evaluasi Final',
                         'date' => $e->tanggal_penilaian ? \Carbon\Carbon::parse($e->tanggal_penilaian)->translatedFormat('d M Y') : $e->created_at->translatedFormat('d M Y'),
                         'raw_date' => $e->tanggal_penilaian ?? $e->created_at,
@@ -526,6 +527,7 @@ class EvaluationFlowController extends Controller
 
                     $historyItems->push([
                         'id' => 'log-' . $l->id,
+                        'logbook_id' => $l->id,
                         'type' => 'Logbook OJT (' . ($l->logbook_number ?? '-') . ')',
                         'date' => \Carbon\Carbon::parse($l->date)->translatedFormat('d M Y'),
                         'raw_date' => $l->date,

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\LogbookAssignment;
+use App\Services\PhaseService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -133,5 +134,35 @@ class OjtLogbook extends Model
     public function evidences(): HasMany
     {
         return $this->hasMany(LogbookEvidence::class, 'ojt_logbook_id');
+    }
+
+    public function getPhaseKeyAttribute(): string
+    {
+        $phase = data_get($this->sop_payload, 'meta.phase');
+        if ($phase) {
+            return $phase;
+        }
+        $trainee = $this->trainee;
+        if ($trainee) {
+            $mode = data_get($this->sop_payload, 'meta.assessment_mode');
+            $stage = data_get($this->sop_payload, 'meta.assessment_stage');
+            $detail = data_get($this->sop_payload, 'meta.assessment_stage_detail');
+            if ($mode === 'tanpa_pendampingan' && $stage === 'bulanan') {
+                if ($detail && preg_match('/bulan_(\d+)/', $detail, $m)) {
+                    return 'bulanan_' . ((int) $m[1] + 4);
+                }
+                return 'bulanan_5';
+            }
+            return $trainee->current_phase ?? PhaseService::firstPhase($trainee->certification ?? 'Green');
+        }
+        return 'evaluasi_3';
+    }
+
+    public function getPhaseLabelAttribute(): string
+    {
+        $key = $this->phase_key;
+        $cert = $this->trainee?->certification ?? 'Green';
+        $meta = PhaseService::meta($cert, $key);
+        return $meta['label'] ?? ucwords(str_replace('_', ' ', $key));
     }
 }

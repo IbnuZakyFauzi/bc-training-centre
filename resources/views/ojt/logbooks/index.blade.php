@@ -143,7 +143,12 @@
                                 <a href="{{ route('ojt.logbooks.show', $log->id) }}" class="hover:text-[#2563eb] transition flex items-center space-x-2">
                                     <span>{{ $log->logbook_number }}</span>
                                 </a>
-                                <span class="text-[10px] text-slate-400 font-normal block mt-0.5">{{ $log->location }}</span>
+                                <div class="flex items-center gap-1.5 mt-1">
+                                    <span class="px-2 py-0.5 rounded-md bg-blue-50 text-[#1e3a8a] text-[10px] font-extrabold border border-blue-200">
+                                        {{ $log->phase_label }}
+                                    </span>
+                                    <span class="text-[10px] text-slate-400 font-normal">{{ $log->location }}</span>
+                                </div>
                             </td>
 
                             <!-- Date -->
@@ -236,9 +241,13 @@
                                         <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                         Edit
                                     </a>
+                                    <a href="{{ route('ojt.logbooks.show', $log->id) }}" class="inline-flex items-center px-2.5 py-2 rounded-lg bg-slate-50 text-slate-600 hover:bg-slate-100 text-xs font-bold transition">
+                                        Buka
+                                    </a>
                                 @else
                                     <a href="{{ route('ojt.logbooks.show', $log->id) }}" class="inline-flex items-center px-3 py-2 rounded-lg bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-bold transition">
-                                        Lihat Detail
+                                        <svg class="w-3.5 h-3.5 mr-1.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        Buka Logbook
                                     </a>
                                 @endif
                             </div>

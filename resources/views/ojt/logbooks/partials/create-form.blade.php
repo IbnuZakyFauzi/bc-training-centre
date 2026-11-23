@@ -1,4 +1,5 @@
 @php
+    $errors = $errors ?? new \Illuminate\Support\ViewErrorBag;
     $logbook = $logbook ?? null;
     $isEditing = isset($logbook) && $logbook !== null;
     $isTrainerEditing = $isTrainerEditing ?? false;

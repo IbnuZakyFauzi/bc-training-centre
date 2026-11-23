@@ -36,6 +36,7 @@
             'tag' => 'TRAINEE',
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'ojt.dashboard', 'match' => 'ojt.dashboard'],
+                ['label' => 'My Submission', 'route' => 'ojt.history', 'match' => 'ojt.history*'],
                 ['label' => 'Logbook OJT Saya', 'route' => 'ojt.logbooks.index', 'match' => 'ojt.logbooks.*'],
             ],
         ],
@@ -45,6 +46,7 @@
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'trainer.dashboard', 'match' => 'trainer.dashboard'],
                 ['label' => 'Input Logbook OJT', 'route' => 'trainer.logbooks.create', 'match' => 'trainer.logbooks.*'],
+                ['label' => 'Review Form OJT', 'route' => 'trainer.reviews.index', 'match' => 'trainer.reviews.*'],
                 ['label' => 'Form Evaluasi OJT A2B', 'route' => 'trainer.final-evaluations.index', 'match' => 'trainer.final-evaluations.*'],
             ],
         ],
