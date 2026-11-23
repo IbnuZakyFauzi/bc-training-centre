@@ -1,17 +1,11 @@
 <x-app-layout>
-    <x-slot name="title">Daftar Submission Saya</x-slot>
+    <x-slot name="title">Daftar Logbook OJT Saya</x-slot>
 
     <!-- Page Header & Action Bar -->
     <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-            <h1 class="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">Daftar Submission Saya</h1>
-            <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Kelola, tinjau status verifikasi, dan perbarui submission.</p>
-        </div>
-        <div>
-            <a href="{{ route('ojt.logbooks.create') }}" class="inline-flex items-center justify-center px-4 py-3 bg-[#2563eb] hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all min-h-[44px]">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Create Form OJT
-            </a>
+            <h1 class="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">Daftar Logbook OJT Saya</h1>
+            <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Kelola, setujui form yang diinput Trainer, dan pantau status persetujuan Admin TC.</p>
         </div>
     </div>
 
@@ -231,14 +225,23 @@
                             {{ $log->updated_at->diffForHumans() }}
                         </td>
                         <td class="py-4 px-4 text-right">
-                            @if(in_array($log->status, ['draft', 'revision']))
-                                <a href="{{ route('ojt.logbooks.edit', $log->id) }}" class="inline-flex items-center px-3 py-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs font-bold transition">
-                                    <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                                    Edit
-                                </a>
-                            @else
-                                <span class="text-[10px] text-slate-400">-</span>
-                            @endif
+                            <div class="inline-flex items-center space-x-2">
+                                @if($log->status === 'submitted')
+                                    <a href="{{ route('ojt.logbooks.show', $log->id) }}" class="inline-flex items-center px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold transition shadow-xs">
+                                        <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        Review & Setujui
+                                    </a>
+                                @elseif(in_array($log->status, ['draft', 'revision']))
+                                    <a href="{{ route('ojt.logbooks.edit', $log->id) }}" class="inline-flex items-center px-3 py-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs font-bold transition">
+                                        <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                        Edit
+                                    </a>
+                                @else
+                                    <a href="{{ route('ojt.logbooks.show', $log->id) }}" class="inline-flex items-center px-3 py-2 rounded-lg bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-bold transition">
+                                        Lihat Detail
+                                    </a>
+                                @endif
+                            </div>
                         </td>
                         </tr>
                     @empty

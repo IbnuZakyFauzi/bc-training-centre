@@ -19,6 +19,10 @@
                 </p>
             </div>
             <div class="flex flex-wrap items-center gap-2.5">
+                <a href="{{ route('trainer.logbooks.create') }}" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-extrabold shadow-md transition-all min-h-[44px]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    + Input Logbook OJT
+                </a>
                 <div class="rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2.5 text-xs">
                     <p class="text-blue-200 text-[10px] font-medium uppercase">Trainer Aktif</p>
                     <p class="font-bold text-white mt-0.5 text-sm">{{ $trainer->name }}</p>
@@ -36,31 +40,31 @@
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <a href="{{ route('trainer.reviews.index', ['status' => 'submitted']) }}" class="group block bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition-all relative overflow-hidden {{ ($activeStatus ?? 'submitted') === 'submitted' ? 'ring-2 ring-[#2563eb] border-[#2563eb] bg-blue-50/20' : 'border-slate-200' }}">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-extrabold uppercase tracking-wider text-blue-600">Menunggu Review</span>
+                <span class="text-xs font-extrabold uppercase tracking-wider text-blue-600">Menunggu Persetujuan Trainee</span>
                 <span class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold">📝</span>
             </div>
             <p class="mt-3 text-3xl font-black text-slate-800">{{ $counts['submitted'] }}</p>
-            <p class="text-[11px] text-slate-400 mt-1">Form OJT masuk dari trainee</p>
+            <p class="text-[11px] text-slate-400 mt-1">Form diinput Trainer, menunggu approve Trainee</p>
             <div class="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 {{ ($activeStatus ?? 'submitted') === 'submitted' ? 'opacity-100' : 'opacity-0 group-hover:opacity-50' }} transition"></div>
         </a>
 
         <a href="{{ route('trainer.reviews.index', ['status' => 'verified']) }}" class="group block bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition-all relative overflow-hidden {{ ($activeStatus ?? 'submitted') === 'verified' ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-50/20' : 'border-slate-200' }}">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-600">Sudah Diverifikasi</span>
+                <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-600">Disetujui Trainee / Antrean TC</span>
                 <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-bold">✓</span>
             </div>
             <p class="mt-3 text-3xl font-black text-slate-800">{{ $counts['verified'] }}</p>
-            <p class="text-[11px] text-slate-400 mt-1">Telah diverifikasi & dikirim ke Admin TC</p>
+            <p class="text-[11px] text-slate-400 mt-1">Telah disetujui Trainee & dalam antrean Admin TC</p>
             <div class="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500 {{ ($activeStatus ?? 'submitted') === 'verified' ? 'opacity-100' : 'opacity-0 group-hover:opacity-50' }} transition"></div>
         </a>
 
         <a href="{{ route('trainer.reviews.index', ['status' => 'revision']) }}" class="group block bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition-all relative overflow-hidden {{ ($activeStatus ?? 'submitted') === 'revision' ? 'ring-2 ring-amber-500 border-amber-500 bg-amber-50/20' : 'border-slate-200' }}">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-extrabold uppercase tracking-wider text-amber-600">Dikembalikan Revisi</span>
+                <span class="text-xs font-extrabold uppercase tracking-wider text-amber-600">Dikembalikan Revisi TC</span>
                 <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm font-bold">⚠️</span>
             </div>
             <p class="mt-3 text-3xl font-black text-slate-800">{{ $counts['revision'] }}</p>
-            <p class="text-[11px] text-slate-400 mt-1">Perlu perbaikan data / checklist</p>
+            <p class="text-[11px] text-slate-400 mt-1">Perlu perbaikan catatan dari Admin TC</p>
             <div class="absolute bottom-0 left-0 right-0 h-1 bg-amber-500 {{ ($activeStatus ?? 'submitted') === 'revision' ? 'opacity-100' : 'opacity-0 group-hover:opacity-50' }} transition"></div>
         </a>
     </div>
@@ -259,10 +263,10 @@
         <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4">
             <div>
                 <h2 class="font-black text-slate-800 text-sm sm:text-base">
-                    {{ ($activeStatus ?? 'submitted') === 'verified' ? 'Form OJT yang Sudah Diverifikasi' : (($activeStatus ?? 'submitted') === 'revision' ? 'Form OJT yang Dikembalikan Revisi' : 'Antrean Form OJT Masuk') }}
+                    {{ ($activeStatus ?? 'submitted') === 'verified' ? 'Form OJT Disetujui Trainee / Antrean TC' : (($activeStatus ?? 'submitted') === 'revision' ? 'Form OJT Dikembalikan Revisi TC' : 'Form OJT Menunggu Persetujuan Trainee') }}
                 </h2>
                 <p class="text-[10px] sm:text-xs text-slate-500 mt-1">
-                    {{ ($activeStatus ?? 'submitted') === 'verified' ? 'Riwayat form OJT yang sudah Anda verifikasi dan diteruskan ke Admin TC.' : (($activeStatus ?? 'submitted') === 'revision' ? 'Form OJT yang dikembalikan untuk revisi.' : 'Periksa kesesuaian jam operasi dan checklist SOP sebelum verifikasi.') }}
+                    {{ ($activeStatus ?? 'submitted') === 'verified' ? 'Form OJT telah disetujui Trainee dan sedang dalam proses approval Admin TC.' : (($activeStatus ?? 'submitted') === 'revision' ? 'Form OJT yang dikembalikan oleh Admin TC untuk diperbaiki.' : 'Form OJT yang telah Anda input dan sedang menunggu persetujuan dari Trainee.') }}
                 </p>
             </div>
             <form class="flex flex-col sm:flex-row gap-2 flex-wrap items-stretch sm:items-center" method="GET">

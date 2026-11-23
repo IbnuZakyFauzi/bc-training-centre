@@ -82,6 +82,10 @@ Route::middleware(['auth', 'must.change.password', 'role:trainer'])->prefix('tra
     Route::put('/reviews/{id}/checklist', [TrainerReviewController::class, 'updateChecklist'])->name('reviews.checklist.update');
     Route::post('/reviews/{id}/evaluate', [TrainerReviewController::class, 'evaluate'])->name('reviews.evaluate');
 
+    // Trainer Input Logbook OJT
+    Route::get('/logbooks/create', [TrainerReviewController::class, 'createLogbook'])->name('logbooks.create');
+    Route::post('/logbooks', [TrainerReviewController::class, 'storeLogbook'])->name('logbooks.store');
+
     Route::get('/final-evaluation/create', 'App\Http\Controllers\FinalEvaluationController@createStandalone')->name('final-evaluations.create');
     Route::get('/final-evaluations', 'App\Http\Controllers\FinalEvaluationController@index')->name('final-evaluations.index');
     Route::post('/final-evaluation', 'App\Http\Controllers\FinalEvaluationController@storeStandalone')->name('final-evaluations.store');
@@ -106,6 +110,7 @@ Route::middleware(['auth', 'must.change.password', 'role:trainee'])->prefix('ojt
     Route::put('/logbooks/{id}', [OjtLogbookController::class, 'update'])->name('logbooks.update');
     Route::put('/logbooks/{id}/checklist', [OjtLogbookController::class, 'updateChecklist'])->name('logbooks.checklist.update');
     Route::post('/logbooks/{id}/duplicate', [OjtLogbookController::class, 'duplicate'])->name('logbooks.duplicate');
+    Route::post('/logbooks/{id}/approve', [OjtLogbookController::class, 'traineeApprove'])->name('logbooks.approve');
 
     // Page 6: Submission History
     Route::get('/history', [SubmissionHistoryController::class, 'index'])->name('history');

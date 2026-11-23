@@ -19,12 +19,32 @@
                     Continue Draft ({{ $latestDraft->logbook_number }})
                 </a>
             @endif
-            <a href="{{ route('ojt.logbooks.create') }}" class="inline-flex items-center justify-center px-4 py-3 bg-[#2563eb] hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all min-h-[44px]">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Create Form OJT
+            <a href="{{ route('ojt.logbooks.index') }}" class="inline-flex items-center justify-center px-4 py-3 bg-[#2563eb] hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all min-h-[44px]">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                Logbook OJT Saya
             </a>
         </div>
     </div>
+
+    <!-- Notification Panel: Pending Trainee Approval -->
+    @if(($kpi['submitted'] ?? 0) > 0)
+        <div class="mb-4 sm:mb-8 bg-blue-50 border-l-4 border-[#2563eb] p-4 sm:p-5 rounded-2xl shadow-xs">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                <div class="flex items-start space-x-3">
+                    <div class="p-2 bg-blue-100 rounded-xl text-blue-800 flex-shrink-0 mt-0.5">
+                        <svg class="w-5 h-5 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-[10px] sm:text-xs font-extrabold text-blue-900 uppercase tracking-wider">Menunggu Persetujuan Anda ({{ $kpi['submitted'] }} Form OJT Baru)</h3>
+                        <p class="text-[10px] sm:text-xs text-blue-800 mt-1">Trainer telah mengisikan form logbook OJT untuk Anda. Silakan periksa dan setujui agar dapat diteruskan ke Admin TC.</p>
+                    </div>
+                </div>
+                <a href="{{ route('ojt.logbooks.index', ['status' => 'submitted']) }}" class="px-3.5 py-3 bg-[#2563eb] hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition flex-shrink-0 min-h-[44px] inline-flex items-center justify-center">
+                    Review & Setujui Form
+                </a>
+            </div>
+        </div>
+    @endif
 
     <!-- Notification Panel: Recent Revision Messages -->
     @if($kpi['revision'] > 0)

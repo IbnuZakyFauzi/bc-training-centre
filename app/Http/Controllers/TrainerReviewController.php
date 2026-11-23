@@ -24,9 +24,9 @@ class TrainerReviewController extends Controller
 
         // OJT Logbook Review Queue
         $query = OjtLogbook::with(['trainee', 'equipment', 'evaluation'])
-            ->whereHas('assignments', function ($q) use ($trainer) {
-                $q->where('user_id', $trainer->id)
-                  ->where('status', 'pending');
+            ->where(function ($q) use ($trainer) {
+                $q->where('trainer_id', $trainer->id)
+                  ->orWhereHas('assignments', fn ($aq) => $aq->where('user_id', $trainer->id));
             });
 
         $activeStatus = $request->get('status', 'submitted');
@@ -69,8 +69,9 @@ class TrainerReviewController extends Controller
             return $logbook;
         });
 
-        $baseQuery = OjtLogbook::whereHas('assignments', function ($q) use ($trainer) {
-            $q->where('user_id', $trainer->id)->where('status', 'pending');
+        $baseQuery = OjtLogbook::where(function ($q) use ($trainer) {
+            $q->where('trainer_id', $trainer->id)
+              ->orWhereHas('assignments', fn ($aq) => $aq->where('user_id', $trainer->id));
         });
 
         $counts = [
@@ -150,7 +151,7 @@ class TrainerReviewController extends Controller
         $logbook = OjtLogbook::with(['trainee', 'trainer', 'equipment', 'equipmentCategory', 'histories.user', 'evaluation', 'assignedPjo', 'assignedTc'])->findOrFail($id);
         $trainer = auth()->user();
         abort_unless($logbook->status !== 'draft', 403);
-        abort_unless($logbook->assignments()->where('user_id', $trainer->id)->where('status', 'pending')->exists(), 403);
+        abort_unless($logbook->trainer_id === $trainer->id || $logbook->assignments()->where('user_id', $trainer->id)->exists(), 403);
 
         $blockingLogbook = OjtLogbook::where('trainee_id', $logbook->trainee_id)
             ->where('date', '<', $logbook->date)
@@ -170,7 +171,7 @@ class TrainerReviewController extends Controller
         abort_unless($trainer && $trainer->isTrainer(), 403);
         $logbook = OjtLogbook::with(['equipmentCategory'])->findOrFail($id);
         abort_unless(in_array($logbook->status, ['submitted', 'revision']), 403);
-        abort_unless($logbook->assignments()->where('user_id', $trainer->id)->where('status', 'pending')->exists(), 403);
+        abort_unless($logbook->trainer_id === $trainer->id || $logbook->assignments()->where('user_id', $trainer->id)->exists(), 403);
 
         $user = $logbook->trainee;
         $categories = EquipmentCategory::whereIn('code', ['EXC', 'DZ', 'MG', 'HDT', 'SDT', 'WL'])->get();
@@ -192,7 +193,7 @@ class TrainerReviewController extends Controller
         abort_unless($trainer && $trainer->isTrainer(), 403);
         $logbook = OjtLogbook::findOrFail($id);
         abort_unless(in_array($logbook->status, ['submitted', 'revision']), 403);
-        abort_unless($logbook->assignments()->where('user_id', $trainer->id)->where('status', 'pending')->exists(), 403);
+        abort_unless($logbook->trainer_id === $trainer->id || $logbook->assignments()->where('user_id', $trainer->id)->exists(), 403);
 
         // Nilai item evaluasi memakai skala 1-4; nilai legacy 'K'/'BK' dikonversi
         // lebih dulu agar tetap kompatibel dengan logbook lama.
@@ -249,15 +250,33 @@ class TrainerReviewController extends Controller
         $previousStatus = $logbook->status;
         $logbook->update($data);
 
-        $newStatus = $previousStatus === 'revision' ? 'verified' : $logbook->status;
+        $newStatus = $previousStatus === 'revision' ? 'submitted' : $logbook->status;
         if ($newStatus !== $previousStatus) {
-            $logbook->update(['status' => $newStatus, 'verified_at' => now(), 'training_centre_decided_at' => null]);
-            LogbookHistory::create(['ojt_logbook_id' => $logbook->id, 'user_id' => $trainer->id, 'action' => 'Revision Resubmitted by Trainer', 'from_status' => $previousStatus, 'to_status' => $newStatus, 'comment' => 'Logbook telah diperbaiki dan dikirim kembali ke Admin TC.']);
+            $logbook->update([
+                'status' => $newStatus,
+                'verified_at' => null,
+                'training_centre_decided_at' => null,
+                'training_centre_notes' => null,
+            ]);
+            LogbookHistory::create([
+                'ojt_logbook_id' => $logbook->id,
+                'user_id' => $trainer->id,
+                'action' => 'Revision Resubmitted by Trainer to Trainee',
+                'from_status' => $previousStatus,
+                'to_status' => $newStatus,
+                'comment' => 'Logbook telah diperbaiki oleh Trainer dan dikirim kembali ke Trainee untuk persetujuan.',
+            ]);
+
+            $logbook->trainee?->notify(new \App\Notifications\LogbookSubmittedNotification([
+                'title' => 'Form OJT Revisi Menunggu Persetujuan Anda',
+                'message' => "Trainer {$trainer->name} telah memperbaiki form OJT {$logbook->logbook_number}. Silakan periksa dan setujui kembali.",
+                'url' => route('ojt.logbooks.show', $logbook->id),
+            ]));
         } else {
             LogbookHistory::create(['ojt_logbook_id' => $logbook->id, 'user_id' => $trainer->id, 'action' => 'Logbook Edited by Trainer', 'from_status' => $previousStatus, 'to_status' => $previousStatus, 'comment' => 'Data logbook diperbarui oleh trainer sebelum approval.']);
         }
 
-        return redirect()->route('trainer.reviews.show', $logbook->id)->with('success', $previousStatus === 'revision' ? 'Revisi logbook berhasil disimpan dan dikirim ke Admin TC.' : 'Perubahan logbook oleh trainer berhasil disimpan.');
+        return redirect()->route('trainer.reviews.show', $logbook->id)->with('success', $previousStatus === 'revision' ? 'Revisi logbook berhasil disimpan dan dikirim ke Trainee untuk persetujuan.' : 'Perubahan logbook oleh trainer berhasil disimpan.');
     }
 
     public function updateChecklist(Request $request, $id)
@@ -266,7 +285,7 @@ class TrainerReviewController extends Controller
         abort_unless($trainer && $trainer->isTrainer(), 403);
         $logbook = OjtLogbook::findOrFail($id);
         abort_unless(in_array($logbook->status, ['submitted', 'revision']), 403);
-        abort_unless($logbook->assignments()->where('user_id', $trainer->id)->where('status', 'pending')->exists(), 403);
+        abort_unless($logbook->trainer_id === $trainer->id || $logbook->assignments()->where('user_id', $trainer->id)->exists(), 403);
         $data = $request->validate(['checklist' => ['required', 'array']]);
 
         $payload = $logbook->sop_payload ?? [];
@@ -287,13 +306,19 @@ class TrainerReviewController extends Controller
 
         $previousStatus = $logbook->status;
         if ($previousStatus === 'revision') {
-            $logbook->update(['status' => 'verified', 'verified_at' => now(), 'training_centre_decided_at' => null]);
-            LogbookHistory::create(['ojt_logbook_id' => $logbook->id, 'user_id' => $trainer->id, 'action' => 'Revision Resubmitted by Trainer', 'from_status' => $previousStatus, 'to_status' => 'verified', 'comment' => 'Checklist SOP revisi telah diperbarui dan dikirim kembali ke Admin TC.']);
+            $logbook->update(['status' => 'submitted', 'verified_at' => null, 'training_centre_decided_at' => null, 'training_centre_notes' => null]);
+            LogbookHistory::create(['ojt_logbook_id' => $logbook->id, 'user_id' => $trainer->id, 'action' => 'Revision Resubmitted by Trainer to Trainee', 'from_status' => $previousStatus, 'to_status' => 'submitted', 'comment' => 'Checklist SOP revisi telah diperbarui oleh Trainer dan dikirim ke Trainee untuk persetujuan.']);
+
+            $logbook->trainee?->notify(new \App\Notifications\LogbookSubmittedNotification([
+                'title' => 'Form OJT Revisi Menunggu Persetujuan Anda',
+                'message' => "Trainer {$trainer->name} telah memperbaiki checklist form OJT {$logbook->logbook_number}. Silakan periksa dan setujui kembali.",
+                'url' => route('ojt.logbooks.show', $logbook->id),
+            ]));
         } else {
             LogbookHistory::create(['ojt_logbook_id' => $logbook->id, 'user_id' => $trainer->id, 'action' => 'Checklist K/BK Edited by Trainer', 'from_status' => $previousStatus, 'to_status' => $previousStatus, 'comment' => 'Checklist SOP diperbarui oleh trainer.']);
         }
 
-        return redirect()->route('trainer.reviews.show', $logbook->id)->with('success', $previousStatus === 'revision' ? 'Checklist revisi berhasil disimpan dan dikirim ke Admin TC.' : 'Checklist K/BK berhasil diperbarui.');
+        return redirect()->route('trainer.reviews.show', $logbook->id)->with('success', $previousStatus === 'revision' ? 'Checklist revisi berhasil disimpan dan dikirim ke Trainee untuk persetujuan.' : 'Checklist K/BK berhasil diperbarui.');
     }
 
     public function evaluate(Request $request, $id)
@@ -436,5 +461,159 @@ class TrainerReviewController extends Controller
             }
         });
         return redirect()->route('trainer.reviews.index')->with('success', 'Logbook berhasil diverifikasi dan dikirim ke Final Approval Kabag Training Centre.');
+    }
+
+    public function createLogbook(Request $request)
+    {
+        $trainer = auth()->user();
+        abort_unless($trainer && $trainer->isTrainer(), 403);
+
+        $assignedTrainees = User::where('role', 'trainee')
+            ->whereHas('assignedTrainers', fn ($q) => $q->where('trainer_id', $trainer->id))
+            ->with('equipmentCategory')
+            ->orderBy('name')
+            ->get();
+
+        $allTrainees = User::where('role', 'trainee')
+            ->with('equipmentCategory')
+            ->orderBy('name')
+            ->get();
+
+        $trainees = $assignedTrainees->isNotEmpty() ? $assignedTrainees : $allTrainees;
+
+        $traineesMap = $allTrainees->mapWithKeys(function ($t) {
+            return [$t->id => [
+                'id' => $t->id,
+                'name' => $t->name,
+                'sid' => $t->sid,
+                'company' => $t->company ?? '',
+                'certification' => $t->certification ?? 'Green',
+                'equipment_category_id' => $t->equipment_category_id,
+                'equipment_category_code' => $t->equipmentCategory?->code ?? '',
+                'equipment_category_name' => $t->equipmentCategory?->name ?? '',
+                'department' => $t->department ?? '',
+            ]];
+        });
+
+        $categories = EquipmentCategory::all();
+        $trainers = User::where('role', 'trainer')->get();
+        $equipments = Equipment::with('category')->where('status', 'active')->get();
+        $selectedTraineeId = $request->get('trainee_id');
+
+        return view('trainer.logbooks.create', compact(
+            'trainer', 'trainees', 'allTrainees', 'traineesMap', 'categories', 'trainers', 'equipments', 'selectedTraineeId'
+        ));
+    }
+
+    public function storeLogbook(Request $request)
+    {
+        $trainer = auth()->user();
+        abort_unless($trainer && $trainer->isTrainer(), 403);
+
+        $request->validate([
+            'trainee_id' => ['required', 'exists:users,id'],
+            'date' => ['required', 'date'],
+            'shift' => ['required', 'in:day,night'],
+            'equipment_category_id' => ['required', 'exists:equipment_categories,id'],
+            'equipment_id' => ['nullable', 'exists:equipments,id'],
+            'equipment_number' => ['required', 'string', 'max:100'],
+            'location' => ['required', 'string', 'max:255'],
+            'hm_start' => ['required', 'numeric', 'min:0'],
+            'hm_end' => ['required', 'numeric', 'gte:hm_start'],
+            'action_type' => ['required', 'in:draft,submit'],
+            'sop_payload' => ['nullable', 'array'],
+        ]);
+
+        $trainee = User::with('equipmentCategory')->findOrFail($request->trainee_id);
+
+        $totalHm = max(0, floatval($request->hm_end) - floatval($request->hm_start));
+        $hmDay = $request->shift === 'day' ? $totalHm : 0;
+        $hmNight = $request->shift === 'night' ? $totalHm : 0;
+
+        $status = $request->action_type === 'submit' ? 'submitted' : 'draft';
+
+        $prefix = 'LOG-' . date('Ym') . '-';
+        $last = OjtLogbook::where('logbook_number', 'like', $prefix . '%')->orderByDesc('logbook_number')->value('logbook_number');
+        $next = $last ? (int) substr($last, -4) + 1 : 1;
+        $logbookNumber = $prefix . str_pad($next, 4, '0', STR_PAD_LEFT);
+
+        $sopPayload = $request->input('sop_payload', []);
+        if (is_array($sopPayload)) {
+            $sopPayload = CompetencyScale::normalizePayload($sopPayload, true);
+        }
+
+        // Lock metadata to Trainee's registered profile by Admin TC
+        $company = $trainee->company ?: data_get($sopPayload, 'meta.company', 'PT Mutiara Tanjung Lestari');
+        $certification = $trainee->certification ?: data_get($sopPayload, 'meta.certification', 'Green');
+        $categoryId = $trainee->equipment_category_id ?: $request->equipment_category_id;
+
+        data_set($sopPayload, 'meta.trainee_name', $trainee->name);
+        data_set($sopPayload, 'meta.company', $company);
+        data_set($sopPayload, 'meta.certification', $certification);
+
+        $logbook = OjtLogbook::create([
+            'logbook_number' => $logbookNumber,
+            'trainee_id' => $trainee->id,
+            'trainer_id' => $trainer->id,
+            'equipment_category_id' => $categoryId,
+            'equipment_id' => $request->equipment_id,
+            'equipment_number' => $request->equipment_number,
+            'date' => $request->date,
+            'shift' => $request->shift,
+            'location' => $request->location,
+            'selected_pengawas_ids' => $request->input('selected_pengawas_ids', []),
+            'selected_operator_pendamping_ids' => $request->input('selected_operator_pendamping_ids', []),
+            'hm_start' => $request->hm_start,
+            'hm_end' => $request->hm_end,
+            'total_hm' => $totalHm,
+            'hm_day' => $hmDay,
+            'hm_night' => $hmNight,
+            'sop_payload' => $sopPayload,
+            'status' => $status,
+            'submitted_at' => $status === 'submitted' ? now() : null,
+            'trainer_signature_path' => $trainer->signature_path,
+        ]);
+
+        // Assignments
+        $assignments = [
+            ['user_id' => $trainer->id, 'role_type' => 'instruktur'],
+        ];
+        foreach ($request->input('selected_pengawas_ids', []) as $pengawasId) {
+            $assignments[] = ['user_id' => $pengawasId, 'role_type' => 'pengawas'];
+        }
+        foreach ($request->input('selected_operator_pendamping_ids', []) as $operatorId) {
+            $assignments[] = ['user_id' => $operatorId, 'role_type' => 'operator_pendamping'];
+        }
+        foreach ($assignments as $assignment) {
+            LogbookAssignment::create(array_merge($assignment, [
+                'ojt_logbook_id' => $logbook->id,
+                'status' => 'pending',
+            ]));
+        }
+
+        LogbookHistory::create([
+            'ojt_logbook_id' => $logbook->id,
+            'user_id' => $trainer->id,
+            'action' => $status === 'submitted' ? 'Logbook Created by Trainer & Sent to Trainee' : 'Draft Logbook Created by Trainer',
+            'from_status' => null,
+            'to_status' => $status,
+            'comment' => $status === 'submitted'
+                ? "Logbook dibuat oleh Trainer {$trainer->name} dan dikirim ke Trainee {$trainee->name} untuk persetujuan."
+                : 'Draft logbook disimpan oleh Trainer.',
+        ]);
+
+        if ($status === 'submitted') {
+            $trainee->notify(new \App\Notifications\LogbookSubmittedNotification([
+                'title' => 'Form OJT Baru Menunggu Persetujuan Anda',
+                'message' => "Trainer {$trainer->name} telah mengisikan form logbook OJT {$logbook->logbook_number}. Silakan periksa dan setujui.",
+                'url' => route('ojt.logbooks.show', $logbook->id),
+            ]));
+        }
+
+        $msg = $status === 'submitted'
+            ? "Logbook {$logbook->logbook_number} berhasil dibuat dan dikirim ke Trainee ({$trainee->name}) untuk persetujuan."
+            : "Draft logbook {$logbook->logbook_number} berhasil disimpan.";
+
+        return redirect()->route('trainer.reviews.index')->with('success', $msg);
     }
 }

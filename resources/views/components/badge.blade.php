@@ -12,10 +12,10 @@
 
     $label = match(strtolower($status)) {
         'draft' => 'Draft',
-        'submitted' => 'Submitted / Menunggu',
+        'submitted' => 'Menunggu Persetujuan Trainee',
         'revision' => 'Perlu Revisi',
-        'verified' => 'Terverifikasi Trainer',
-        'final_approved' => 'Final Approved TC',
+        'verified' => 'Menunggu Persetujuan TC',
+        'final_approved' => 'Disetujui Admin TC',
         default => ucfirst($status),
     };
 @endphp

@@ -32,6 +32,7 @@ class StoreLogbookRequest extends FormRequest
         $isDraft = $this->action_type === 'draft';
 
         return [
+            'trainee_id' => ['nullable', 'exists:users,id'],
             'date' => [$isDraft ? 'nullable' : 'required', 'date'],
             'shift' => [$isDraft ? 'nullable' : 'required', 'in:day,night'],
             'equipment_category_id' => [$isDraft ? 'nullable' : 'required', 'exists:equipment_categories,id'],
@@ -91,6 +92,11 @@ class StoreLogbookRequest extends FormRequest
                 if (!$hasInstruktur && !$hasPengawas && !$hasOperator) {
                     $validator->errors()->add('personnel', 'Pilih minimal salah satu: Instruktur, Pengawas, atau Operator Pendamping.');
                 }
+            }
+
+            $category = \App\Models\EquipmentCategory::find($this->input('equipment_category_id'));
+            if ($category && $category->code === 'OTH') {
+                return;
             }
 
             $family = data_get($this->input('sop_payload'), 'meta.unit_family');

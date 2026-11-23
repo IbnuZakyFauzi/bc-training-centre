@@ -1,6 +1,7 @@
 @php
     $isEditing = isset($logbook);
     $isTrainerEditing = $isTrainerEditing ?? false;
+    $isTrainerCreating = $isTrainerCreating ?? false;
     $formPayload = old('sop_payload', $isEditing ? ($logbook->sop_payload ?? []) : []);
     $categoryMap = $categories->pluck('code', 'id')->all();
     $equipmentMap = $equipments->groupBy('equipment_category_id')
@@ -9,7 +10,7 @@
             'label' => $eq->unit_code . ' - ' . $eq->model_name,
         ])->values())
         ->toArray();
-    $trainee = $isEditing ? $logbook->trainee : $user;
+    $trainee = $isEditing ? $logbook->trainee : ($trainee ?? $user);
     $selectedCategoryId = old('equipment_category_id', $isEditing ? $logbook->equipment_category_id : ($trainee->equipment_category_id ?? ''));
     $selectedCategoryCode = $selectedCategoryId ? ($categoryMap[$selectedCategoryId] ?? '') : '';
 
@@ -339,15 +340,19 @@
             <span>/</span>
             <span class="text-slate-500">{{ $isTrainerEditing ? 'Edit Form OJT Trainer' : ($isEditing ? 'Edit Draft Form OJT' : 'Create Digital Form OJT') }}</span>
         </div>
-        <h1 class="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">Formulir Harian Trainee OJT</h1>
+        <h1 class="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">{{ $isTrainerCreating ? 'Input Formulir Harian OJT Trainee' : 'Formulir Harian Trainee OJT' }}</h1>
         <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Form ini menampilkan checklist harian per unit: track unit (DZ/GR), excavator (EXC), dump truck (HDT/LDT), dan semi dump (SDT/ADT).</p>
     </div>
-    <a href="{{ route('ojt.logbooks.index') }}" class="px-3.5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition text-center min-h-[44px] inline-flex items-center justify-center">Kembali</a>
+    <a href="{{ $isTrainerCreating ? route('trainer.reviews.index') : route('ojt.logbooks.index') }}" class="px-3.5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition text-center min-h-[44px] inline-flex items-center justify-center">Kembali</a>
     </div>
 
     <script>
         window.existingSopPayload = @js($formPayload);
         window.logbookFormData = () => ({
+            isTrainerCreating: @js($isTrainerCreating),
+            selectedTraineeId: @js(old('trainee_id', $selectedTraineeId ?? '')),
+            traineesMap: @js($traineesMap ?? []),
+            traineeName: @js(old('sop_payload.meta.trainee_name', data_get($formPayload, 'meta.trainee_name', $trainee->name ?? ''))),
             categoryId: @js(old('equipment_category_id', $selectedCategoryId)),
             equipmentId: @js(old('equipment_id', $isEditing ? $logbook->equipment_id : '')),
             categoryMap: @js($categoryMap),
@@ -365,6 +370,21 @@
             selectedTrainerId: '',
             selectedPengawasIds: [],
             selectedOperatorIds: [],
+            onTraineeChange(id) {
+                this.selectedTraineeId = id;
+                const t = this.traineesMap[id];
+                if (t) {
+                    this.traineeName = t.name;
+                    this.company = t.company || 'PT Mutiara Tanjung Lestari';
+                    this.certification = t.certification || 'Green';
+                    this.categoryId = t.equipment_category_id ? String(t.equipment_category_id) : '';
+                }
+            },
+            initTrainee() {
+                if (this.isTrainerCreating && this.selectedTraineeId && this.traineesMap[this.selectedTraineeId]) {
+                    this.onTraineeChange(this.selectedTraineeId);
+                }
+            },
             get selectedCategoryCode() {
                 return this.categoryMap[this.categoryId] || '';
             },
@@ -426,9 +446,9 @@
         });
     </script>
 
-    <form id="logbookForm" action="{{ $isTrainerEditing ? route('trainer.reviews.update', $logbook->id) : ($isEditing ? route('ojt.logbooks.update', $logbook->id) : route('ojt.logbooks.store')) }}" method="POST"
+    <form id="logbookForm" action="{{ $formAction ?? ($isTrainerEditing ? route('trainer.reviews.update', $logbook->id) : ($isEditing ? route('ojt.logbooks.update', $logbook->id) : route('ojt.logbooks.store'))) }}" method="POST"
       x-data="logbookFormData()"
-        x-init="$nextTick(() => { fillExistingChecklist(); initSelectedTrainers(); })"
+        x-init="$nextTick(() => { fillExistingChecklist(); initSelectedTrainers(); if (isTrainerCreating) initTrainee(); })"
         class="space-y-3 sm:space-y-3 pb-6 sm:pb-10"
         @submit="document.querySelectorAll('#logbookForm button[type=submit]').forEach(btn => btn.disabled = true)">
     @csrf
@@ -457,7 +477,19 @@
                 <div class="grid grid-cols-[120px_minmax(0,1fr)] gap-x-3 gap-y-0 text-[11px] text-slate-900">
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">NAMA</div>
                     <div class="px-3 py-1.5 border-b border-slate-900">
-                        <input type="text" name="sop_payload[meta][trainee_name]" value="{{ old('sop_payload.meta.trainee_name', data_get($formPayload, 'meta.trainee_name', $user->name)) }}" readonly class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
+                        @if($isTrainerCreating ?? false)
+                            <select name="trainee_id" x-model="selectedTraineeId" @change="onTraineeChange($event.target.value)" required class="w-full border-0 bg-transparent p-0 text-[11px] font-bold text-blue-700 focus:ring-0">
+                                <option value="">-- Pilih Trainee Bimbingan --</option>
+                                @foreach($trainees as $t)
+                                    <option value="{{ $t->id }}" {{ old('trainee_id', $selectedTraineeId ?? '') == $t->id ? 'selected' : '' }}>
+                                        {{ $t->name }} ({{ $t->sid ?? '-' }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            <input type="hidden" name="sop_payload[meta][trainee_name]" :value="traineeName">
+                        @else
+                            <input type="text" name="sop_payload[meta][trainee_name]" value="{{ old('sop_payload.meta.trainee_name', data_get($formPayload, 'meta.trainee_name', $user->name)) }}" readonly class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
+                        @endif
                     </div>
 
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">HARI/ TANGGAL</div>
@@ -488,14 +520,19 @@
 
                     <div class="px-3 py-2 font-semibold">SERTIFIKASI</div>
                     <div class="px-3 py-1.5">
-                        <select name="sop_payload[meta][certification]" x-model="certification" {{ (!$isEditing && $trainee->certification) || $isEditing ? 'disabled' : '' }} class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0 {{ (!$isEditing && $trainee->certification) || $isEditing ? 'appearance-none' : '' }}">
-                            <option value="Green">Green</option>
-                            <option value="Skill-up">Skill-up</option>
-                            <option value="Experience_internal">Experience Internal</option>
-                            <option value="Experience_external">Experience External</option>
-                        </select>
-                        @if((!$isEditing && $trainee->certification) || $isEditing)
-                            <input type="hidden" name="sop_payload[meta][certification]" value="{{ old('sop_payload.meta.certification', data_get($formPayload, 'meta.certification', $trainee->certification ?? 'Green')) }}">
+                        @if($isTrainerCreating ?? false)
+                            <input type="text" :value="certification" readonly class="w-full border-0 bg-transparent p-0 text-[11px] font-medium text-slate-800 focus:ring-0">
+                            <input type="hidden" name="sop_payload[meta][certification]" :value="certification">
+                        @else
+                            <select name="sop_payload[meta][certification]" x-model="certification" {{ (!$isEditing && $trainee->certification) || $isEditing ? 'disabled' : '' }} class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0 {{ (!$isEditing && $trainee->certification) || $isEditing ? 'appearance-none' : '' }}">
+                                <option value="Green">Green</option>
+                                <option value="Skill-up">Skill-up</option>
+                                <option value="Experience_internal">Experience Internal</option>
+                                <option value="Experience_external">Experience External</option>
+                            </select>
+                            @if((!$isEditing && $trainee->certification) || $isEditing)
+                                <input type="hidden" name="sop_payload[meta][certification]" value="{{ old('sop_payload.meta.certification', data_get($formPayload, 'meta.certification', $trainee->certification ?? 'Green')) }}">
+                            @endif
                         @endif
                     </div>
                 </div>
@@ -505,25 +542,42 @@
                 <div class="grid grid-cols-[120px_minmax(0,1fr)] gap-x-3 gap-y-0 text-[11px] text-slate-900">
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">PERUSAHAAN</div>
                     <div class="px-3 py-1.5 border-b border-slate-900">
-                        <input type="text" name="sop_payload[meta][company]" x-model="company" placeholder="Contoh: PT Mutiara Tanjung Lestari" {{ (!$isEditing && $trainee->company) || $isEditing ? 'readonly' : '' }} class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
-                        @if((!$isEditing && $trainee->company) || $isEditing)
-                            <input type="hidden" name="sop_payload[meta][company]" value="{{ old('sop_payload.meta.company', data_get($formPayload, 'meta.company', $trainee->company ?? '')) }}">
+                        @if($isTrainerCreating ?? false)
+                            <input type="text" name="sop_payload[meta][company]" x-model="company" readonly class="w-full border-0 bg-transparent p-0 text-[11px] font-medium text-slate-800 focus:ring-0" placeholder="Pilih Trainee terlebih dahulu">
+                        @else
+                            <input type="text" name="sop_payload[meta][company]" x-model="company" placeholder="Contoh: PT Mutiara Tanjung Lestari" {{ (!$isEditing && $trainee->company) || $isEditing ? 'readonly' : '' }} class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0">
+                            @if((!$isEditing && $trainee->company) || $isEditing)
+                                <input type="hidden" name="sop_payload[meta][company]" value="{{ old('sop_payload.meta.company', data_get($formPayload, 'meta.company', $trainee->company ?? '')) }}">
+                            @endif
                         @endif
                     </div>
 
                     <div class="px-3 py-2 font-semibold border-b border-slate-900">TIPE ALAT</div>
                     <div class="px-3 py-1.5 border-b border-slate-900">
-                        <select name="equipment_category_id" x-model="categoryId" {{ (!$isEditing && $trainee->equipment_category_id) || $isEditing ? 'disabled' : '' }} class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0 {{ (!$isEditing && $trainee->equipment_category_id) || $isEditing ? 'appearance-none' : '' }}">
-                            <option value="">Pilih unit</option>
-                            <option value="{{ $categories->firstWhere('code', 'EXC')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'EXC')?->id) ? 'selected' : '' }}>Excavator (EX)</option>
-                            <option value="{{ $categories->firstWhere('code', 'DZ')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'DZ')?->id) ? 'selected' : '' }}>Bulldozer (DZ) / Motor Grader (GR)</option>
-                            <option value="{{ $categories->firstWhere('code', 'HDT')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'HDT')?->id) ? 'selected' : '' }}>Heavy Dump Truck (HDT) / Light Dump Truck (LDT)</option>
-                            <option value="{{ $categories->firstWhere('code', 'SDT')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'SDT')?->id) ? 'selected' : '' }}>Semi Dump Trailler (SDT) / Articulated Dump Truck (ADT)</option>
-                            <option value="{{ $categories->firstWhere('code', 'WL')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'WL')?->id) ? 'selected' : '' }}>Wheel Loader (WL)</option>
-                            <option value="{{ $categories->firstWhere('code', 'OTH')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'OTH')?->id) ? 'selected' : '' }}>Lainnya</option>
-                        </select>
-                        @if((!$isEditing && $trainee->equipment_category_id) || $isEditing)
-                            <input type="hidden" name="equipment_category_id" value="{{ old('equipment_category_id', $selectedCategoryId) }}">
+                        @if($isTrainerCreating ?? false)
+                            <select x-model="categoryId" :disabled="selectedTraineeId && Boolean(traineesMap[selectedTraineeId]?.equipment_category_id)" class="w-full border-0 bg-transparent p-0 text-[11px] font-medium text-slate-800 focus:ring-0">
+                                <option value="">Pilih unit</option>
+                                <option value="{{ $categories->firstWhere('code', 'EXC')?->id }}">Excavator (EX)</option>
+                                <option value="{{ $categories->firstWhere('code', 'DZ')?->id }}">Bulldozer (DZ) / Motor Grader (GR)</option>
+                                <option value="{{ $categories->firstWhere('code', 'HDT')?->id }}">Heavy Dump Truck (HDT) / Light Dump Truck (LDT)</option>
+                                <option value="{{ $categories->firstWhere('code', 'SDT')?->id }}">Semi Dump Trailler (SDT) / Articulated Dump Truck (ADT)</option>
+                                <option value="{{ $categories->firstWhere('code', 'WL')?->id }}">Wheel Loader (WL)</option>
+                                <option value="{{ $categories->firstWhere('code', 'OTH')?->id }}">Lainnya</option>
+                            </select>
+                            <input type="hidden" name="equipment_category_id" :value="categoryId">
+                        @else
+                            <select name="equipment_category_id" x-model="categoryId" {{ (!$isEditing && $trainee->equipment_category_id) || $isEditing ? 'disabled' : '' }} class="w-full border-0 bg-transparent p-0 text-[11px] font-medium focus:ring-0 {{ (!$isEditing && $trainee->equipment_category_id) || $isEditing ? 'appearance-none' : '' }}">
+                                <option value="">Pilih unit</option>
+                                <option value="{{ $categories->firstWhere('code', 'EXC')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'EXC')?->id) ? 'selected' : '' }}>Excavator (EX)</option>
+                                <option value="{{ $categories->firstWhere('code', 'DZ')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'DZ')?->id) ? 'selected' : '' }}>Bulldozer (DZ) / Motor Grader (GR)</option>
+                                <option value="{{ $categories->firstWhere('code', 'HDT')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'HDT')?->id) ? 'selected' : '' }}>Heavy Dump Truck (HDT) / Light Dump Truck (LDT)</option>
+                                <option value="{{ $categories->firstWhere('code', 'SDT')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'SDT')?->id) ? 'selected' : '' }}>Semi Dump Trailler (SDT) / Articulated Dump Truck (ADT)</option>
+                                <option value="{{ $categories->firstWhere('code', 'WL')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'WL')?->id) ? 'selected' : '' }}>Wheel Loader (WL)</option>
+                                <option value="{{ $categories->firstWhere('code', 'OTH')?->id }}" {{ old('equipment_category_id', $selectedCategoryId) == ($categories->firstWhere('code', 'OTH')?->id) ? 'selected' : '' }}>Lainnya</option>
+                            </select>
+                            @if((!$isEditing && $trainee->equipment_category_id) || $isEditing)
+                                <input type="hidden" name="equipment_category_id" value="{{ old('equipment_category_id', $selectedCategoryId) }}">
+                            @endif
                         @endif
                     </div>
 
@@ -1657,8 +1711,8 @@
                         <svg class="w-5 h-5 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                     </div>
                     <div>
-                        <span class="text-xs font-bold text-blue-800">{{ $isTrainerEditing ? 'Simpan Perubahan' : ($isEditing ? 'Kirim Ulang ke Trainer' : 'Submit Form OJT') }}</span>
-                        <p class="mt-1 text-[11px] text-blue-700 leading-relaxed">Kirim logbook untuk dievaluasi trainer. Pastikan semua checklist dan HM sudah terisi dengan benar.</p>
+                        <span class="text-xs font-bold text-blue-800">{{ $isTrainerCreating ? 'Kirim Logbook ke Trainee' : ($isTrainerEditing ? 'Simpan Perubahan' : ($isEditing ? 'Kirim Ulang ke Trainer' : 'Submit Form OJT')) }}</span>
+                        <p class="mt-1 text-[11px] text-blue-700 leading-relaxed">{{ $isTrainerCreating ? 'Logbook akan dikirim ke Trainee untuk diperiksa dan disetujui sebelum diteruskan ke Admin TC.' : 'Kirim logbook untuk dievaluasi trainer. Pastikan semua checklist dan HM sudah terisi dengan benar.' }}</p>
                     </div>
                 </button>
             </div>

@@ -33,6 +33,16 @@
                 </a>
             @endif
 
+            @if(auth()->user()?->isTrainee() && $logbook->trainee_id === auth()->id() && $logbook->status === 'submitted')
+                <form action="{{ route('ojt.logbooks.approve', $logbook->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin menyetujui isian form logbook ini? Form akan diteruskan ke Admin TC.')">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center justify-center px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl shadow-md transition min-h-[44px] gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Setujui Logbook
+                    </button>
+                </form>
+            @endif
+
             @if(auth()->user()?->isTrainingCentre() && $logbook->status === 'final_approved')
                 <a href="{{ route('ojt.logbooks.print', $logbook->id) }}" target="_blank" class="inline-flex items-center justify-center px-4 py-3 bg-[#1e3a8a] hover:bg-[#172554] text-white font-bold text-xs rounded-xl shadow-xs transition min-h-[44px]">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
@@ -156,6 +166,32 @@
 
         </div>
 
+    @if(auth()->user()?->isTrainee() && $logbook->trainee_id === auth()->id() && $logbook->status === 'submitted')
+        <div class="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-400 rounded-2xl p-5 sm:p-6 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <div class="p-2.5 bg-blue-600 rounded-xl text-white flex-shrink-0 shadow-sm">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-blue-950">Konfirmasi & Persetujuan Logbook OJT Trainee</h3>
+                        <p class="text-xs text-blue-800 mt-1 leading-relaxed">
+                            Form OJT ini telah diisikan oleh Trainer <strong>{{ $logbook->trainer->name ?? 'Instruktur' }}</strong>. 
+                            Silakan periksa kebenaran jam kerja (HM), shift, dan evaluasi SOP. Jika data sudah benar, klik tombol di samping untuk menyetujui. Berkas akan otomatis diteruskan ke Admin Training Centre.
+                        </p>
+                    </div>
+                </div>
+                <form action="{{ route('ojt.logbooks.approve', $logbook->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin menyetujui isian form logbook ini? Form akan diteruskan ke Admin TC.')">
+                    @csrf
+                    <button type="submit" class="w-full sm:w-auto px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2 whitespace-nowrap min-h-[44px]">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Setujui & Teruskan ke TC
+                    </button>
+                </form>
+            </div>
+        </div>
+    @endif
+
         <!-- Right Column: Audit Timeline & Signatures -->
         <div class="flex flex-col gap-8">
             <!-- Audit Submission Timeline Widget -->
@@ -274,6 +310,32 @@
             </div>
 
         </div>
+
+    @if(auth()->user()?->isTrainee() && $logbook->trainee_id === auth()->id() && $logbook->status === 'submitted')
+        <div class="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-400 rounded-2xl p-5 sm:p-6 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <div class="p-2.5 bg-blue-600 rounded-xl text-white flex-shrink-0 shadow-sm">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-blue-950">Konfirmasi & Persetujuan Logbook OJT Trainee</h3>
+                        <p class="text-xs text-blue-800 mt-1 leading-relaxed">
+                            Form OJT ini telah diisikan oleh Trainer <strong>{{ $logbook->trainer->name ?? 'Instruktur' }}</strong>. 
+                            Silakan periksa kebenaran jam kerja (HM), shift, dan evaluasi SOP. Jika data sudah benar, klik tombol di samping untuk menyetujui. Berkas akan otomatis diteruskan ke Admin Training Centre.
+                        </p>
+                    </div>
+                </div>
+                <form action="{{ route('ojt.logbooks.approve', $logbook->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin menyetujui isian form logbook ini? Form akan diteruskan ke Admin TC.')">
+                    @csrf
+                    <button type="submit" class="w-full sm:w-auto px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2 whitespace-nowrap min-h-[44px]">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Setujui & Teruskan ke TC
+                    </button>
+                </form>
+            </div>
+        </div>
+    @endif
 
     @if($trainerReview && $logbook->status === 'submitted')
         @if($locked ?? false)

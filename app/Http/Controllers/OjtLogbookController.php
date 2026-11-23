@@ -469,4 +469,49 @@ class OjtLogbookController extends Controller
 
         return view('ojt.logbooks.print-trainee', compact('trainee', 'combined'));
     }
+
+    public function traineeApprove(Request $request, $id)
+    {
+        $user = Auth::user();
+        abort_unless($user && $user->isTrainee(), 403, 'Hanya Trainee yang dapat menyetujui logbook ini.');
+
+        $logbook = OjtLogbook::where('trainee_id', $user->id)->findOrFail($id);
+        abort_unless($logbook->status === 'submitted', 422, 'Logbook tidak dalam status menunggu persetujuan Anda.');
+
+        $previousStatus = $logbook->status;
+        $newStatus = 'verified';
+
+        $logbook->update([
+            'status' => $newStatus,
+            'verified_at' => now(),
+        ]);
+
+        LogbookHistory::create([
+            'ojt_logbook_id' => $logbook->id,
+            'user_id' => $user->id,
+            'action' => 'Logbook Approved by Trainee',
+            'from_status' => $previousStatus,
+            'to_status' => $newStatus,
+            'comment' => 'Trainee telah memverifikasi dan menyetujui seluruh isi logbook.',
+        ]);
+
+        // Notifikasi ke Admin TC bahwa logbook sudah disetujui Trainee & siap di-approve TC
+        User::where('role', 'admin')->get()->each(function ($adminTc) use ($logbook, $user) {
+            $adminTc->notify(new \App\Notifications\LogbookSubmittedNotification([
+                'title' => 'Form OJT Menunggu Approval Admin TC',
+                'message' => "Form OJT {$logbook->logbook_number} dari {$user->name} telah disetujui Trainee dan menunggu persetujuan Admin TC.",
+                'url' => route('training-centre.approvals.show', $logbook->id),
+            ]));
+        });
+
+        // Notifikasi ke Trainer bahwa Trainee sudah approve
+        $logbook->trainer?->notify(new \App\Notifications\LogbookApprovedNotification([
+            'title' => 'Logbook Disetujui Trainee',
+            'message' => "Trainee {$user->name} telah menyetujui form OJT {$logbook->logbook_number}. Berkas diteruskan ke Admin TC.",
+            'url' => route('trainer.reviews.show', $logbook->id),
+        ]));
+
+        return redirect()->route('ojt.logbooks.show', $logbook->id)
+            ->with('success', 'Logbook berhasil disetujui dan diteruskan ke Admin TC untuk persetujuan final.');
+    }
 }
