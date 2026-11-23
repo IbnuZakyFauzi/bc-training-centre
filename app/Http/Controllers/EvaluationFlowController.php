@@ -103,12 +103,12 @@ class EvaluationFlowController extends Controller
             ->where('status', 'tc_approved');
 
         if ($request->filled('search')) {
-            $term = $request->search;
+            $term = mb_strtolower(trim($request->search));
             $pendingQuery->where(function ($q) use ($term) {
-                $q->where('nama_operator', 'like', "%{$term}%")
-                    ->orWhere('perusahaan', 'like', "%{$term}%")
-                    ->orWhereHas('trainee', fn ($u) => $u->where('sid', 'like', "%{$term}%")->orWhere('department', 'like', "%{$term}%"))
-                    ->orWhereHas('trainer', fn ($t) => $t->where('name', 'like', "%{$term}%"));
+                $q->whereRaw('LOWER(nama_operator) LIKE ?', ["%{$term}%"])
+                    ->orWhereRaw('LOWER(perusahaan) LIKE ?', ["%{$term}%"])
+                    ->orWhereHas('trainee', fn ($u) => $u->whereRaw('LOWER(sid) LIKE ?', ["%{$term}%"])->orWhereRaw('LOWER(department) LIKE ?', ["%{$term}%"]))
+                    ->orWhereHas('trainer', fn ($t) => $t->whereRaw('LOWER(name) LIKE ?', ["%{$term}%"]));
             });
         }
 
@@ -131,12 +131,12 @@ class EvaluationFlowController extends Controller
             ->whereIn('status', ['pjo_approved', 'hse_approved']);
 
         if ($request->filled('search')) {
-            $term = $request->search;
+            $term = mb_strtolower(trim($request->search));
             $historyQuery->where(function ($q) use ($term) {
-                $q->where('nama_operator', 'like', "%{$term}%")
-                    ->orWhere('perusahaan', 'like', "%{$term}%")
-                    ->orWhereHas('trainee', fn ($u) => $u->where('sid', 'like', "%{$term}%")->orWhere('department', 'like', "%{$term}%"))
-                    ->orWhereHas('trainer', fn ($t) => $t->where('name', 'like', "%{$term}%"));
+                $q->whereRaw('LOWER(nama_operator) LIKE ?', ["%{$term}%"])
+                    ->orWhereRaw('LOWER(perusahaan) LIKE ?', ["%{$term}%"])
+                    ->orWhereHas('trainee', fn ($u) => $u->whereRaw('LOWER(sid) LIKE ?', ["%{$term}%"])->orWhereRaw('LOWER(department) LIKE ?', ["%{$term}%"]))
+                    ->orWhereHas('trainer', fn ($t) => $t->whereRaw('LOWER(name) LIKE ?', ["%{$term}%"]));
             });
         }
 
@@ -233,12 +233,12 @@ class EvaluationFlowController extends Controller
             ->where('status', 'pjo_approved');
 
         if ($request->filled('search')) {
-            $term = $request->search;
+            $term = mb_strtolower(trim($request->search));
             $pendingQuery->where(function ($q) use ($term) {
-                $q->where('nama_operator', 'like', "%{$term}%")
-                    ->orWhere('perusahaan', 'like', "%{$term}%")
-                    ->orWhereHas('trainee', fn ($u) => $u->where('sid', 'like', "%{$term}%")->orWhere('department', 'like', "%{$term}%"))
-                    ->orWhereHas('trainer', fn ($t) => $t->where('name', 'like', "%{$term}%"));
+                $q->whereRaw('LOWER(nama_operator) LIKE ?', ["%{$term}%"])
+                    ->orWhereRaw('LOWER(perusahaan) LIKE ?', ["%{$term}%"])
+                    ->orWhereHas('trainee', fn ($u) => $u->whereRaw('LOWER(sid) LIKE ?', ["%{$term}%"])->orWhereRaw('LOWER(department) LIKE ?', ["%{$term}%"]))
+                    ->orWhereHas('trainer', fn ($t) => $t->whereRaw('LOWER(name) LIKE ?', ["%{$term}%"]));
             });
         }
 
@@ -261,12 +261,12 @@ class EvaluationFlowController extends Controller
             ->where('status', 'hse_approved');
 
         if ($request->filled('search')) {
-            $term = $request->search;
+            $term = mb_strtolower(trim($request->search));
             $historyQuery->where(function ($q) use ($term) {
-                $q->where('nama_operator', 'like', "%{$term}%")
-                    ->orWhere('perusahaan', 'like', "%{$term}%")
-                    ->orWhereHas('trainee', fn ($u) => $u->where('sid', 'like', "%{$term}%")->orWhere('department', 'like', "%{$term}%"))
-                    ->orWhereHas('trainer', fn ($t) => $t->where('name', 'like', "%{$term}%"));
+                $q->whereRaw('LOWER(nama_operator) LIKE ?', ["%{$term}%"])
+                    ->orWhereRaw('LOWER(perusahaan) LIKE ?', ["%{$term}%"])
+                    ->orWhereHas('trainee', fn ($u) => $u->whereRaw('LOWER(sid) LIKE ?', ["%{$term}%"])->orWhereRaw('LOWER(department) LIKE ?', ["%{$term}%"]))
+                    ->orWhereHas('trainer', fn ($t) => $t->whereRaw('LOWER(name) LIKE ?', ["%{$term}%"]));
             });
         }
 
@@ -444,11 +444,11 @@ class EvaluationFlowController extends Controller
             $query->whereHas('assignedTrainers', fn ($q) => $q->where('trainer_id', $user->id));
         }
         if ($request->filled('search')) {
-            $term = $request->search;
-            $query->where(fn ($q) => $q->where('name', 'like', "%{$term}%")
-                ->orWhere('sid', 'like', "%{$term}%")
-                ->orWhere('company', 'like', "%{$term}%")
-                ->orWhere('department', 'like', "%{$term}%"));
+            $term = mb_strtolower(trim($request->search));
+            $query->where(fn ($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%{$term}%"])
+                ->orWhereRaw('LOWER(sid) LIKE ?', ["%{$term}%"])
+                ->orWhereRaw('LOWER(company) LIKE ?', ["%{$term}%"])
+                ->orWhereRaw('LOWER(department) LIKE ?', ["%{$term}%"]));
         }
         if ($request->filled('certification')) {
             $query->where('certification', $request->certification);

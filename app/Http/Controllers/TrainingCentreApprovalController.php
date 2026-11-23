@@ -45,12 +45,12 @@ class TrainingCentreApprovalController extends Controller
         }
 
         if ($request->filled('search')) {
-            $term = $request->search;
-            $query->where(fn ($q) => $q->where('logbook_number', 'like', "%{$term}%")
-                ->orWhereHas('trainee', fn ($u) => $u->where('name', 'like', "%{$term}%")
-                    ->orWhere('sid', 'like', "%{$term}%")
-                    ->orWhere('company', 'like', "%{$term}%")
-                    ->orWhere('department', 'like', "%{$term}%")));
+            $term = mb_strtolower(trim($request->search));
+            $query->where(fn ($q) => $q->whereRaw('LOWER(logbook_number) LIKE ?', ["%{$term}%"])
+                ->orWhereHas('trainee', fn ($u) => $u->whereRaw('LOWER(name) LIKE ?', ["%{$term}%"])
+                    ->orWhereRaw('LOWER(sid) LIKE ?', ["%{$term}%"])
+                    ->orWhereRaw('LOWER(company) LIKE ?', ["%{$term}%"])
+                    ->orWhereRaw('LOWER(department) LIKE ?', ["%{$term}%"])));
         }
 
         if ($request->filled('department')) {
@@ -82,11 +82,11 @@ class TrainingCentreApprovalController extends Controller
             $trainees = User::whereIn('id', $allTraineeIds)
                 ->when($request->filled('department'), fn ($q) => $q->where('department', $request->department))
                 ->when($request->filled('search'), function ($q) use ($request) {
-                    $term = $request->search;
+                    $term = mb_strtolower(trim($request->search));
                     $q->where(function ($sub) use ($term) {
-                        $sub->where('name', 'like', "%{$term}%")
-                            ->orWhere('sid', 'like', "%{$term}%")
-                            ->orWhere('company', 'like', "%{$term}%");
+                        $sub->whereRaw('LOWER(name) LIKE ?', ["%{$term}%"])
+                            ->orWhereRaw('LOWER(sid) LIKE ?', ["%{$term}%"])
+                            ->orWhereRaw('LOWER(company) LIKE ?', ["%{$term}%"]);
                     });
                 })
                 ->get();

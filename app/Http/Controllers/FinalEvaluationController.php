@@ -27,11 +27,11 @@ class FinalEvaluationController extends Controller
         }
 
         if ($request->filled('search')) {
-            $search = $request->search;
+            $search = mb_strtolower(trim($request->search));
             $query->where(function($q) use ($search) {
-                $q->where('nama_operator', 'like', "%{$search}%")
-                  ->orWhere('jenis_unit_a2b', 'like', "%{$search}%")
-                  ->orWhere('lokasi_kerja', 'like', "%{$search}%");
+                $q->whereRaw('LOWER(nama_operator) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('LOWER(jenis_unit_a2b) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('LOWER(lokasi_kerja) LIKE ?', ["%{$search}%"]);
             });
         }
 

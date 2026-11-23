@@ -28,13 +28,13 @@ class OjtLogbookController extends Controller
 
         // Search
         if ($request->filled('search')) {
-            $search = $request->search;
+            $search = mb_strtolower(trim($request->search));
             $query->where(function($q) use ($search) {
-                $q->where('logbook_number', 'like', "%{$search}%")
-                  ->orWhere('location', 'like', "%{$search}%")
+                $q->whereRaw('LOWER(logbook_number) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('LOWER(location) LIKE ?', ["%{$search}%"])
                   ->orWhereHas('equipment', function($eqQuery) use ($search) {
-                      $eqQuery->where('unit_code', 'like', "%{$search}%")
-                              ->orWhere('model_name', 'like', "%{$search}%");
+                      $eqQuery->whereRaw('LOWER(unit_code) LIKE ?', ["%{$search}%"])
+                              ->orWhereRaw('LOWER(model_name) LIKE ?', ["%{$search}%"]);
                   });
             });
         }

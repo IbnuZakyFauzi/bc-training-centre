@@ -19,12 +19,12 @@ class UserManagementController extends Controller
         $query = User::query();
 
         if ($request->filled('search')) {
-            $term = $request->search;
-            $query->where(fn ($q) => $q->where('name', 'like', "%{$term}%")
-                ->orWhere('sid', 'like', "%{$term}%")
-                ->orWhere('email', 'like', "%{$term}%")
-                ->orWhere('company', 'like', "%{$term}%")
-                ->orWhere('department', 'like', "%{$term}%"));
+            $term = mb_strtolower(trim($request->search));
+            $query->where(fn ($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%{$term}%"])
+                ->orWhereRaw('LOWER(sid) LIKE ?', ["%{$term}%"])
+                ->orWhereRaw('LOWER(email) LIKE ?', ["%{$term}%"])
+                ->orWhereRaw('LOWER(company) LIKE ?', ["%{$term}%"])
+                ->orWhereRaw('LOWER(department) LIKE ?', ["%{$term}%"]));
         }
 
         if ($request->filled('role')) {
