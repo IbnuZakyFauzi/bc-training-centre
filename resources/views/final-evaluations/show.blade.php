@@ -31,10 +31,12 @@
                         <h1 class="text-lg sm:text-xl font-bold text-primary">Formulir Evaluasi On the Job Training A2B</h1>
                         <p class="text-xs sm:text-sm text-slate-600">F-HCT-02.02, Revisi 2</p>
                     </div>
-                    <a href="{{ route('trainer.final-evaluations.print', $evaluation->id) }}" target="_blank" class="inline-flex items-center justify-center px-4 sm:px-6 py-3 rounded-lg bg-primary text-white text-xs sm:text-sm font-bold hover:bg-secondary text-center min-h-[44px] w-full sm:w-auto">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                        Cetak / Download PDF
-                    </a>
+                    @if(auth()->user()?->isTrainingCentre())
+                        <a href="{{ route('final-evaluations.print', $evaluation->id) }}" target="_blank" class="inline-flex items-center justify-center px-4 sm:px-6 py-3 rounded-lg bg-primary text-white text-xs sm:text-sm font-bold hover:bg-secondary text-center min-h-[44px] w-full sm:w-auto">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                            Cetak / Download PDF
+                        </a>
+                    @endif
                 </div>
             </div>
 

@@ -475,9 +475,9 @@
                                                                         <a href="{{ route('trainer.reviews.show', $h['logbook_id']) }}" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition inline-flex items-center gap-1">
                                                                             Buka
                                                                         </a>
-                                                                    @else
+                                                                    @elseif($user->isTrainingCentre())
                                                                         <a href="{{ route('ojt.logbooks.print', $h['logbook_id']) }}" target="_blank" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition inline-flex items-center gap-1">
-                                                                            Buka
+                                                                            Buka / Cetak
                                                                         </a>
                                                                     @endif
                                                                 @elseif(!empty($h['evaluation_id']))

@@ -306,10 +306,7 @@
                                 <td class="px-5 py-3.5 text-right">
                                     <div class="inline-flex items-center gap-1.5">
                                         <a href="{{ route('hse-ct.final-evaluations.show', $he->id) }}" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
-                                            Detail
-                                        </a>
-                                        <a href="{{ route('final-evaluations.print', $he->id) }}" target="_blank" class="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#1e3a8a] font-bold text-xs transition inline-flex items-center gap-1">
-                                            <span>🖨️</span> Cetak
+                                            Detail Evaluasi
                                         </a>
                                     </div>
                                 </td>
