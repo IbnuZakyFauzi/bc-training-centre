@@ -10,8 +10,8 @@
             <div class="rounded-xl border border-blue-200 bg-blue-50 p-3 sm:p-4">
                 <p class="font-bold">Form OJT telah diverifikasi.</p>
                 @if($logbook->evaluation?->trainer_signature_path)
-                    <img src="{{ asset('storage/'.$logbook->evaluation->trainer_signature_path) }}" alt="Tanda tangan trainer" class="mt-3 max-h-20 sm:max-h-24 w-auto object-contain bg-white rounded-lg border border-blue-200 p-2">
-                    <a href="{{ asset('storage/'.$logbook->evaluation->trainer_signature_path) }}" target="_blank" class="mt-2 inline-flex font-bold text-[#1d4ed8] hover:underline">Lihat tanda tangan digital</a>
+                    <img src="{{ app_storage_base64($logbook->evaluation->trainer_signature_path) ?: app_storage_url($logbook->evaluation->trainer_signature_path) }}" alt="Tanda tangan trainer" class="mt-3 max-h-20 sm:max-h-24 w-auto object-contain bg-white rounded-lg border border-blue-200 p-2">
+                    <a href="{{ app_storage_url($logbook->evaluation->trainer_signature_path) }}" target="_blank" class="mt-2 inline-flex font-bold text-[#1d4ed8] hover:underline">Lihat tanda tangan digital</a>
                 @endif
             </div>
         </div>
@@ -29,7 +29,7 @@
                     <span class="flex items-center gap-2 text-xs font-bold text-[#1d4ed8]"><input type="radio" name="action" value="verify" x-model="action"> Setujui & Verifikasi Form OJT</span>
                     <span class="mt-2 block text-[10px] sm:text-[11px] leading-relaxed text-blue-800">Tanda tangan dari My Profile akan dipakai otomatis saat approve.</span>
                     @if($trainer?->signature_path)
-                            <img src="{{ asset('storage/'.$trainer->signature_path) }}" alt="Signature profile" class="mt-3 sm:mt-4 max-h-16 sm:max-h-20 w-auto object-contain bg-white rounded-lg border border-blue-200 p-2">
+                            <img src="{{ app_storage_base64($trainer->signature_path) ?: app_storage_url($trainer->signature_path) }}" alt="Signature profile" class="mt-3 sm:mt-4 max-h-16 sm:max-h-20 w-auto object-contain bg-white rounded-lg border border-blue-200 p-2">
                         <span class="mt-2 block text-[10px] text-slate-500">Signature tersimpan di profil dan tidak perlu diunggah lagi.</span>
                     @else
                         <div class="mt-3 sm:mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[10px] sm:text-[11px] text-amber-900">

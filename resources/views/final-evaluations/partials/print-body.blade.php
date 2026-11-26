@@ -251,7 +251,7 @@
                  <div style="font-weight: bold; text-align: center; border-bottom: 1px solid #000; padding-bottom: 0.5px; margin-bottom: 0.5px;">Dievaluasi oleh</div>
                  <div class="sig-space">
                      @if($evaluation->instruktur_signature_path)
-                         <img src="{{ asset('storage/'.$evaluation->instruktur_signature_path) }}" alt="TTD" class="sig-img">
+                         <img src="{{ app_storage_base64($evaluation->instruktur_signature_path) ?: app_storage_url($evaluation->instruktur_signature_path) }}" alt="TTD" class="sig-img">
                      @endif
                  </div>
                  <div style="text-align: center; font-weight: bold; text-decoration: underline; margin-bottom: 0.5px;">
@@ -265,7 +265,7 @@
                  <div style="font-weight: bold; text-align: center; border-bottom: 1px solid #000; padding-bottom: 0.5px; margin-bottom: 0.5px;">Diperiksa oleh</div>
                  <div class="sig-space">
                      @if($evaluation->kabag_signature_path)
-                         <img src="{{ asset('storage/'.$evaluation->kabag_signature_path) }}" alt="TTD" class="sig-img">
+                         <img src="{{ app_storage_base64($evaluation->kabag_signature_path) ?: app_storage_url($evaluation->kabag_signature_path) }}" alt="TTD" class="sig-img">
                      @endif
                  </div>
                  <div style="text-align: center; font-weight: bold; text-decoration: underline; margin-bottom: 0.5px;">
@@ -279,7 +279,7 @@
                  <div style="font-weight: bold; text-align: center; border-bottom: 1px solid #000; padding-bottom: 0.5px; margin-bottom: 0.5px;">Disetujui oleh</div>
                  <div class="sig-space">
                      @if($evaluation->penanggung_jawab_signature_path)
-                         <img src="{{ asset('storage/'.$evaluation->penanggung_jawab_signature_path) }}" alt="TTD" class="sig-img">
+                         <img src="{{ app_storage_base64($evaluation->penanggung_jawab_signature_path) ?: app_storage_url($evaluation->penanggung_jawab_signature_path) }}" alt="TTD" class="sig-img">
                      @endif
                  </div>
                  <div style="text-align: center; font-weight: bold; text-decoration: underline; margin-bottom: 0.5px;">
@@ -293,7 +293,7 @@
                  <div style="font-weight: bold; text-align: center; border-bottom: 1px solid #000; padding-bottom: 0.5px; margin-bottom: 0.5px;">Diverifikasi oleh</div>
                  <div class="sig-space">
                      @if($evaluation->hse_signature_path)
-                         <img src="{{ asset('storage/'.$evaluation->hse_signature_path) }}" alt="TTD" class="sig-img">
+                         <img src="{{ app_storage_base64($evaluation->hse_signature_path) ?: app_storage_url($evaluation->hse_signature_path) }}" alt="TTD" class="sig-img">
                      @endif
                  </div>
                  <div style="text-align: center; font-weight: bold; text-decoration: underline; margin-bottom: 0.5px;">

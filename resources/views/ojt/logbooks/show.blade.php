@@ -308,7 +308,7 @@
                         <span class="text-xs text-slate-500 font-bold uppercase block">{{ $trainerApproverTitle }}</span>
                         <span class="text-sm font-bold text-slate-800 mt-1 block">{{ $trainerApproverName }}</span>
                         @if($logbook->evaluation?->trainer_signature_path)
-                            <img src="{{ asset('storage/'.$logbook->evaluation->trainer_signature_path) }}" alt="Trainer signature" style="max-height: 48px; max-width: 100%; height: auto; width: auto; object-fit: contain; display: block; margin: 8px auto 0;">
+                            <img src="{{ app_storage_base64($logbook->evaluation->trainer_signature_path) ?: app_storage_url($logbook->evaluation->trainer_signature_path) }}" alt="Trainer signature" style="max-height: 48px; max-width: 100%; height: auto; width: auto; object-fit: contain; display: block; margin: 8px auto 0;">
                         @endif
                     </div>
                     @if(in_array($logbook->status, ['verified', 'final_approved']))
@@ -324,7 +324,7 @@
                         <span class="text-xs text-slate-500 font-bold uppercase block">Pengawas Trainer</span>
                         <span class="text-sm font-bold text-slate-800 mt-1 block">{{ $logbook->pengawasTrainer->name ?? 'Menunggu Approval Pengawas' }}</span>
                         @if($logbook->pjo_signature_path)
-                            <img src="{{ asset('storage/'.$logbook->pjo_signature_path) }}" alt="Pengawas signature" style="max-height: 48px; max-width: 100%; height: auto; width: auto; object-fit: contain; display: block; margin: 8px auto 0;">
+                            <img src="{{ app_storage_base64($logbook->pjo_signature_path) ?: app_storage_url($logbook->pjo_signature_path) }}" alt="Pengawas signature" style="max-height: 48px; max-width: 100%; height: auto; width: auto; object-fit: contain; display: block; margin: 8px auto 0;">
                         @endif
                     </div>
                         <span class="px-3 py-1 {{ in_array($logbook->status, ['verified', 'final_approved']) ? 'bg-amber-600 text-white' : 'bg-slate-200 text-slate-600' }} text-xs font-bold rounded">{{ in_array($logbook->status, ['verified', 'final_approved']) ? 'Approved' : 'Pending' }}</span>
@@ -335,7 +335,7 @@
                     <div class="flex-1 p-5 {{ $logbook->training_centre_decided_at ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-200' }} rounded-xl border flex items-center justify-between">
                         <div><span class="text-xs text-slate-500 font-bold uppercase block">Kabag Training Centre</span><span class="text-sm font-bold text-slate-800 mt-1 block">{{ $logbook->trainingCentre->name ?? 'Menunggu Final Approval' }}</span></div>
                         @if($logbook->training_centre_signature_path)
-                            <img src="{{ asset('storage/'.$logbook->training_centre_signature_path) }}" alt="Training centre signature" style="max-height: 48px; max-width: 100%; height: auto; width: auto; object-fit: contain; display: block; margin: 8px auto 0;">
+                            <img src="{{ app_storage_base64($logbook->training_centre_signature_path) ?: app_storage_url($logbook->training_centre_signature_path) }}" alt="Training centre signature" style="max-height: 48px; max-width: 100%; height: auto; width: auto; object-fit: contain; display: block; margin: 8px auto 0;">
                         @endif
                         <span class="px-3 py-1 {{ $logbook->training_centre_decided_at ? 'bg-amber-600 text-white' : 'bg-slate-200 text-slate-600' }} text-xs font-bold rounded">{{ $logbook->training_centre_decided_at ? 'Approved' : 'Pending' }}</span>
                     </div>

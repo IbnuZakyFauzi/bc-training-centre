@@ -141,9 +141,87 @@ class TrainerReviewController extends Controller
 
         $departments = User::whereNotNull('department')->where('department', '!=', '')->distinct()->orderBy('department')->pluck('department');
 
+        // Trainee Profile Groups: Rekap Profil Trainee, Logbook Menunggu Approval, dan Riwayat Lengkap Per Nama
+        $traineeIdsForTrainer = OjtLogbook::where(function ($q) use ($trainer) {
+                $q->where('trainer_id', $trainer->id)
+                  ->orWhereHas('assignments', fn ($aq) => $aq->where('user_id', $trainer->id));
+            })
+            ->pluck('trainee_id')
+            ->merge(
+                User::where('role', 'trainee')
+                    ->whereHas('assignedTrainers', fn ($q) => $q->where('trainer_id', $trainer->id))
+                    ->pluck('id')
+            )
+            ->filter()
+            ->unique();
+
+        $trainerTrainees = User::whereIn('id', $traineeIdsForTrainer)
+            ->with(['equipmentCategory'])
+            ->when($request->filled('department'), fn ($q) => $q->where('department', $request->department))
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $term = mb_strtolower(trim($request->search));
+                $q->where(function ($sub) use ($term) {
+                    $sub->whereRaw('LOWER(name) LIKE ?', ["%{$term}%"])
+                        ->orWhereRaw('LOWER(sid) LIKE ?', ["%{$term}%"])
+                        ->orWhereRaw('LOWER(company) LIKE ?', ["%{$term}%"]);
+                });
+            })
+            ->get();
+
+        $allTraineeLogs = OjtLogbook::whereIn('trainee_id', $trainerTrainees->pluck('id'))
+            ->where(function ($q) use ($trainer) {
+                $q->where('trainer_id', $trainer->id)
+                  ->orWhereHas('assignments', fn ($aq) => $aq->where('user_id', $trainer->id));
+            })
+            ->with(['equipment', 'equipmentCategory', 'evidences', 'trainer'])
+            ->latest('date')
+            ->get()
+            ->groupBy('trainee_id');
+
+        $traineeReviewGroups = $trainerTrainees->map(function ($t) use ($allTraineeLogs) {
+            $logs = $allTraineeLogs->get($t->id, collect());
+
+            $submittedLogs = $logs->where('status', 'submitted')->values();
+            $revisionLogs = $logs->where('status', 'revision')->values();
+            $verifiedLogs = $logs->whereIn('status', ['verified', 'final_approved'])->values();
+            $draftLogs = $logs->where('status', 'draft')->values();
+
+            $latestDate = $logs->max('updated_at');
+
+            return [
+                'trainee' => $t,
+                'submitted_logbooks' => $submittedLogs,
+                'revision_logbooks' => $revisionLogs,
+                'verified_logbooks' => $verifiedLogs,
+                'draft_logbooks' => $draftLogs,
+                'pending_count' => $submittedLogs->count(),
+                'revision_count' => $revisionLogs->count(),
+                'verified_count' => $verifiedLogs->count(),
+                'total_forms' => $logs->count(),
+                'total_hm' => (float) $logs->sum('total_hm'),
+                'phase_label' => $t->currentPhaseMeta()['label'] ?? $t->currentPhaseKey(),
+                'latest_date' => $latestDate ? \Carbon\Carbon::parse($latestDate) : null,
+                'has_new' => $submittedLogs->count() > 0 || $revisionLogs->count() > 0,
+            ];
+        });
+
+        if ($activeStatus === 'submitted') {
+            $groupedByTrainee = $traineeReviewGroups->filter(fn ($g) => $g['pending_count'] > 0 || $g['total_forms'] > 0)
+                ->sortByDesc(fn ($g) => [$g['pending_count'] > 0 ? 1 : 0, $g['pending_count'], $g['latest_date'] ? $g['latest_date']->timestamp : 0])
+                ->values();
+        } elseif ($activeStatus === 'revision') {
+            $groupedByTrainee = $traineeReviewGroups->filter(fn ($g) => $g['revision_count'] > 0)
+                ->sortByDesc(fn ($g) => $g['latest_date'] ? $g['latest_date']->timestamp : 0)
+                ->values();
+        } else {
+            $groupedByTrainee = $traineeReviewGroups->filter(fn ($g) => $g['verified_count'] > 0)
+                ->sortByDesc(fn ($g) => $g['latest_date'] ? $g['latest_date']->timestamp : 0)
+                ->values();
+        }
+
         return view('trainer.reviews.index', compact(
             'trainer', 'logbooks', 'counts', 'activeStatus', 'eligibleTrainees',
-            'evaluationQueue', 'evaluationCounts', 'evaluationStatus', 'departments'
+            'evaluationQueue', 'evaluationCounts', 'evaluationStatus', 'departments', 'groupedByTrainee'
         ));
     }
 

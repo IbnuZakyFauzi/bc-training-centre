@@ -191,104 +191,353 @@
         </div>
     @endif
 
-    <!-- Main Data Table (Antrean Approval & Dokumen Final) -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
-        <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4">
+    <!-- Main Content Container with View Mode Toggle & Evidence Modal -->
+    <div x-data="{
+        viewMode: 'trainee_cards',
+        evidenceModalOpen: false,
+        modalUrl: '',
+        modalTitle: '',
+        openEvidence(url, title) {
+            this.modalUrl = url;
+            this.modalTitle = title;
+            this.evidenceModalOpen = true;
+        }
+    }" class="space-y-6 mb-6">
+
+        <!-- Main Card Section Header -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4">
             <div>
-                <h2 class="font-black text-slate-800 text-sm sm:text-base">
-                    {{ ($activeStatus ?? 'pending') === 'finalized' ? 'Dokumen Final Disahkan (Siap Cetak)' : (($activeStatus ?? 'pending') === 'revision' ? 'Form OJT Dikembalikan Revisi' : 'Antrean Form OJT Menunggu Final Approval') }}
-                </h2>
+                <div class="flex items-center gap-2">
+                    <h2 class="font-black text-slate-800 text-sm sm:text-base">
+                        {{ ($activeStatus ?? 'pending') === 'finalized' ? 'Dokumen Final Disahkan (Siap Cetak)' : (($activeStatus ?? 'pending') === 'revision' ? 'Form OJT Dikembalikan Revisi' : 'Antrean Form OJT Menunggu Final Approval') }}
+                    </h2>
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-[#1e3a8a]">
+                        {{ $groupedByTrainee->count() }} Trainee
+                    </span>
+                </div>
                 <p class="text-[10px] sm:text-xs text-slate-500 mt-1">
-                    {{ ($activeStatus ?? 'pending') === 'finalized' ? 'Hanya Admin Training Centre yang berwenang mengunduh dan mencetak form logbook resmi ini.' : 'Tinjau detail logbook harian dan berikan keputusan pengesahan.' }}
+                    Profil Trainee beserta logbook yang menunggu persetujuan dan riwayat sebelumnya terekap per nama secara otomatis.
                 </p>
             </div>
-            <form class="flex flex-col sm:flex-row gap-2 flex-wrap items-stretch sm:items-center" method="GET">
-                <input type="hidden" name="status" value="{{ $activeStatus ?? 'pending' }}">
-                <input name="search" value="{{ request('search') }}" placeholder="Cari SID, nama, no. logbook..." class="text-xs rounded-xl border-slate-300 focus:border-brand-500 focus:ring-brand-500 min-h-[44px]">
-                <select name="department" class="text-xs rounded-xl border-slate-300 min-h-[44px]">
-                    <option value="">Semua Departemen</option>
-                    @php
-                        $tcDeptOptions = collect(['CHCPP', 'CHID', 'FPM', 'Logistik', 'RIM', 'HRGS'])->merge($departments ?? [])->filter()->unique()->values();
-                    @endphp
-                    @foreach($tcDeptOptions as $d)
-                        <option value="{{ $d }}" {{ request('department') === $d ? 'selected' : '' }}>{{ $d }}</option>
-                    @endforeach
-                </select>
-                <button class="px-4 py-2.5 rounded-xl bg-[#1e3a8a] hover:bg-blue-900 text-white text-xs font-bold min-h-[44px] transition">Cari</button>
-                @if(request()->hasAny(['search', 'department']))
-                    <a href="{{ route('training-centre.approvals.index', ['status' => $activeStatus ?? 'pending']) }}" class="px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold min-h-[44px] inline-flex items-center justify-center transition">Reset</a>
-                @endif
-            </form>
+
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                <!-- View Mode Switcher -->
+                <div class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200 text-xs font-bold">
+                    <button type="button"
+                            @click="viewMode = 'trainee_cards'"
+                            :class="viewMode === 'trainee_cards' ? 'bg-white text-[#1e3a8a] shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+                            class="px-3 py-1.5 rounded-lg transition inline-flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        Rekap Profil Trainee
+                    </button>
+                    <button type="button"
+                            @click="viewMode = 'table'"
+                            :class="viewMode === 'table' ? 'bg-white text-[#1e3a8a] shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+                            class="px-3 py-1.5 rounded-lg transition inline-flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                        Tabel Logbook
+                    </button>
+                </div>
+
+                <!-- Search & Filter Form -->
+                <form class="flex flex-col sm:flex-row gap-2 flex-wrap items-stretch sm:items-center" method="GET">
+                    <input type="hidden" name="status" value="{{ $activeStatus ?? 'pending' }}">
+                    <input name="search" value="{{ request('search') }}" placeholder="Cari SID, nama, unit..." class="text-xs rounded-xl border-slate-300 focus:border-brand-500 focus:ring-brand-500 min-h-[38px] px-3 py-1.5">
+                    <select name="department" class="text-xs rounded-xl border-slate-300 min-h-[38px] px-3 py-1.5">
+                        <option value="">Semua Departemen</option>
+                        @php
+                            $tcDeptOptions = collect(['CHCPP', 'CHID', 'FPM', 'Logistik', 'RIM', 'HRGS'])->merge($departments ?? [])->filter()->unique()->values();
+                        @endphp
+                        @foreach($tcDeptOptions as $d)
+                            <option value="{{ $d }}" {{ request('department') === $d ? 'selected' : '' }}>{{ $d }}</option>
+                        @endforeach
+                    </select>
+                    <button class="px-3.5 py-1.5 rounded-xl bg-[#1e3a8a] hover:bg-blue-900 text-white text-xs font-bold min-h-[38px] transition shadow-xs">Filter</button>
+                    @if(request()->hasAny(['search', 'department']))
+                        <a href="{{ route('training-centre.approvals.index', ['status' => $activeStatus ?? 'pending']) }}" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold min-h-[38px] inline-flex items-center justify-center transition">Reset</a>
+                    @endif
+                </form>
+            </div>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left">
-                <thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500">
-                    <tr>
-                        @if($activeStatus === 'finalized')
-                            <th class="px-5 py-3">Trainee & Departemen</th>
-                            <th class="px-5 py-3">Instruktur</th>
-                            <th class="px-5 py-3">Total Dokumen Disahkan</th>
-                            <th class="px-5 py-3 text-right">Aksi</th>
-                        @else
+        <!-- 1. MODE KARTU PROFIL TRAINEE (Dikelompokkan Per Nama Trainee) -->
+        <div x-show="viewMode === 'trainee_cards'" class="space-y-5">
+            @forelse($groupedByTrainee as $group)
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-all"
+                     x-data="{ showHistory: false }">
+
+                    <!-- Trainee Profile Card Header -->
+                    <div class="p-4 sm:p-5 bg-gradient-to-r from-slate-50/80 via-white to-blue-50/30 border-b border-slate-100">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                            
+                            <!-- Left: Trainee Info & Avatar -->
+                            <div class="flex items-start sm:items-center gap-3.5">
+                                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#1e3a8a] to-[#2563eb] flex items-center justify-center text-white font-black text-sm shadow-md flex-shrink-0">
+                                    {{ collect(explode(' ', $group['trainee']->name))->take(2)->map(fn($p)=>strtoupper(substr($p,0,1)))->implode('') }}
+                                </div>
+                                <div>
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <h3 class="text-base font-extrabold text-slate-800">{{ $group['trainee']->name }}</h3>
+                                        <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-bold border border-slate-200">
+                                            SID: {{ $group['trainee']->sid }}
+                                        </span>
+                                        @if($group['trainee']->department)
+                                            <span class="px-2 py-0.5 rounded-md bg-blue-50 text-[#1e3a8a] text-[10px] font-extrabold border border-blue-200 flex items-center gap-1">
+                                                🏢 {{ $group['trainee']->department }}
+                                            </span>
+                                        @endif
+                                        @if($group['trainee']->company)
+                                            <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-semibold">
+                                                {{ $group['trainee']->company }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 mt-1.5">
+                                        <span>Sertifikasi: <strong class="text-slate-700">{{ $group['trainee']->certification ?? '-' }}</strong></span>
+                                        <span>·</span>
+                                        <span>Kategori Alat: <strong class="text-slate-700">{{ $group['trainee']->equipmentCategory->name ?? '-' }}</strong></span>
+                                        <span>·</span>
+                                        <span>Fase Saat Ini: <span class="font-extrabold text-[#1e3a8a] bg-blue-50 px-2 py-0.5 rounded">{{ $group['phase_label'] }}</span></span>
+                                        @if($group['trainer'])
+                                            <span>·</span>
+                                            <span>Instruktur: <span class="font-semibold text-slate-700">{{ $group['trainer']->name }}</span></span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Badges Notifikasi Logbook Baru & Quick Actions -->
+                            <div class="flex flex-wrap items-center gap-2.5 self-start lg:self-auto">
+                                @if($group['total_pending'] > 0)
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-blue-100 text-[#1e3a8a] border border-blue-300 shadow-xs animate-pulse">
+                                        <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                                        {{ $group['total_pending'] }} Logbook Menunggu Approval
+                                    </span>
+                                @endif
+                                @if($group['revision_count'] > 0)
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-amber-50 text-amber-800 border border-amber-300">
+                                        ⚠️ {{ $group['revision_count'] }} Revisi
+                                    </span>
+                                @endif
+                                @if($group['finalized_count'] > 0)
+                                    <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        ✓ {{ $group['finalized_count'] }} Disahkan ({{ number_format($group['total_hm'], 1) }} HM)
+                                    </span>
+                                @endif
+
+                                <a href="{{ route('training-centre.trainee-documents', $group['trainee']->id) }}"
+                                   class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition inline-flex items-center gap-1 shadow-xs">
+                                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    Buka Dokumen
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Logbook Menunggu Approval TC (Jika Ada) -->
+                    @if($group['pending_logbooks']->count() > 0)
+                        <div class="p-4 sm:p-5 bg-blue-50/20 border-b border-slate-100">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-ping"></span>
+                                    <h4 class="text-xs sm:text-sm font-extrabold text-slate-800 uppercase tracking-wider">
+                                        Form OJT Menunggu Pengesahan Anda ({{ $group['pending_logbooks']->count() }})
+                                    </h4>
+                                </div>
+                                <span class="text-[11px] text-blue-700 font-semibold">Telah disetujui Trainee</span>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-xl border border-blue-200 bg-white">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-blue-50/60 text-slate-600 font-extrabold uppercase text-[10px] tracking-wider border-b border-blue-100">
+                                        <tr>
+                                            <th class="py-2.5 px-3.5">Tanggal & Shift</th>
+                                            <th class="py-2.5 px-3.5">No. Form & Unit</th>
+                                            <th class="py-2.5 px-3.5">Trainer</th>
+                                            <th class="py-2.5 px-3.5 text-center">HM Total</th>
+                                            <th class="py-2.5 px-3.5 text-center">Bukti / Evidence</th>
+                                            <th class="py-2.5 px-3.5 text-right">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        @foreach($group['pending_logbooks'] as $plog)
+                                            <tr class="hover:bg-blue-50/40 transition">
+                                                <td class="py-3 px-3.5 whitespace-nowrap">
+                                                    <span class="font-bold text-slate-800 block">
+                                                        {{ \Carbon\Carbon::parse($plog->date)->translatedFormat('d M Y') }}
+                                                    </span>
+                                                    <span class="text-[10px] text-slate-500 uppercase font-semibold">
+                                                        Shift {{ ucfirst($plog->shift) }}
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-3.5">
+                                                    <span class="font-black text-slate-900 block">{{ $plog->logbook_number }}</span>
+                                                    <span class="text-[11px] text-[#1e3a8a] font-semibold block">
+                                                        Unit: {{ $plog->equipment_number ?? ($plog->equipment->unit_code ?? '-') }}
+                                                        <span class="text-slate-400 font-normal">({{ $plog->equipmentCategory->name ?? '-' }})</span>
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-3.5">
+                                                    <span class="font-semibold text-slate-800">{{ $plog->trainer->name ?? '-' }}</span>
+                                                </td>
+                                                <td class="py-3 px-3.5 text-center whitespace-nowrap">
+                                                    <span class="font-mono font-bold text-slate-800 text-xs block">
+                                                        {{ number_format($plog->total_hm, 1) }} HM
+                                                    </span>
+                                                    <span class="text-[10px] text-slate-400 font-mono">
+                                                        {{ $plog->hm_start }} - {{ $plog->hm_end }}
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-3.5 text-center whitespace-nowrap">
+                                                    @php
+                                                        $evidence = $plog->evidences->first();
+                                                        $evidencePath = $evidence?->file_path ?? data_get($plog->sop_payload, 'meta.evidence_path');
+                                                        $evidenceUrl = $evidencePath ? (str_starts_with($evidencePath, 'http') ? $evidencePath : asset('storage/' . $evidencePath)) : null;
+                                                    @endphp
+                                                    @if($evidenceUrl)
+                                                        <button type="button"
+                                                                @click="openEvidence('{{ $evidenceUrl }}', 'Bukti OJT {{ $plog->logbook_number }} - {{ $group['trainee']->name }}')"
+                                                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#1e3a8a] text-[11px] font-bold border border-blue-200 transition">
+                                                            <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                                            Lihat Bukti
+                                                        </button>
+                                                    @else
+                                                        <span class="text-[11px] text-slate-300 italic">-</span>
+                                                    @endif
+                                                </td>
+                                                <td class="py-3 px-3.5 text-right whitespace-nowrap">
+                                                    <a href="{{ route('training-centre.approvals.show', $plog->id) }}"
+                                                       class="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-xl bg-[#1e3a8a] hover:bg-blue-900 text-white text-xs font-bold transition shadow-xs">
+                                                        <span>✍️</span> Review & Sahkan
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Evaluasi Final Menunggu Approval (Jika Ada) -->
+                    @if($group['pending_evaluations']->count() > 0)
+                        <div class="p-4 sm:p-5 bg-purple-50/20 border-b border-slate-100">
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="text-xs sm:text-sm font-extrabold text-purple-900 uppercase tracking-wider flex items-center gap-2">
+                                    <span>📋</span> Evaluasi Akhir A2B Menunggu Persetujuan TC ({{ $group['pending_evaluations']->count() }})
+                                </h4>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                @foreach($group['pending_evaluations'] as $peval)
+                                    <div class="p-3.5 bg-white rounded-xl border border-purple-200 flex items-center justify-between">
+                                        <div>
+                                            <p class="font-bold text-slate-800 text-xs">{{ format_phase_label($peval->phase, $peval->jenis_sertifikasi) }}</p>
+                                            <p class="text-[11px] text-slate-500 mt-0.5">Trainer: {{ $peval->trainer->name ?? '-' }}</p>
+                                        </div>
+                                        <a href="{{ route('training-centre.final-evaluations.show', $peval->id) }}" class="px-3 py-1.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold transition">
+                                            Review Evaluasi →
+                                        </a>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Riwayat Sebelumnya Terekap Per Nama (Collapsible Accordion) -->
+                    <div class="p-4 sm:p-5 bg-slate-50/50">
+                        <div class="flex items-center justify-between">
+                            <button type="button"
+                                    @click="showHistory = !showHistory"
+                                    class="text-xs font-extrabold text-slate-700 hover:text-[#1e3a8a] transition inline-flex items-center gap-2">
+                                <svg class="w-4 h-4 transition-transform duration-200" :class="showHistory ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                                <span>Rekap Riwayat Sebelumnya: {{ $group['finalized_count'] }} Form Disahkan ({{ number_format($group['total_hm'], 1) }} HM)</span>
+                            </button>
+
+                            <span class="text-[11px] text-slate-400">
+                                Total: {{ $group['total_all_forms'] }} formulir tercatat
+                            </span>
+                        </div>
+
+                        <!-- Dropdown Content Riwayat Sebelumnya -->
+                        <div x-show="showHistory" x-cloak class="mt-3.5 pt-3.5 border-t border-slate-200/80">
+                            @if($group['finalized_logbooks']->count() > 0)
+                                <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+                                    <table class="w-full text-left text-xs">
+                                        <thead class="bg-slate-50 text-slate-600 font-extrabold uppercase text-[10px] tracking-wider border-b border-slate-200">
+                                            <tr>
+                                                <th class="py-2 px-3">Tanggal</th>
+                                                <th class="py-2 px-3">No. Form & Unit</th>
+                                                <th class="py-2 px-3">Shift</th>
+                                                <th class="py-2 px-3 text-center">HM</th>
+                                                <th class="py-2 px-3">Status</th>
+                                                <th class="py-2 px-3 text-right">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100">
+                                            @foreach($group['finalized_logbooks'] as $flog)
+                                                <tr class="hover:bg-slate-50/60">
+                                                    <td class="py-2.5 px-3 whitespace-nowrap font-medium text-slate-700">
+                                                        {{ \Carbon\Carbon::parse($flog->date)->format('d M Y') }}
+                                                    </td>
+                                                    <td class="py-2.5 px-3">
+                                                        <span class="font-bold text-slate-800">{{ $flog->logbook_number }}</span>
+                                                        <span class="text-[10px] text-slate-400 block">{{ $flog->equipment_number ?? ($flog->equipment->unit_code ?? '-') }}</span>
+                                                    </td>
+                                                    <td class="py-2.5 px-3 text-[11px] text-slate-600 uppercase">
+                                                        {{ ucfirst($flog->shift) }}
+                                                    </td>
+                                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-slate-700">
+                                                        {{ number_format($flog->total_hm, 1) }}
+                                                    </td>
+                                                    <td class="py-2.5 px-3">
+                                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                            ✓ Disahkan
+                                                        </span>
+                                                    </td>
+                                                    <td class="py-2.5 px-3 text-right whitespace-nowrap">
+                                                        <a href="{{ route('ojt.logbooks.print', $flog->id) }}" target="_blank" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition inline-flex items-center gap-1">
+                                                            <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                                            Cetak
+                                                        </a>
+                                                        <a href="{{ route('training-centre.approvals.show', $flog->id) }}" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#1e3a8a] text-[11px] font-bold transition">
+                                                            Detail
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <p class="text-xs text-slate-400 py-3 text-center">Belum ada riwayat dokumen yang disahkan sebelumnya untuk trainee ini.</p>
+                            @endif
+                        </div>
+                    </div>
+
+                </div>
+            @empty
+                <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-400">
+                    <p class="text-sm font-bold text-slate-600">Tidak ada data trainee yang sesuai filter.</p>
+                    <p class="text-xs text-slate-400 mt-1">Coba sesuaikan kata kunci pencarian atau pilihan departemen.</p>
+                </div>
+            @endforelse
+        </div>
+
+        <!-- 2. MODE TABEL LOGBOOK RINCI (Alternatif) -->
+        <div x-show="viewMode === 'table'" x-cloak class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500">
+                        <tr>
                             <th class="px-5 py-3">Form OJT / Trainee</th>
                             <th class="px-5 py-3">Departemen</th>
                             <th class="px-5 py-3">Trainer</th>
                             <th class="px-5 py-3">Status / Tanggal</th>
                             <th class="px-5 py-3 text-right">Aksi</th>
-                        @endif
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @if($activeStatus === 'finalized' && isset($groupedFinalized))
-                        @forelse($groupedFinalized as $group)
-                            <tr class="hover:bg-blue-50/30">
-                                <td class="px-5 py-4">
-                                    <p class="text-xs font-bold text-slate-800">{{ $group['trainee']->name ?? '-' }}</p>
-                                    <div class="flex items-center gap-2 mt-1">
-                                        <span class="text-[11px] text-slate-500">{{ $group['trainee']->sid ?? '-' }}</span>
-                                        @if($group['trainee']->department ?? false)
-                                            <span class="inline-flex px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-50 text-[#1e3a8a] border border-blue-200">
-                                                🏢 {{ $group['trainee']->department }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                </td>
-                                <td class="px-5 py-4 text-xs text-slate-600">
-                                    {{ $group['trainer']->name ?? '-' }}
-                                </td>
-                                <td class="px-5 py-4 text-xs text-slate-600">
-                                    <div class="flex flex-wrap items-center gap-1.5">
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 font-extrabold text-[11px]">
-                                            <span>✓</span> {{ $group['ojt_count'] ?? $group['count'] ?? 0 }} Form OJT
-                                        </span>
-                                        @if(($group['eval_count'] ?? 0) > 0)
-                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 font-extrabold text-[11px]">
-                                                <span>✓</span> {{ $group['eval_count'] }} Form Evaluasi Final
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-400 text-[10px] font-medium">
-                                                0 Form Evaluasi
-                                            </span>
-                                        @endif
-                                    </div>
-                                    <span class="block text-[10px] text-slate-400 mt-1">
-                                        Terakhir: {{ $group['latest_date'] ? $group['latest_date']->format('d M Y') : '-' }}
-                                    </span>
-                                </td>
-                                <td class="px-5 py-4 text-right">
-                                    <a href="{{ route('training-centre.trainee-documents', $group['trainee']->id ?? $loop->index) }}" class="inline-flex items-center px-4 py-2 rounded-xl bg-[#1e3a8a] hover:bg-blue-900 text-white text-xs font-bold shadow-sm transition" title="Lihat Detail Dokumen Trainee">
-                                        <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                        Buka Dokumen
-                                    </a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="4" class="px-5 py-12 text-center text-sm text-slate-400">Tidak ada dokumen final disahkan yang sesuai filter.</td>
-                            </tr>
-                        @endforelse
-                    @else
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
                         @forelse($logbooks as $logbook)
                             <tr class="hover:bg-blue-50/30">
                                 <td class="px-5 py-4">
@@ -330,13 +579,39 @@
                                 <td colspan="5" class="px-5 py-12 text-center text-sm text-slate-400">Tidak ada logbook ditemukan pada kategori ini.</td>
                             </tr>
                         @endforelse
-                    @endif
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
+            @if($logbooks->hasPages())
+                <div class="p-5 border-t border-slate-100">{{ $logbooks->links() }}</div>
+            @endif
         </div>
-        @if($activeStatus !== 'finalized')
-            <div class="p-5 border-t border-slate-100">{{ $logbooks->links() }}</div>
-        @endif
+
+        <!-- Evidence Preview Modal -->
+        <div x-show="evidenceModalOpen"
+             x-cloak
+             class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4"
+             @keydown.escape.window="evidenceModalOpen = false">
+            <div class="bg-white rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-200"
+                 @click.away="evidenceModalOpen = false">
+                <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                    <h3 class="text-xs font-bold text-slate-800" x-text="modalTitle"></h3>
+                    <button type="button" @click="evidenceModalOpen = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg leading-none">
+                        ✕
+                    </button>
+                </div>
+                <div class="p-4 bg-slate-900 flex items-center justify-center max-h-[75vh] overflow-hidden">
+                    <img :src="modalUrl" alt="Foto Evidence OJT" class="max-h-[70vh] max-w-full object-contain rounded-lg">
+                </div>
+                <div class="px-5 py-3 bg-white border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-slate-500 text-[11px]">Foto bukti kegiatan OJT ini disimpan di server dan tidak ikut dicetak ke PDF.</span>
+                    <a :href="modalUrl" target="_blank" download class="px-3 py-1.5 rounded-lg bg-[#1e3a8a] text-white font-bold hover:bg-blue-900 transition">
+                        Unduh Foto
+                    </a>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Chart Script (ApexCharts) -->

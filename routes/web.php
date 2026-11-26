@@ -17,11 +17,20 @@ Route::get('/', function () {
         : redirect()->route('login');
 });
 
+Route::get('/media/{path}', function ($path) {
+    if (!\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+        abort(404);
+    }
+    $fullPath = \Illuminate\Support\Facades\Storage::disk('public')->path($path);
+    return response()->file($fullPath);
+})->where('path', '.*')->name('media.serve');
+
 Route::get('/storage/{path}', function ($path) {
     if (!\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
         abort(404);
     }
-    return \Illuminate\Support\Facades\Storage::disk('public')->response($path);
+    $fullPath = \Illuminate\Support\Facades\Storage::disk('public')->path($path);
+    return response()->file($fullPath);
 })->where('path', '.*')->name('storage.local');
 
 Route::middleware('guest')->group(function () {

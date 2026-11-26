@@ -373,7 +373,7 @@
                 <td>
                     <div class="sig-space">
                         @if($logbook->trainee?->signature_path)
-                            <img src="{{ asset('storage/'.$logbook->trainee->signature_path) }}" alt="Trainee signature" class="sig-img">
+                            <img src="{{ app_storage_base64($logbook->trainee->signature_path) ?: app_storage_url($logbook->trainee->signature_path) }}" alt="Trainee signature" class="sig-img">
                         @endif
                     </div>
                     <div class="sig-name">{{ $logbook->trainee->name ?? 'Belum Ditunjuk' }}</div>
@@ -382,7 +382,7 @@
                 <td>
                     <div class="sig-space">
                         @if($approverSig ?? null)
-                            <img src="{{ asset('storage/'.$approverSig) }}" alt="Approver signature" class="sig-img">
+                            <img src="{{ app_storage_base64($approverSig) ?: app_storage_url($approverSig) }}" alt="Approver signature" class="sig-img">
                         @endif
                     </div>
                     <div class="sig-name">{{ $approverName }}</div>
@@ -391,7 +391,7 @@
                 <td>
                     <div class="sig-space">
                         @if($logbook->training_centre_signature_path)
-                            <img src="{{ asset('storage/'.$logbook->training_centre_signature_path) }}" alt="Kabag signature" class="sig-img">
+                            <img src="{{ app_storage_base64($logbook->training_centre_signature_path) ?: app_storage_url($logbook->training_centre_signature_path) }}" alt="Kabag signature" class="sig-img">
                         @endif
                     </div>
                     <div class="sig-name">{{ $logbook->trainingCentre->name ?? 'Kabag Training Centre' }}</div>

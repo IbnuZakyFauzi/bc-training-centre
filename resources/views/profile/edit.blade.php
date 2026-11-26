@@ -1,4 +1,7 @@
 <x-app-layout>
+    @php
+        $errors = $errors ?? new \Illuminate\Support\ViewErrorBag;
+    @endphp
     <x-slot name="title">My Profile</x-slot>
 
     <div class="mb-6">
@@ -23,7 +26,7 @@
     @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6" x-data="{
-        hasSavedSignature: {{ $user->signature_path ? 'true' : 'false' }},
+        hasSavedSignature: {{ ($user->signature_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->signature_path)) ? 'true' : 'false' }},
         previewUrl: null,
         newFileName: '',
         handleSignatureChange(e) {
@@ -42,8 +45,8 @@
             @method('PATCH')
 
             <!-- Decoy inputs to prevent browser aggressive credential autofill -->
-            <input type="text" name="fakeusernameremembered" style="display:none" tabindex="-1" autocomplete="off" />
-            <input type="password" name="fakepasswordremembered" style="display:none" tabindex="-1" autocomplete="off" />
+            <input type="text" name="fakeusernameremembered" style="position: absolute; left: -9999px;" tabindex="-1" autocomplete="off" />
+            <input type="password" name="fakepasswordremembered" style="position: absolute; left: -9999px;" tabindex="-1" autocomplete="off" />
 
             <div>
                 <label class="text-xs font-bold text-slate-700">Nama</label>
@@ -53,7 +56,7 @@
 
             <div>
                 <label class="text-xs font-bold text-slate-700">Email (Opsional)</label>
-                <input type="email" name="email" value="{{ old('email', $user->email) }}" autocomplete="off" placeholder="opsional@email.com" class="mt-2 w-full rounded-xl border-slate-300 text-sm min-h-[44px]">
+                <input type="email" name="email" value="{{ old('email', $user->email) }}" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')" placeholder="opsional@email.com" class="mt-2 w-full rounded-xl border-slate-300 text-sm min-h-[44px]">
                 @error('email')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
             </div>
 
@@ -66,14 +69,14 @@
             <div>
                 <div class="flex items-center justify-between">
                     <label class="text-xs font-bold text-slate-700">Upload Tanda Tangan</label>
-                    @if($user->signature_path)
+                    @if($user->signature_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->signature_path))
                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                             ✓ Sudah Ada Tersimpan
                         </span>
                     @endif
                 </div>
 
-                @if($user->signature_path)
+                @if($user->signature_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->signature_path))
                     <div class="mt-2 p-2.5 rounded-xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-800 flex items-start gap-2">
                         <svg class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                         <div>
@@ -102,7 +105,7 @@
                 <div class="space-y-3 sm:space-y-4">
                     <div>
                         <label class="text-xs font-bold text-slate-700">Password Saat Ini</label>
-                        <input type="password" name="current_password" autocomplete="new-password" class="mt-2 w-full rounded-xl border-slate-300 text-sm min-h-[44px]" placeholder="Wajib diisi jika ingin ganti password">
+                        <input type="password" name="current_password" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')" class="mt-2 w-full rounded-xl border-slate-300 text-sm min-h-[44px]" placeholder="Wajib diisi jika ingin ganti password">
                         @error('current_password')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
                     </div>
                     <div>
@@ -146,7 +149,7 @@
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
                 <div class="flex items-center justify-between">
                     <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Tanda Tangan Tersimpan</p>
-                    @if($user->signature_path)
+                    @if($user->signature_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->signature_path))
                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                             ✓ Aktif
                         </span>
@@ -166,7 +169,7 @@
                     <!-- Existing saved signature -->
                     <template x-if="!previewUrl && hasSavedSignature">
                         <div class="text-center w-full">
-                            <img src="{{ asset('storage/'.$user->signature_path) }}" onerror="this.onerror=null; this.src='{{ route('storage.local', $user->signature_path ?? '') }}'" alt="Tanda Tangan {{ $user->name }}" class="max-h-32 mx-auto w-auto object-contain bg-white p-2 rounded-lg border border-slate-200 shadow-xs">
+                            <img src="{{ app_storage_base64($user->signature_path) ?: app_storage_url($user->signature_path) }}" alt="Tanda Tangan {{ $user->name }}" class="max-h-32 mx-auto w-auto object-contain bg-white p-2 rounded-lg border border-slate-200 shadow-xs">
                             <p class="mt-3 text-[11px] text-slate-500 font-medium">Dipakai otomatis saat approval berkas.</p>
                         </div>
                     </template>
