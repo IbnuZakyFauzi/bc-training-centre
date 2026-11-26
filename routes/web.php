@@ -139,6 +139,7 @@ Route::middleware(['auth', 'must.change.password', 'role:pjo'])->prefix('pjo')->
     Route::get('/final-evaluations/{id}', ['App\Http\Controllers\EvaluationFlowController', 'show'])->name('final-evaluations.show');
     Route::post('/final-evaluations/{id}/approve', ['App\Http\Controllers\EvaluationFlowController', 'pjoApprove'])->name('final-evaluations.approve');
     Route::post('/final-evaluations/{id}/reject', ['App\Http\Controllers\EvaluationFlowController', 'reject'])->name('final-evaluations.reject');
+    Route::get('/monitoring', ['App\Http\Controllers\EvaluationFlowController', 'monitoring'])->name('monitoring');
 });
 
 // HSE CT (HSE Training Section) approval flow
@@ -148,4 +149,5 @@ Route::middleware(['auth', 'must.change.password', 'role:hse_ct'])->prefix('hse-
     Route::get('/final-evaluations/{id}', ['App\Http\Controllers\EvaluationFlowController', 'show'])->name('final-evaluations.show');
     Route::post('/final-evaluations/{id}/approve', ['App\Http\Controllers\EvaluationFlowController', 'hseApprove'])->name('final-evaluations.approve');
     Route::post('/final-evaluations/{id}/reject', ['App\Http\Controllers\EvaluationFlowController', 'reject'])->name('final-evaluations.reject');
+    Route::get('/monitoring', ['App\Http\Controllers\EvaluationFlowController', 'monitoring'])->name('monitoring');
 });

@@ -24,10 +24,16 @@
                     Berikan persetujuan final (HSE CT) untuk mengesahkan kelayakan trainee, otomatis memindahkan ke fase berikutnya, dan memantau rekap performa evaluasi per trainer.
                 </p>
             </div>
-            <div class="rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2.5 text-xs self-start md:self-auto">
-                <p class="text-blue-200 text-[10px] font-medium uppercase">HSE CT Aktif</p>
-                <p class="font-bold text-white mt-0.5 text-sm">{{ auth()->user()->name }}</p>
-                <p class="text-[10px] text-blue-200/80">{{ auth()->user()->sid }}</p>
+            <div class="flex flex-wrap items-center gap-2.5 self-start md:self-auto">
+                <a href="{{ route('hse-ct.monitoring') }}" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-[#f59e0b] hover:bg-amber-500 text-slate-900 text-xs font-extrabold shadow-md transition-all min-h-[44px]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    Monitoring Multi-Fase
+                </a>
+                <div class="rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2.5 text-xs">
+                    <p class="text-blue-200 text-[10px] font-medium uppercase">HSE CT Aktif</p>
+                    <p class="font-bold text-white mt-0.5 text-sm">{{ auth()->user()->name }}</p>
+                    <p class="text-[10px] text-blue-200/80">{{ auth()->user()->sid }}</p>
+                </div>
             </div>
         </div>
     </div>

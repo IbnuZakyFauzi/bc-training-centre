@@ -8,14 +8,30 @@
             <div>
                 <div class="flex items-center gap-2 mb-2">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-400/20 text-blue-200 border border-blue-300/30 tracking-wider uppercase">
-                        {{ $user->isTrainingCentre() ? 'Admin Training Centre' : 'Trainer Evaluator' }}
+                        @if($user->isTrainingCentre())
+                            Admin Training Centre
+                        @elseif($user->isPjo())
+                            Penanggung Jawab Operasional (PJO)
+                        @elseif($user->isHseCt())
+                            HSE Training Section (HSE CT)
+                        @else
+                            Trainer Evaluator
+                        @endif
                     </span>
                     <span class="text-blue-200 text-xs">·</span>
                     <span class="text-blue-100 text-xs font-semibold">Live Timeline Monitoring</span>
                 </div>
                 <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">Monitoring Progress Evaluasi Multi-Fase</h1>
                 <p class="text-blue-100/90 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
-                    {{ $user->isTrainingCentre() ? 'Pantau visualisasi roadmap timeline, akumulasi jam terbang (HM), dan status kelayakan evaluasi seluruh trainee secara interaktif.' : 'Pantau visualisasi roadmap timeline progress jam terbang dan kelayakan evaluasi multi-fase seluruh trainee bimbingan Anda.' }}
+                    @if($user->isTrainingCentre())
+                        Pantau visualisasi roadmap timeline, akumulasi jam terbang (HM), dan status kelayakan evaluasi seluruh trainee secara interaktif.
+                    @elseif($user->isPjo())
+                        Pantau kelayakan evaluasi multi-fase operasional, rekap jam terbang (HM), dan catatan progres trainee di lapangan.
+                    @elseif($user->isHseCt())
+                        Pantau roadmap multi-fase OJT, verifikasi kelayakan teknis, dan riwayat persetujuan HSE CT secara terpadu.
+                    @else
+                        Pantau visualisasi roadmap timeline progress jam terbang dan kelayakan evaluasi multi-fase seluruh trainee bimbingan Anda.
+                    @endif
                 </p>
             </div>
             <div class="flex items-center gap-3">
@@ -26,11 +42,19 @@
                 </div>
                 @if($user->isTrainingCentre())
                     <a href="{{ route('training-centre.dashboard') }}" class="px-4 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-bold transition border border-white/20 text-center min-h-[44px] inline-flex items-center justify-center">
-                        Dashboard Logbook
+                        Dashboard TC
+                    </a>
+                @elseif($user->isPjo())
+                    <a href="{{ route('pjo.dashboard') }}" class="px-4 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-bold transition border border-white/20 text-center min-h-[44px] inline-flex items-center justify-center">
+                        Dashboard PJO
+                    </a>
+                @elseif($user->isHseCt())
+                    <a href="{{ route('hse-ct.dashboard') }}" class="px-4 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-bold transition border border-white/20 text-center min-h-[44px] inline-flex items-center justify-center">
+                        Dashboard HSE CT
                     </a>
                 @else
                     <a href="{{ route('trainer.dashboard') }}" class="px-4 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-bold transition border border-white/20 text-center min-h-[44px] inline-flex items-center justify-center">
-                        Review Logbook
+                        Dashboard Trainer
                     </a>
                 @endif
             </div>
@@ -189,35 +213,40 @@
                     <!-- Card Header -->
                     <div class="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-gradient-to-r from-slate-50/50 to-white border-b border-slate-100">
                         <div class="flex items-start sm:items-center gap-3.5">
-                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#1e3a8a] to-[#2563eb] flex items-center justify-center text-white font-extrabold text-sm shadow-md flex-shrink-0">
+                            <div class="w-12 h-12 rounded-2xl bg-[#1e3a8a] flex items-center justify-center text-white font-extrabold text-sm shadow-md flex-shrink-0">
                                 {{ collect(explode(' ', $t['name']))->take(2)->map(fn($p)=>strtoupper(substr($p,0,1)))->implode('') }}
                             </div>
                             <div>
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <h2 class="text-base font-extrabold text-slate-800">{{ $t['name'] }}</h2>
-                                    <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-bold border border-slate-200">
-                                        SID: {{ $t['sid'] }}
-                                    </span>
+                                    <h2 class="text-lg font-black text-slate-800">{{ $t['name'] }}</h2>
                                     @if($t['department'])
-                                        <span class="px-2 py-0.5 rounded-md bg-blue-50 text-[#1e3a8a] text-[10px] font-extrabold border border-blue-200 flex items-center gap-1">
+                                        <span class="px-2.5 py-0.5 rounded-md bg-blue-50 text-[#1e3a8a] text-[10px] font-extrabold border border-blue-200 flex items-center gap-1">
                                             🏢 {{ $t['department'] }}
                                         </span>
                                     @endif
-                                    @if($t['company'])
-                                        <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-semibold">
-                                            {{ $t['company'] }}
+                                    @if($t['equipment_category_code'])
+                                        <span class="px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-extrabold border border-blue-200 flex items-center gap-1">
+                                            🚜 {{ $t['equipment_category_code'] }}
                                         </span>
                                     @endif
+                                    @if($t['company'])
+                                        <span class="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-semibold border border-slate-200 flex items-center gap-1">
+                                            🏢 {{ $t['company'] }}
+                                        </span>
+                                    @endif
+                                    <span class="px-2 py-0.5 rounded-md bg-slate-50 text-slate-500 text-[10px] font-bold border border-slate-200">
+                                        SID: {{ $t['sid'] }}
+                                    </span>
                                 </div>
                                 <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 mt-1.5">
-                                    <span class="inline-flex items-center gap-1">
-                                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                    <span class="inline-flex items-center gap-1.5">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                                         Sertifikasi: <strong class="text-slate-700">{{ $t['certification'] === 'Green' ? 'Green' : ($t['certification'] === 'Skill-up' ? 'Skill-up' : ($t['certification'] === 'Experience_internal' ? 'Experience Internal' : ($t['certification'] === 'Experience_external' ? 'Experience External' : $t['certification']))) }}</strong>
                                     </span>
                                     <span>·</span>
-                                    <span>Tipe Alat: <strong class="text-slate-700">{{ $t['equipment_category_name'] }}</strong></span>
+                                    <span>Tipe OJT: <strong class="text-slate-700">{{ $t['equipment_category_name'] }}</strong></span>
                                     <span>·</span>
-                                    <span>Fase Saat Ini: <span class="font-extrabold text-[#1e3a8a] bg-blue-50 px-2 py-0.5 rounded">{{ $t['current_phase_label'] }}</span></span>
+                                    <span>Fase Saat Ini: <span class="font-extrabold text-[#1e3a8a] bg-blue-100/80 px-2 py-0.5 rounded border border-blue-200">{{ $t['current_phase_label'] }}</span></span>
                                 </div>
                             </div>
                         </div>
@@ -225,8 +254,8 @@
                         <!-- Right Status Badges & Action -->
                         <div class="flex flex-wrap items-center gap-3 self-start lg:self-auto">
                             @if($t['eligible'])
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 text-white shadow-sm">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-300 shadow-sm">
+                                    <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                     Siap Dievaluasi
                                 </span>
                                 @if($user->isTrainer())
@@ -236,19 +265,19 @@
                                     </a>
                                 @endif
                             @else
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                                <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-800 border border-amber-300 shadow-sm">
+                                    <span class="text-amber-600 font-bold">⚠️</span>
                                     @if(($t['progress']['type'] ?? '') === 'bulanan')
                                         Isi Form OJT ({{ $t['progress']['fraction'] ?? ($t['progress']['count'] ?? 0) . '/4' }})
                                     @else
-                                        Akumulasi HM
+                                        Akumulasi HM ({{ number_format($t['hm']['total'], 1) }}h)
                                     @endif
                                 </span>
                             @endif
 
                             <div class="text-right pl-3 border-l border-slate-200">
-                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Evaluasi Selesai</p>
-                                <p class="text-base font-black text-[#1e3a8a]">
+                                <p class="text-[10px] text-slate-400 font-black uppercase tracking-wider">EVALUASI SELESAI</p>
+                                <p class="text-lg font-black text-slate-800">
                                     {{ $t['completed_count'] }} <span class="text-xs font-normal text-slate-400">/ {{ $t['evaluations_count'] }}</span>
                                 </p>
                             </div>
@@ -276,7 +305,7 @@
                                 <span class="px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 text-[10px] font-extrabold">{{ $t['progress']['total'] }}%</span>
                             </div>
                         </div>
-                        <div class="h-3 bg-slate-200/80 rounded-full overflow-hidden p-0.5 flex">
+                        <div class="h-2.5 bg-slate-200/80 rounded-full overflow-hidden p-0.5 flex">
                             <div class="h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full transition-all duration-500" style="width: {{ min(100, $t['progress']['total']) }}%"></div>
                         </div>
                     </div>
@@ -284,8 +313,14 @@
                     <!-- Multi-Phase Grid Breakdown & History Panel (Interactive Timeline) -->
                     <div class="p-4 sm:p-5">
                         <div class="flex items-center justify-between mb-3">
-                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Rangkaian Fase Evaluasi OJT</p>
-                            <span class="text-[10px] text-slate-400">Titik biru menandakan fase aktif saat ini · Klik fase untuk melihat riwayat</span>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                                <p class="text-xs font-black text-slate-700 uppercase tracking-wider">RANGKAIAN FASE EVALUASI OJT</p>
+                            </div>
+                            <span class="text-[11px] text-slate-400 flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                Klik pada fase untuk melihat riwayat detail
+                            </span>
                         </div>
                         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2.5">
                             @foreach($t['phases'] as $p)
@@ -296,8 +331,8 @@
                                     $isRejected = $p['rejected'] > 0;
                                 @endphp
                                 <button type="button"
-                                        @click="activePhase = '{{ $p['key'] }}'"
-                                        :class="activePhase === '{{ $p['key'] }}' ? 'border-[#2563eb] bg-blue-50/70 shadow-sm ring-2 ring-blue-500/40 text-left' : '{{ $isCurrent ? 'border-blue-300 bg-blue-50/30' : ($isCompleted ? 'border-emerald-200 bg-emerald-50/20 hover:border-emerald-300' : 'border-slate-200 bg-white hover:border-slate-300') }} text-left'"
+                                        @click="activePhase = activePhase === '{{ $p['key'] }}' ? null : '{{ $p['key'] }}'"
+                                        :class="activePhase === '{{ $p['key'] }}' ? 'border-2 border-[#2563eb] bg-blue-50/70 shadow-sm ring-2 ring-blue-500/20 text-left' : '{{ $isCurrent ? 'border-blue-300 bg-blue-50/40 hover:border-blue-400' : ($isCompleted ? 'border-emerald-200 bg-emerald-50/30 hover:border-emerald-300' : 'border-slate-200 bg-white hover:border-slate-300') }} text-left'"
                                         class="rounded-xl border p-3 transition-all relative w-full text-left cursor-pointer group">
                                     <div class="flex items-center justify-between gap-1 mb-1.5">
                                         <span class="text-xs font-bold" :class="activePhase === '{{ $p['key'] }}' ? 'text-[#1e3a8a]' : '{{ $isCurrent ? 'text-[#1e3a8a]' : ($isCompleted ? 'text-emerald-800' : 'text-slate-700') }}' truncate">
@@ -308,135 +343,163 @@
                                         @elseif($isPending)
                                             <span class="w-4 h-4 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-[10px] font-bold">⏳</span>
                                         @elseif($isCurrent)
-                                            <span class="w-2 h-2 rounded-full bg-blue-600 animate-ping"></span>
+                                            <span class="w-4 h-4 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] font-bold">›</span>
+                                        @else
+                                            <span class="w-4 h-4 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-[10px]">›</span>
                                         @endif
                                     </div>
-                                    <div class="text-[10px] text-slate-500 space-y-0.5">
+                                    <div class="text-[11px] space-y-0.5">
                                         @if($isCompleted)
-                                            <p class="text-emerald-700 font-bold">Disetujui HSE CT</p>
+                                            <p class="text-emerald-700 font-bold flex items-center gap-1">
+                                                <span>✓</span> Sudah Selesai
+                                            </p>
                                         @elseif($isPending)
-                                            <p class="text-amber-700 font-semibold">Proses Persetujuan</p>
+                                            <p class="text-amber-700 font-semibold flex items-center gap-1">
+                                                <span>⏳</span> Menunggu Persetujuan
+                                            </p>
                                         @elseif($isRejected)
-                                            <p class="text-rose-600 font-semibold">Perlu Revisi</p>
-                                        @elseif(!$isCurrent)
-                                            <p class="text-slate-400">Belum dimulai</p>
+                                            <p class="text-rose-600 font-semibold flex items-center gap-1">
+                                                <span>⚠️</span> Perlu Revisi
+                                            </p>
+                                        @elseif($isCurrent)
+                                            <p class="text-blue-600 font-semibold flex items-center gap-1">
+                                                <span>🕒</span> Sedang Berjalan
+                                            </p>
                                         @else
-                                            <p class="text-blue-600 font-semibold">Sedang berjalan</p>
+                                            <p class="text-slate-400 font-medium">Belum Tersedia</p>
                                         @endif
                                     </div>
                                 </button>
                             @endforeach
                         </div>
 
-                        <!-- Riwayat Fase Aktif (Gambar 2 Design) -->
+                        <!-- Riwayat Fase Aktif (Gambar 2 Design Accordion) -->
                         @foreach($t['phases'] as $p)
-                            <div x-show="activePhase === '{{ $p['key'] }}'" x-cloak class="mt-5 pt-4 border-t border-slate-100">
-                                <div class="flex items-center justify-between mb-3">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-6 h-6 rounded-lg bg-blue-100 text-[#1e3a8a] flex items-center justify-center text-xs font-bold">
-                                            📋
+                            <div x-show="activePhase === '{{ $p['key'] }}'" x-cloak class="mt-4 bg-blue-50/50 border border-blue-200/80 rounded-2xl p-4 sm:p-5 transition-all">
+                                <div class="flex items-center justify-between mb-3.5">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-bold shadow-sm">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                         </div>
-                                        <h4 class="font-extrabold text-slate-800 text-xs sm:text-sm">Riwayat {{ $p['label'] }}</h4>
-                                        <span class="text-[10px] font-semibold text-slate-400">({{ count($p['history']) }} Catatan Progres)</span>
+                                        <h4 class="font-black text-slate-800 text-sm sm:text-base">Riwayat {{ $p['label'] }}</h4>
+                                        <span class="text-[11px] font-semibold text-slate-500">({{ count($p['history']) }} Catatan)</span>
                                     </div>
-                                    <span class="text-[10px] text-slate-400 italic">Riwayat form & evaluasi fase ini</span>
+                                    <button type="button"
+                                            @click="activePhase = null"
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white text-blue-700 hover:bg-blue-50 text-xs font-bold border border-blue-200 shadow-sm transition">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
+                                        <span>Tutup Detail</span>
+                                    </button>
                                 </div>
 
                                 @if(count($p['history']) > 0)
-                                    <div class="overflow-x-auto rounded-xl border border-slate-200">
+                                    <div class="overflow-x-auto rounded-xl border border-slate-200/90 bg-white shadow-sm">
                                         <table class="w-full text-left text-xs">
                                             <thead class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200">
                                                 <tr>
-                                                    <th class="py-2.5 px-3">Tanggal</th>
-                                                    <th class="py-2.5 px-3">Status</th>
-                                                    <th class="py-2.5 px-3">Evaluator</th>
-                                                    <th class="py-2.5 px-3">Catatan</th>
-                                                    <th class="py-2.5 px-3 text-center w-36">Bukti</th>
-                                                    <th class="py-2.5 px-3 text-right">Aksi</th>
+                                                    <th class="py-3 px-3.5">Tanggal</th>
+                                                    <th class="py-3 px-3.5">Status</th>
+                                                    <th class="py-3 px-3.5">Evaluator</th>
+                                                    <th class="py-3 px-3.5">Catatan</th>
+                                                    <th class="py-3 px-3.5 text-center w-36">Bukti</th>
+                                                    <th class="py-3 px-3.5 text-right w-36">Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody class="divide-y divide-slate-100 bg-white">
                                                 @foreach($p['history'] as $h)
-                                                    <tr class="hover:bg-slate-50/60 transition">
-                                                        <td class="py-3 px-3 whitespace-nowrap">
+                                                    <tr class="hover:bg-slate-50/70 transition">
+                                                        <td class="py-3.5 px-3.5 whitespace-nowrap">
                                                             <div class="flex items-center gap-1.5 font-bold text-slate-800">
                                                                 <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                                                 <span>{{ $h['date'] }}</span>
                                                             </div>
                                                             <span class="text-[10px] text-slate-400 mt-0.5 block">{{ $h['type'] }}</span>
                                                         </td>
-                                                        <td class="py-3 px-3 whitespace-nowrap">
+                                                        <td class="py-3.5 px-3.5 whitespace-nowrap">
                                                             @php
                                                                 $badgeBg = match($h['status']) {
-                                                                    'hse_approved', 'final_approved' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                                                                    'verified', 'tc_approved', 'pjo_approved' => 'bg-blue-50 text-blue-700 border-blue-200',
-                                                                    'submitted' => 'bg-amber-50 text-amber-700 border-amber-200',
-                                                                    'rejected', 'revision' => 'bg-rose-50 text-rose-700 border-rose-200',
+                                                                    'hse_approved', 'final_approved' => 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                                                                    'verified', 'tc_approved', 'pjo_approved' => 'bg-blue-100 text-blue-800 border-blue-200',
+                                                                    'submitted' => 'bg-amber-100 text-amber-800 border-amber-200',
+                                                                    'rejected', 'revision' => 'bg-slate-100 text-slate-700 border-slate-300',
                                                                     default => 'bg-slate-100 text-slate-700 border-slate-200',
                                                                 };
-                                                                $dotColor = match($h['status']) {
-                                                                    'hse_approved', 'final_approved' => 'bg-emerald-500',
-                                                                    'verified', 'tc_approved', 'pjo_approved' => 'bg-blue-500',
-                                                                    'submitted' => 'bg-amber-500',
-                                                                    'rejected', 'revision' => 'bg-rose-500',
-                                                                    default => 'bg-slate-400',
+                                                                $iconBadge = match($h['status']) {
+                                                                    'hse_approved', 'final_approved' => '✓',
+                                                                    'verified', 'tc_approved', 'pjo_approved' => '🕒',
+                                                                    'submitted' => '⏳',
+                                                                    'rejected', 'revision' => '⚠️',
+                                                                    default => '•',
                                                                 };
                                                             @endphp
-                                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border {{ $badgeBg }}">
-                                                                <span class="w-1.5 h-1.5 rounded-full {{ $dotColor }}"></span>
+                                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border {{ $badgeBg }}">
+                                                                <span>{{ $iconBadge }}</span>
                                                                 {{ $h['status_label'] }}
                                                             </span>
                                                         </td>
-                                                        <td class="py-3 px-3">
+                                                        <td class="py-3.5 px-3.5 whitespace-nowrap">
                                                             <div class="flex items-center gap-1.5 font-bold text-slate-700">
                                                                 <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                                                                 <span>{{ $h['evaluator'] }}</span>
                                                             </div>
                                                             <span class="text-[10px] text-slate-400 block">{{ $h['evaluator_role'] }}</span>
                                                         </td>
-                                                        <td class="py-3 px-3 text-slate-600 max-w-xs leading-relaxed text-[11px]">
+                                                        <td class="py-3.5 px-3.5 text-slate-600 max-w-xs leading-relaxed text-xs">
                                                             {{ $h['notes'] }}
                                                         </td>
-                                                        <td class="py-3 px-3 text-center whitespace-nowrap">
+                                                        <td class="py-3.5 px-3.5 text-center whitespace-nowrap">
                                                             @if($h['evidence_url'])
-                                                                <div class="flex items-center justify-center gap-2">
-                                                                    <img src="{{ $h['evidence_url'] }}"
-                                                                         alt="Thumbnail"
-                                                                         class="w-9 h-9 object-cover rounded-lg border border-slate-200 cursor-pointer shadow-sm hover:scale-105 transition"
-                                                                         @click="$dispatch('open-evidence-modal', { url: '{{ $h['evidence_url'] }}', title: 'Bukti OJT: {{ $t['name'] }} ({{ $h['date'] }})' })">
+                                                                <img src="{{ $h['evidence_url'] }}"
+                                                                     alt="Bukti Foto OJT"
+                                                                     class="w-16 h-10 object-cover rounded-lg border border-slate-200 cursor-pointer shadow-sm hover:scale-105 transition mx-auto"
+                                                                     @click="$dispatch('open-evidence-modal', { url: '{{ $h['evidence_url'] }}', title: 'Bukti OJT: {{ $t['name'] }} ({{ $h['date'] }})' })">
+                                                            @else
+                                                                <div class="w-16 h-10 rounded-lg bg-slate-100 border border-dashed border-slate-200 flex items-center justify-center text-[10px] text-slate-400 mx-auto">
+                                                                    No Foto
+                                                                </div>
+                                                            @endif
+                                                        </td>
+                                                        <td class="py-3.5 px-3.5 text-right whitespace-nowrap">
+                                                            <div class="flex items-center justify-end gap-1.5">
+                                                                @if($h['evidence_url'])
                                                                     <button type="button"
-                                                                            class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#1e3a8a] text-[11px] font-bold border border-blue-200 transition inline-flex items-center gap-1"
+                                                                            class="px-2.5 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#1e3a8a] text-xs font-bold border border-blue-200 transition inline-flex items-center gap-1 shadow-sm"
                                                                             @click="$dispatch('open-evidence-modal', { url: '{{ $h['evidence_url'] }}', title: 'Bukti OJT: {{ $t['name'] }} ({{ $h['date'] }})' })">
                                                                         <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                                                         Lihat Bukti
                                                                     </button>
-                                                                </div>
-                                                            @else
-                                                                <span class="text-[11px] text-slate-400 italic">Tidak ada foto</span>
-                                                            @endif
-                                                        </td>
-                                                        <td class="py-3 px-3 text-right whitespace-nowrap">
-                                                            @if(!empty($h['logbook_id']))
-                                                                @if($user->isTrainer())
-                                                                    <a href="{{ route('trainer.reviews.show', $h['logbook_id']) }}" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#1e3a8a] text-[11px] font-bold border border-blue-200 transition inline-flex items-center gap-1">
-                                                                        Buka Logbook
-                                                                    </a>
-                                                                @else
-                                                                    <a href="{{ route('ojt.logbooks.print', $h['logbook_id']) }}" target="_blank" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition inline-flex items-center gap-1">
-                                                                        Buka / Cetak
-                                                                    </a>
                                                                 @endif
-                                                            @elseif(!empty($h['evaluation_id']))
-                                                                @if($user->isTrainer())
-                                                                    <a href="{{ route('trainer.final-evaluations.show', $h['evaluation_id']) }}" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#1e3a8a] text-[11px] font-bold border border-blue-200 transition inline-flex items-center gap-1">
-                                                                        Buka Evaluasi
-                                                                    </a>
-                                                                @else
-                                                                    <a href="{{ route('training-centre.final-evaluations.show', $h['evaluation_id']) }}" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#1e3a8a] text-[11px] font-bold border border-blue-200 transition inline-flex items-center gap-1">
-                                                                        Buka Evaluasi
-                                                                    </a>
+
+                                                                @if(!empty($h['logbook_id']))
+                                                                    @if($user->isTrainer())
+                                                                        <a href="{{ route('trainer.reviews.show', $h['logbook_id']) }}" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition inline-flex items-center gap-1">
+                                                                            Buka
+                                                                        </a>
+                                                                    @else
+                                                                        <a href="{{ route('ojt.logbooks.print', $h['logbook_id']) }}" target="_blank" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition inline-flex items-center gap-1">
+                                                                            Buka
+                                                                        </a>
+                                                                    @endif
+                                                                @elseif(!empty($h['evaluation_id']))
+                                                                    @if($user->isTrainer())
+                                                                        <a href="{{ route('trainer.final-evaluations.show', $h['evaluation_id']) }}" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition inline-flex items-center gap-1">
+                                                                            Buka
+                                                                        </a>
+                                                                    @elseif($user->isTrainingCentre())
+                                                                        <a href="{{ route('training-centre.final-evaluations.show', $h['evaluation_id']) }}" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition inline-flex items-center gap-1">
+                                                                            Buka
+                                                                        </a>
+                                                                    @elseif($user->isPjo())
+                                                                        <a href="{{ route('pjo.final-evaluations.show', $h['evaluation_id']) }}" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition inline-flex items-center gap-1">
+                                                                            Buka
+                                                                        </a>
+                                                                    @elseif($user->isHseCt())
+                                                                        <a href="{{ route('hse-ct.final-evaluations.show', $h['evaluation_id']) }}" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition inline-flex items-center gap-1">
+                                                                            Buka
+                                                                        </a>
+                                                                    @endif
                                                                 @endif
-                                                            @endif
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 @endforeach
@@ -444,7 +507,7 @@
                                         </table>
                                     </div>
                                 @else
-                                    <div class="p-6 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 text-center">
+                                    <div class="p-6 rounded-xl border border-dashed border-slate-300 bg-white/70 text-center">
                                         <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-1.5 text-sm">
                                             📄
                                         </div>
@@ -454,6 +517,8 @@
                                 @endif
                             </div>
                         @endforeach
+                    </div>
+                </div>
                     </div>
                 </div>
             @empty

@@ -45,6 +45,7 @@
             'tag' => 'TRAINER',
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'trainer.dashboard', 'match' => 'trainer.dashboard'],
+                ['label' => 'Monitoring Multi-Fase', 'route' => 'trainer.monitoring', 'match' => 'trainer.monitoring*'],
                 ['label' => 'Input Logbook OJT', 'route' => 'trainer.logbooks.create', 'match' => 'trainer.logbooks.*'],
                 ['label' => 'Review Form OJT', 'route' => 'trainer.reviews.index', 'match' => 'trainer.reviews.*'],
                 ['label' => 'Form Evaluasi OJT A2B', 'route' => 'trainer.final-evaluations.index', 'match' => 'trainer.final-evaluations.*'],
@@ -55,6 +56,7 @@
             'tag' => 'PENGAWAS',
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'trainer.dashboard', 'match' => 'trainer.dashboard'],
+                ['label' => 'Monitoring Multi-Fase', 'route' => 'trainer.monitoring', 'match' => 'trainer.monitoring*'],
                 ['label' => 'Input Logbook OJT', 'route' => 'trainer.logbooks.create', 'match' => 'trainer.logbooks.*'],
                 ['label' => 'Evaluasi Akhir A2B', 'route' => 'trainer.final-evaluations.index', 'match' => 'trainer.final-evaluations.*'],
             ],
@@ -64,6 +66,7 @@
             'tag' => 'OPERATOR',
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'trainer.dashboard', 'match' => 'trainer.dashboard'],
+                ['label' => 'Monitoring Multi-Fase', 'route' => 'trainer.monitoring', 'match' => 'trainer.monitoring*'],
                 ['label' => 'Input Logbook OJT', 'route' => 'trainer.logbooks.create', 'match' => 'trainer.logbooks.*'],
                 ['label' => 'Evaluasi Akhir A2B', 'route' => 'trainer.final-evaluations.index', 'match' => 'trainer.final-evaluations.*'],
             ],
@@ -73,6 +76,7 @@
             'tag' => 'ADMIN',
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'training-centre.dashboard', 'match' => 'training-centre.dashboard'],
+                ['label' => 'Monitoring Multi-Fase', 'route' => 'training-centre.monitoring', 'match' => 'training-centre.monitoring*'],
                 ['label' => 'Manajemen Pengguna', 'route' => 'training-centre.users.index', 'match' => 'training-centre.users.*'],
                 ['label' => 'Persetujuan Evaluasi', 'route' => 'training-centre.final-evaluations.index', 'match' => 'training-centre.final-evaluations.*'],
             ],
@@ -82,6 +86,7 @@
             'tag' => 'PJO',
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'pjo.dashboard', 'match' => 'pjo.dashboard'],
+                ['label' => 'Monitoring Multi-Fase', 'route' => 'pjo.monitoring', 'match' => 'pjo.monitoring*'],
                 ['label' => 'Persetujuan Evaluasi', 'route' => 'pjo.final-evaluations.index', 'match' => 'pjo.final-evaluations.*'],
             ],
         ],
@@ -90,6 +95,7 @@
             'tag' => 'HSE CT',
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'hse-ct.dashboard', 'match' => 'hse-ct.dashboard'],
+                ['label' => 'Monitoring Multi-Fase', 'route' => 'hse-ct.monitoring', 'match' => 'hse-ct.monitoring*'],
                 ['label' => 'Persetujuan Evaluasi', 'route' => 'hse-ct.final-evaluations.index', 'match' => 'hse-ct.final-evaluations.*'],
             ],
         ],

@@ -433,11 +433,11 @@ class EvaluationFlowController extends Controller
         return redirect()->back()->with('success', 'Form telah dikembalikan untuk direvisi ke Trainer.');
     }
 
-    // ===================== MONITORING (Trainer & Admin TC) =====================
+    // ===================== MONITORING (Trainer, Admin TC, PJO, & HSE CT) =====================
     public function monitoring(Request $request)
     {
         $user = Auth::user();
-        abort_unless($user && ($user->isTrainer() || $user->isTrainingCentre()), 403);
+        abort_unless($user && ($user->isTrainer() || $user->isTrainingCentre() || $user->isPjo() || $user->isHseCt()), 403);
 
         $query = User::where('role', 'trainee');
         if ($user->isTrainer()) {
@@ -483,6 +483,10 @@ class EvaluationFlowController extends Controller
                     return $p['key'] === $currentKey;
                 });
 
+                $phaseEvidence = $pl->flatMap->evidences->first()?->file_path 
+                    ?? $pl->map(fn($l) => data_get($l->sop_payload, 'meta.evidence_path'))->filter()->first();
+                $phaseEvidenceUrl = $phaseEvidence ? app_storage_url($phaseEvidence) : null;
+
                 $historyItems = collect();
 
                 foreach ($pe as $e) {
@@ -506,15 +510,15 @@ class EvaluationFlowController extends Controller
                         'evaluator' => $approver,
                         'evaluator_role' => 'Evaluator HSE CT',
                         'notes' => $e->catatan ?: ($e->tc_notes ?: ($e->pjo_notes ?: ($e->kesimpulan ?: 'Evaluasi tahap ' . $p['label']))),
-                        'evidence_url' => null,
-                        'evidence_name' => null,
+                        'evidence_url' => $phaseEvidenceUrl,
+                        'evidence_name' => $phaseEvidence ? 'Foto Dokumentasi OJT' : null,
                     ]);
                 }
 
                 foreach ($pl as $l) {
                     $evidence = $l->evidences->first();
                     $evidencePath = $evidence?->file_path ?? data_get($l->sop_payload, 'meta.evidence_path');
-                    $evidenceUrl = $evidencePath ? (str_starts_with($evidencePath, 'http') ? $evidencePath : asset('storage/' . $evidencePath)) : null;
+                    $evidenceUrl = $evidencePath ? app_storage_url($evidencePath) : $phaseEvidenceUrl;
 
                     $statusLabel = match($l->status) {
                         'final_approved' => 'Disetujui Admin TC',
@@ -543,14 +547,20 @@ class EvaluationFlowController extends Controller
 
                 $sortedHistory = $historyItems->sortByDesc('raw_date')->values()->all();
 
+                $isCompleted = $pe->where('status', 'hse_approved')->count() > 0;
+                $isPending = $pe->whereIn('status', ['submitted', 'tc_approved', 'pjo_approved'])->count() > 0;
+                $isRejected = $pe->where('status', 'rejected')->count() > 0;
+                $statusText = $isCompleted ? 'Sudah Selesai' : ($isPending ? 'Menunggu Persetujuan' : ($isRejected ? 'Perlu Revisi' : ($p['key'] === $currentKey ? 'Sedang Berjalan' : 'Belum Tersedia')));
+
                 return [
                     'key' => $p['key'],
                     'label' => $p['label'],
                     'type' => $p['type'],
                     'is_current' => $p['key'] === $currentKey,
-                    'completed' => $pe->where('status', 'hse_approved')->count(),
-                    'pending' => $pe->whereIn('status', ['submitted', 'tc_approved', 'pjo_approved'])->count(),
-                    'rejected' => $pe->where('status', 'rejected')->count(),
+                    'status_text' => $statusText,
+                    'completed' => $isCompleted ? 1 : 0,
+                    'pending' => $isPending ? 1 : 0,
+                    'rejected' => $isRejected ? 1 : 0,
                     'total' => $pe->count(),
                     'history' => $sortedHistory,
                 ];
@@ -564,14 +574,15 @@ class EvaluationFlowController extends Controller
                 'company' => $t->company,
                 'department' => $t->department,
                 'equipment_category_name' => $t->equipmentCategory->name ?? '-',
+                'equipment_category_code' => $t->equipmentCategory->code ?? '-',
                 'current_phase_key' => $currentKey,
                 'current_phase_label' => $t->currentPhaseMeta()['label'] ?? $currentKey,
                 'eligible' => $t->isPhaseEligible(),
                 'hm' => $t->hmProgress(),
                 'progress' => $t->phaseProgressPercent(),
                 'phases' => $phaseRows,
-                'evaluations_count' => $evals->count(),
-                'completed_count' => $evals->where('status', 'hse_approved')->count(),
+                'evaluations_count' => count($seq),
+                'completed_count' => $evals->where('status', 'hse_approved')->unique('phase')->count(),
             ];
         });
 

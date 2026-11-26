@@ -1,4 +1,4 @@
-﻿    @php
+    @php
         $payload = $logbook->sop_payload ?? [];
         $categoryCode = $logbook->equipmentCategory->code ?? 'DZ';
         $categoryName = $logbook->equipmentCategory->name ?? 'Bulldozer & Motor Grader';
