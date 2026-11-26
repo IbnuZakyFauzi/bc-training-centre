@@ -16,7 +16,7 @@
     $unreadCount = $unreadNotifications->count();
 @endphp
 
-<header class="h-16 bg-[#1e3a8a] border-b border-amber-400/60 shadow-sm px-4 sm:px-6 flex items-center justify-between z-10">
+<header class="h-16 bg-[#1e3a8a] border-b border-amber-400/60 shadow-sm px-4 sm:px-6 flex items-center justify-between relative z-30">
     <div class="flex items-center space-x-3 sm:space-x-4">
         <button @click="sidebarOpen = !sidebarOpen" class="text-blue-100 hover:text-white p-2 rounded-lg hover:bg-white/10 focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,7 +41,7 @@
                 @endif
             </button>
 
-            <div x-show="open" @click.away="open = false" x-cloak class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-amber-400 py-2 z-50">
+            <div x-show="open" @click.away="open = false" x-cloak class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-amber-400 py-2 z-50">
                 <div class="px-4 py-2.5 border-b border-amber-200 flex items-center justify-between gap-3">
                     <p class="text-xs font-bold text-slate-800">Notifikasi</p>
                     @if($unreadCount > 0)
@@ -102,7 +102,7 @@
                 <svg class="w-4 h-4 text-blue-200 hidden lg:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
 
-            <div x-show="open" @click.away="open = false" x-cloak class="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-amber-400 py-2 z-50">
+            <div x-show="open" @click.away="open = false" x-cloak class="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-2xl border border-amber-400 py-2 z-50">
                 <div class="px-4 py-3 border-b border-amber-200">
                     <p class="text-xs font-bold text-slate-800">{{ $user->name ?? 'User' }}</p>
                     <p class="text-[11px] text-slate-500 mt-0.5">{{ $user->sid ?? '-' }} · {{ $roleLabel }}</p>
