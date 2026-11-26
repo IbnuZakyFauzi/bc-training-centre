@@ -506,6 +506,25 @@
 <input type="hidden" name="sop_payload[meta][unit_family]" :value="unitFamily">
 <input type="hidden" name="action_type" id="action_type" value="submit">
 
+    @if($isEditing && $logbook && $logbook->status === 'revision' && ($logbook->revision_notes || $logbook->training_centre_notes))
+        <div class="mb-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 text-xs text-amber-950 shadow-sm flex items-start gap-3.5">
+            <div class="w-9 h-9 rounded-xl bg-amber-200/80 text-amber-800 flex items-center justify-center font-bold text-base shrink-0 mt-0.5">
+                ⚠️
+            </div>
+            <div class="space-y-1">
+                <h3 class="font-extrabold text-amber-950 uppercase tracking-wider text-[11px]">
+                    Catatan Revisi dari {{ $logbook->training_centre_notes ? 'Admin Training Centre' : 'Pemeriksa' }}
+                </h3>
+                <p class="text-xs text-amber-900 leading-relaxed font-semibold bg-white/70 p-3 rounded-xl border border-amber-200/80">
+                    "{{ $logbook->revision_notes ?? $logbook->training_centre_notes }}"
+                </p>
+                <p class="text-[11px] text-amber-700 pt-0.5">
+                    Silakan periksa dan perbaiki field yang diminta (identitas, checklist SOP, HM, atau unggah ulang foto evidence), lalu klik tombol submit untuk mengirimkan kembali logbook ke Trainee.
+                </p>
+            </div>
+        </div>
+    @endif
+
     <div class="rounded-2xl border-2 border-slate-900 bg-white overflow-hidden shadow-sm">
         <div class="grid grid-cols-1 lg:grid-cols-2">
             <div class="border-b border-slate-900 lg:border-b-0 lg:border-r">
@@ -1861,8 +1880,8 @@
                         <svg class="w-5 h-5 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                     </div>
                     <div>
-                        <span class="text-xs font-bold text-blue-800">{{ $isTrainerCreating ? 'Kirim Logbook ke Trainee' : ($isTrainerEditing ? 'Simpan Perubahan' : ($isEditing ? 'Kirim Ulang ke Trainer' : 'Submit Form OJT')) }}</span>
-                        <p class="mt-1 text-[11px] text-blue-700 leading-relaxed">{{ $isTrainerCreating ? 'Logbook akan dikirim ke Trainee untuk diperiksa dan disetujui sebelum diteruskan ke Admin TC.' : 'Kirim logbook untuk dievaluasi trainer. Pastikan semua checklist dan HM sudah terisi dengan benar.' }}</p>
+                        <span class="text-xs font-bold text-blue-800">{{ $isTrainerCreating ? 'Kirim Logbook ke Trainee' : ($isTrainerEditing ? ($logbook?->status === 'revision' ? 'Simpan Revisi & Kirim ke Trainee' : 'Simpan Perubahan') : ($isEditing ? 'Kirim Ulang ke Trainer' : 'Submit Form OJT')) }}</span>
+                        <p class="mt-1 text-[11px] text-blue-700 leading-relaxed">{{ $isTrainerCreating ? 'Logbook akan dikirim ke Trainee untuk diperiksa dan disetujui sebelum diteruskan ke Admin TC.' : ($isTrainerEditing ? ($logbook?->status === 'revision' ? 'Form OJT revisi akan disimpan dan dikirim kembali ke Trainee untuk persetujuan ulang.' : 'Perubahan data form OJT akan disimpan.') : 'Kirim logbook untuk dievaluasi trainer. Pastikan semua checklist dan HM sudah terisi dengan benar.') }}</p>
                         <p class="mt-2 text-[10px] font-bold text-amber-800 bg-amber-100/90 border border-amber-300 rounded-md px-2 py-1 inline-flex items-center gap-1">
                             ⚠️ Perhatian: Form yang sudah dikirim tidak dapat diubah kembali.
                         </p>
